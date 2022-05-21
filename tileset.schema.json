@@ -1,0 +1,74 @@
+{
+  "$ref": "#/definitions/Tileset",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Meta": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "author",
+        "version"
+      ],
+      "type": "object"
+    },
+    "Tile": {
+      "additionalProperties": false,
+      "properties": {
+        "sprite": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/TileType"
+        }
+      },
+      "required": [
+        "type",
+        "sprite"
+      ],
+      "type": "object"
+    },
+    "TileType": {
+      "enum": [
+        "wall",
+        "floor",
+        "start",
+        "exit"
+      ],
+      "type": "string"
+    },
+    "Tileset": {
+      "additionalProperties": false,
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "meta": {
+          "$ref": "#/definitions/Meta"
+        },
+        "tiles": {
+          "additionalProperties": {
+            "$ref": "#/definitions/Tile"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "$schema",
+        "meta",
+        "tiles"
+      ],
+      "type": "object"
+    }
+  }
+}

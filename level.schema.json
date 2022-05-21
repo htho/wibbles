@@ -1,0 +1,61 @@
+{
+  "$ref": "#/definitions/Level",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Level": {
+      "additionalProperties": false,
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "height": {
+          "type": "number"
+        },
+        "map": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "meta": {
+          "$ref": "#/definitions/Meta"
+        },
+        "targets": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "$schema",
+        "meta",
+        "targets",
+        "width",
+        "height",
+        "map"
+      ],
+      "type": "object"
+    },
+    "Meta": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "author",
+        "version"
+      ],
+      "type": "object"
+    }
+  }
+}

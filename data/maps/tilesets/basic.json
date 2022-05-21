@@ -1,0 +1,15 @@
+{
+    "$schema": "../../../tileset.schema.json",
+    "meta": {
+        "name": "basic",
+        "author": "bar",
+        "version": 1
+    },
+    "tiles": {
+        "#": {"type": "wall", "sprite": "wall"},
+        " ": {"type": "floor", "sprite": "floor"},
+        ".": {"type": "floor", "sprite": "floor2"},
+        "S": {"type": "start", "sprite": "start"},
+        "E": {"type": "exit", "sprite": "exit"}
+    }
+}
