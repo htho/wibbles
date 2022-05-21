@@ -1,5 +1,5 @@
-import { Meta as JsonMeta } from "./schema/level-schema";
-import { Tile as JsonTile, TileType, Tileset as JsonTileset } from "../tileset-schema";
+import { Meta as JsonMeta } from "./schema/level";
+import { Tile as JsonTile, TileType, Tileset as JsonTileset } from "./schema/tileset";
 import { asChar, Char } from "./Char";
 
 

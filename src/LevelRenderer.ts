@@ -1,4 +1,4 @@
-import { Tile } from "../tileset-schema";
+import { Tile } from "./schema/tileset";
 import { Level } from "./Level";
 import { Tileset } from "./Tileset";
 import { Tuple } from "./Tuple";

@@ -1,4 +1,4 @@
-import { Meta } from "./level-schema"
+import { Meta } from "./level"
 
 export enum TileType {
     Wall = "wall",

@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "generate-schema": "npm run generate-schema:tileset && npm run generate-schema:level",
     "generate-schema:level": "ts-json-schema-generator --path ./src/schema/level-schema.ts --type Level --out schema/level.json",
-    "generate-schema:tileset": "ts-json-schema-generator --path ./src/schema/tileset-schema.ts --type Tileset --out schema/tileset.json"
+    "generate-schema:tileset": "ts-json-schema-generator --path ./src/schema/tileset-schema.ts --type Tileset --out schema/tileset.json",
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC",
