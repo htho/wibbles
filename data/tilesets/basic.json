@@ -1,5 +1,5 @@
 {
-    "$schema": "../../tileset.schema.json",
+    "$schema": "../../schema/tileset.json",
     "meta": {
         "name": "basic",
         "author": "bar",

@@ -1,5 +1,5 @@
 {
-    "$schema": "../../level.schema.json",
+    "$schema": "../../schema/level.json",
     "meta": {
         "name": "foo",
         "author": "bar",

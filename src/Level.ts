@@ -1,4 +1,4 @@
-import { Level as JsonLevel, Meta as JsonMeta } from "../level-schema";
+import { Level as JsonLevel, Meta as JsonMeta } from "./schema/level-schema";
 import { asCharArray, Char } from "./Char";
 import { asTuple, Tuple } from "./Tuple";
 
