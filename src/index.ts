@@ -1,21 +1,12 @@
+import { Level } from "./Level";
+import { LevelRenderer } from "./LevelRenderer";
+import { page } from "./page";
+import { Tileset } from "./Tileset";
 
-export type WellKnownTiles = "#" | " " | "." | "S" | "E";
-export enum TileType {
-    Wall = "wall",
-    Floor = "floor",
-    Start = "start",
-    Exit = "exit",
-}
+const basicTileset = new Tileset(await Tileset.Load("basic"));
+const emptyLevel = new Level(await Level.Load("empty"));
 
-export enum TileDisplay {
-    Wall = "wall",
-    Floor = "floor",
-    Floor2 = "floor2",
-    Start = "start",
-    Exit = "exit",
-}
+const emptyLevelRenderer = new LevelRenderer(emptyLevel, basicTileset);
+const p = await page;
+p.content.appendChild(emptyLevelRenderer.renderHtml());
 
-export interface Tile {
-    interface: TileType,
-    display: TileDisplay,
-}
