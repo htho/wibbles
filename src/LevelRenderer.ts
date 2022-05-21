@@ -1,7 +1,7 @@
-import { Tile } from "./schema/tileset";
-import { Level } from "./Level";
-import { Tileset } from "./Tileset";
-import { Tuple } from "./Tuple";
+import { Tile } from "./schema/tileset.js";
+import { Level } from "./Level.js";
+import { Tileset } from "./Tileset.js";
+import { Tuple } from "./Tuple.js";
 
 
 export class LevelRenderer<W extends number = number, H extends number = number> {

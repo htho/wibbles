@@ -1,4 +1,4 @@
-import { Meta } from "./level"
+import { Meta } from "./level.js"
 
 export enum TileType {
     Wall = "wall",

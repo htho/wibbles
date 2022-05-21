@@ -1,6 +1,6 @@
-import { Level as JsonLevel, Meta as JsonMeta } from "./schema/level";
-import { asCharArray, Char } from "./Char";
-import { asTuple, Tuple } from "./Tuple";
+import { Level as JsonLevel, Meta as JsonMeta } from "./schema/level.js";
+import { asCharArray, Char } from "./Char.js";
+import { asTuple, Tuple } from "./Tuple.js";
 
 export class Level<W extends number = number, H extends number = number> {
     readonly meta: Readonly<JsonMeta>;

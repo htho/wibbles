@@ -1,7 +1,7 @@
-import { Level } from "./Level";
-import { LevelRenderer } from "./LevelRenderer";
-import { page } from "./page";
-import { Tileset } from "./Tileset";
+import { Level } from "./Level.js";
+import { LevelRenderer } from "./LevelRenderer.js";
+import { page } from "./page.js";
+import { Tileset } from "./Tileset.js";
 
 const basicTileset = new Tileset(await Tileset.Load("basic"));
 const emptyLevel = new Level(await Level.Load("empty"));

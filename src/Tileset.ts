@@ -1,6 +1,6 @@
-import { Meta as JsonMeta } from "./schema/level";
-import { Tile as JsonTile, TileType, Tileset as JsonTileset } from "./schema/tileset";
-import { asChar, Char } from "./Char";
+import { Meta as JsonMeta } from "./schema/level.js";
+import { Tile as JsonTile, TileType, Tileset as JsonTileset } from "./schema/tileset.js";
+import { asChar, Char } from "./Char.js";
 
 
 export class Tileset {
