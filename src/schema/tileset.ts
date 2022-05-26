@@ -1,4 +1,4 @@
-import { Meta } from "./level.js"
+import { JsonMeta } from "./level.js"
 
 export enum TileType {
     Wall = "wall",
@@ -7,13 +7,22 @@ export enum TileType {
     Exit = "exit",
 }
 
-export type Tile = {
+export type JsonTile = BasicJsonTile | OpenableJsonTile;
+export type BasicJsonTile = {
     type: TileType,
-    sprite: string,
+    /** name of a sprite `${spritecollection}/${spritefile}/${spritename}.${keyof MultiSprite}` */
+    sprite: string | string[],
+};
+export type OpenableJsonTile = {
+    type: TileType.Exit | TileType.Start,
+    /** name of a sprite `${spritecollection}/${spritefile}/${spritename}.${keyof MultiSprite}` */
+    open: string | string[],
+    /** name of a sprite `${spritecollection}/${spritefile}/${spritename}.${keyof MultiSprite}` */
+    closed: string | string[],
 }
 
-export type Tileset = {
+export type JsonTileset = {
     $schema: string,
-    meta: Meta,
-    tiles: {[char: string]: Tile},
+    meta: JsonMeta,
+    tiles: {[char: string]: JsonTile},
 }

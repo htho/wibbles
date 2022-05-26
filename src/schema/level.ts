@@ -1,14 +1,14 @@
 
-export interface Level {
+export interface JsonLevel {
     $schema: string,
-    meta: Meta,
+    meta: JsonMeta,
     targets: number,
     width: number,
     height: number,
     map: string[],
 };
 
-export interface Meta {
+export interface JsonMeta {
     name: string,
     author: string,
     version: number,

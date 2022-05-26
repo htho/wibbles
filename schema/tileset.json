@@ -23,20 +23,81 @@
       "type": "object"
     },
     "Tile": {
-      "additionalProperties": false,
-      "properties": {
-        "sprite": {
-          "type": "string"
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "sprite": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              ],
+              "description": "name of a sprite `${spriteset}/${spritefile}/${spritename}.${keyof MultiSprite}`"
+            },
+            "type": {
+              "$ref": "#/definitions/TileType"
+            }
+          },
+          "required": [
+            "type",
+            "sprite"
+          ],
+          "type": "object"
         },
-        "type": {
-          "$ref": "#/definitions/TileType"
+        {
+          "additionalProperties": false,
+          "properties": {
+            "closed": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              ],
+              "description": "name of a sprite `${spriteset}/${spritefile}/${spritename}.${keyof MultiSprite}`"
+            },
+            "open": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              ],
+              "description": "name of a sprite `${spriteset}/${spritefile}/${spritename}.${keyof MultiSprite}`"
+            },
+            "type": {
+              "enum": [
+                "exit",
+                "start"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "open",
+            "closed"
+          ],
+          "type": "object"
         }
-      },
-      "required": [
-        "type",
-        "sprite"
-      ],
-      "type": "object"
+      ]
     },
     "TileType": {
       "enum": [

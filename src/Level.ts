@@ -1,4 +1,4 @@
-import { Level as JsonLevel, Meta as JsonMeta } from "./schema/level.js";
+import { JsonLevel, JsonMeta } from "./schema/level.js";
 import { asCharArray, Char } from "./Char.js";
 import { asTuple, Tuple } from "./Tuple.js";
 

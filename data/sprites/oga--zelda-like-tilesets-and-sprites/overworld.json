@@ -1,0 +1,28 @@
+{
+    "$schema": "../../../schema/spriteset.json",
+    "meta": {
+        "author": "htho",
+        "name": "zelda-like-overworld",
+        "version": 1
+    },
+    "file": "gfx/Overworld.png",
+    "widthHeight": 16,
+    "sprites": {
+        "grass": {"index": {"x": 0, "y": 0}},
+        "log": {
+            "W": {"index": {"x": 3, "y": 5}},
+            "H": {"index": {"x": 4, "y": 5}},
+            "E": {"index": {"x": 5, "y": 5}}
+        },
+        "stones": {"index": {"x": 11, "y": 23}},
+        "flowers": {"index": {"x": 0, "y": 8}},
+        "fence": {
+            "H": {"index": {"x": 4, "y": 17}},
+            "V": {"index": {"x": 4, "y": 18}},
+            "NE": {"index": {"x": 3, "y": 17}},
+            "NW": {"index": {"x": 2, "y": 17}},
+            "SW": {"index": {"x": 2, "y": 18}},
+            "SE": {"index": {"x": 3, "y": 18}}
+        }
+    }
+}

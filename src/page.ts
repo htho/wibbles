@@ -10,6 +10,7 @@ function notNull<T>(o: T | null): T {
     
 }
 export const page = documentReady.then(() => ({
+    head: document.head,
     content: notNull(document.getElementById("content")),
 }));
 

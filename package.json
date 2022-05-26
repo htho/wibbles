@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "generate-schema": "npm run generate-schema:tileset && npm run generate-schema:level",
-    "generate-schema:level": "ts-json-schema-generator --path ./src/schema/level-schema.ts --type Level --out schema/level.json",
-    "generate-schema:tileset": "ts-json-schema-generator --path ./src/schema/tileset-schema.ts --type Tileset --out schema/tileset.json",
+    "generate-schema": "npm run generate-schema:tileset && npm run generate-schema:level && npm run generate-schema:spriteset",
+    "generate-schema:tileset": "ts-json-schema-generator --path ./src/schema/tileset.ts --type JsonTileset --out schema/tileset.json",
+    "generate-schema:level": "ts-json-schema-generator --path ./src/schema/level.ts --type JsonLevel --out schema/level.json",
+    "generate-schema:spriteset": "ts-json-schema-generator --path ./src/schema/spriteset.ts --type JsonSpriteset --out schema/spriteset.json",
     "build": "npm run build:ts && npm run copy-static",
     "build:ts": "tsc",
     "copy-static": "npm run copy-static:data && npm run copy-static:html && npm run copy-static:css",

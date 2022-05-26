@@ -1,0 +1,256 @@
+{
+  "$ref": "#/definitions/Spriteset",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "AnimatedSprite": {
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "time": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "time",
+        "index"
+      ],
+      "type": "object"
+    },
+    "Meta": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "author",
+        "version"
+      ],
+      "type": "object"
+    },
+    "MultiSprite": {
+      "additionalProperties": false,
+      "properties": {
+        "C": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StaticSprite"
+            },
+            {
+              "$ref": "#/definitions/AnimatedSprite"
+            }
+          ],
+          "description": "center"
+        },
+        "E": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StaticSprite"
+            },
+            {
+              "$ref": "#/definitions/AnimatedSprite"
+            }
+          ]
+        },
+        "H": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StaticSprite"
+            },
+            {
+              "$ref": "#/definitions/AnimatedSprite"
+            }
+          ],
+          "description": "horizontal"
+        },
+        "N": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StaticSprite"
+            },
+            {
+              "$ref": "#/definitions/AnimatedSprite"
+            }
+          ]
+        },
+        "NE": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StaticSprite"
+            },
+            {
+              "$ref": "#/definitions/AnimatedSprite"
+            }
+          ]
+        },
+        "NW": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StaticSprite"
+            },
+            {
+              "$ref": "#/definitions/AnimatedSprite"
+            }
+          ]
+        },
+        "S": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StaticSprite"
+            },
+            {
+              "$ref": "#/definitions/AnimatedSprite"
+            }
+          ]
+        },
+        "SE": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StaticSprite"
+            },
+            {
+              "$ref": "#/definitions/AnimatedSprite"
+            }
+          ]
+        },
+        "SW": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StaticSprite"
+            },
+            {
+              "$ref": "#/definitions/AnimatedSprite"
+            }
+          ]
+        },
+        "V": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StaticSprite"
+            },
+            {
+              "$ref": "#/definitions/AnimatedSprite"
+            }
+          ],
+          "description": "vertical"
+        },
+        "W": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StaticSprite"
+            },
+            {
+              "$ref": "#/definitions/AnimatedSprite"
+            }
+          ]
+        },
+        "middle": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/StaticSprite"
+            },
+            {
+              "$ref": "#/definitions/AnimatedSprite"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Sprite": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/MultiSprite"
+        },
+        {
+          "$ref": "#/definitions/StaticSprite"
+        },
+        {
+          "$ref": "#/definitions/AnimatedSprite"
+        }
+      ]
+    },
+    "Spriteset": {
+      "additionalProperties": false,
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "meta": {
+          "$ref": "#/definitions/Meta"
+        },
+        "sprites": {
+          "additionalProperties": {
+            "$ref": "#/definitions/Sprite"
+          },
+          "type": "object"
+        },
+        "widthHeight": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "$schema",
+        "meta",
+        "file",
+        "widthHeight",
+        "sprites"
+      ],
+      "type": "object"
+    },
+    "StaticSprite": {
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "additionalProperties": false,
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "index"
+      ],
+      "type": "object"
+    }
+  }
+}
