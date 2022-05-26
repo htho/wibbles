@@ -6,12 +6,16 @@
         "version": 1
     },
     "tiles": {
-        "\\": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-NE"]},
-        "/": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-SE"]},
-        "*": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-NE"]},
-        "%": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-NW"]},
+        "b": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-SW"]},
+        "d": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-SE"]},
+        "q": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-NE"]},
+        "p": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-NW"]},
         "-": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-H"]},
         "|": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-V"]},
+        "(": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-W"]},
+        ")": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-E"]},
+        "W": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-S"]},
+        "M": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-N"]},
         "<": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/log-W"]},
         "=": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/log-H"]},
         ">": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/log-E"]},
@@ -19,7 +23,16 @@
         " ": {"type": "floor", "sprite": "zelda-like-overworld/grass"},
         ".": {"type": "floor", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/flowers"]},
         "S": {"type": "start", "open": "zelda-like-overworld/grass", "closed": "zelda-like-overworld/stones"},
-        "E": {"type": "exit", "open": "zelda-like-overworld/grass", "closed": "zelda-like-overworld/stones"}
+        "E": {"type": "exit", "open": "zelda-like-overworld/grass", "closed": "zelda-like-overworld/stones"},
+        "e": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/well-NW"]},
+        "r": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/well-N"]},
+        "t": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/well-NE"]},
+        "f": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/well-W"]},
+        "g": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/well-C"]},
+        "h": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/well-E"]},
+        "x": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/well-SW"]},
+        "c": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/well-S"]},
+        "v": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/well-SE"]}
 
     }
 }
