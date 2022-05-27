@@ -81,23 +81,36 @@ export class BasicTile extends Tile {
 export class OpenableTile extends Tile {
     declare readonly type: TileType.Start | TileType.Exit;
     private readonly _open: string | string[];
-    // private readonly _closed: string | string[];
+    private readonly _closed: string | string[];
+    private _isOpen = false;
     readonly html: HTMLElement;
 
     constructor(jsonTile: OpenableJsonTile, tileset: Tileset) {
         super(jsonTile, tileset);
         this._open = jsonTile.open;
-        this.html = this.renderSpriteAsHtml(this._open);
-        // this._closed = jsonTile.closed;
+        this._closed = jsonTile.closed;
+        const htmlOpen = this.renderSpriteAsHtml(this._open);
+        const htmlClosed = this.renderSpriteAsHtml(this._closed);
+        this.html = document.createElement("div");
+        this.html.classList.add("openable");
+        this.html.classList.add("tile");
+        htmlOpen.classList.add("open");
+        htmlClosed.classList.add("closed");
+        this.html.appendChild(htmlOpen);
+        this.html.appendChild(htmlClosed);
         this.open();
     }
 
+    get collides(): boolean {
+        return !this._isOpen;
+    }
+
     open() {
-        this.html.classList.remove("closed");
-        this.html.classList.add("open");
+        this._isOpen = true;
+        this.html.classList.add("is-open");
     }
     close() {
-        this.html.classList.remove("open");
-        this.html.classList.add("closed");
+        this._isOpen = false;
+        this.html.classList.remove("is-open");
     }
 }

@@ -11,6 +11,12 @@
     position: absolute;
     opacity: 0;
 }
+.openable:not(.is-open) .open {
+    display: none;
+}
+.openable.is-open .closed {
+    display: none;
+}
 @keyframes change-2 {
     0%, 50% {
         opacity: 1;
