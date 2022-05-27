@@ -1,19 +1,21 @@
 import { JsonMeta } from "./schema/level.js";
 import { JsonTile, TileType, JsonTileset, BasicJsonTile, OpenableJsonTile } from "./schema/tileset.js";
 import { asChar, Char } from "./Char.js";
-
+import { SpriteIndex } from "./Spriteset.js";
 
 export class Tileset {
     readonly meta: Readonly<JsonMeta>;
     private readonly tiles: Map<Char, JsonTile>;
+    readonly spriteIndex: SpriteIndex;
     knows(char: Char): boolean { return this.tiles.has(char); }
     create(char: Char): Tile {
         const tile = this.tiles.get(char);
         if (!tile) throw new Error(`No tile for char '${char}'!`);
-        return createTile(tile);
+        return createTile(tile, this);
     }
-    constructor(tileset: JsonTileset) {
+    constructor(tileset: JsonTileset, spriteIndex: SpriteIndex) {
         this.meta = tileset.meta;
+        this.spriteIndex = spriteIndex;
         this.tiles = new Map(Object.entries(tileset.tiles).map(([jsonChar, jsonTile]) => [asChar(jsonChar), jsonTile]));
     }
 
@@ -24,38 +26,28 @@ export class Tileset {
     }
 }
 
-function createTile(jsonTile: JsonTile): Tile {
-    if("sprite" in jsonTile) return new BasicTile(jsonTile);
-    return new OpenableTile(jsonTile);
+function createTile(jsonTile: JsonTile, tileset: Tileset): Tile {
+    if("sprite" in jsonTile) return new BasicTile(jsonTile, tileset);
+    return new OpenableTile(jsonTile, tileset);
 }
 
 export abstract class Tile {
     readonly type: TileType;
+    readonly tileset: Tileset;
     abstract readonly html: HTMLElement;
-    constructor(jsonTile: JsonTile) {
+    constructor(jsonTile: JsonTile, tileset: Tileset) {
         this.type = jsonTile.type;
+        this.tileset = tileset;
     }
 
-    protected splitSprite(sprite: string): {spriteset: string, name: string} {
-        const [spriteset, name, ...leftovers] = sprite.split("/");
-        if(
-            spriteset === undefined ||
-            name === undefined ||
-            leftovers.length > 0
-        ) throw new Error(`Unexpected sprite format: "${sprite}"! Expected format: <spriteset>/<name>`);
-        
-        return {spriteset, name}
-    }
     protected renderSpriteAsHtml(sprite: string | string[]): HTMLElement {
-        if(typeof sprite === "string") return this.renderHtmlSingle(sprite);
-        return this.renderHtmlStacked(sprite);
-    }
-    private renderHtmlSingle(sprite: string): HTMLElement {
-        const {spriteset, name} = this.splitSprite(sprite);
-        const result = document.createElement("div");
+        const result =  (typeof sprite === "string") ?this.renderHtmlSingle(sprite) : this.renderHtmlStacked(sprite);
         result.classList.add("tile");
-        result.classList.add(name);
-        result.classList.add(spriteset);
+        return result;
+    }
+    private renderHtmlSingle(spriteId: string): HTMLElement {
+        const result = this.tileset.spriteIndex.get(spriteId).createHTML();
+        result.classList.add("sprite");
         return result;
     }
     private renderHtmlStackItem(sprite: string): HTMLElement {
@@ -63,10 +55,13 @@ export abstract class Tile {
         result.classList.add("stacked");
         return result;
     }
-    private renderHtmlStacked(sprite: string[]): HTMLElement {
-        const result = document.createElement("div");
-        result.classList.add("tile-stack");
-        const stack = sprite.map(sprite => this.renderHtmlStackItem(sprite));
+    private renderHtmlStacked(spriteStack: string[]): HTMLElement {
+        const [first, ...others] = spriteStack;
+        if(first === undefined) throw new Error("Unexpected empty sprite stack!");
+
+        const result = this.renderHtmlSingle(first);
+        result.classList.add("stack");
+        const stack = others.map(sprite => this.renderHtmlStackItem(sprite));
         stack.forEach(el => result.appendChild(el));
         return result;
     }
@@ -76,8 +71,8 @@ export class BasicTile extends Tile {
     readonly sprite: string | string[];
     readonly html: HTMLElement;
 
-    constructor(jsonTile: BasicJsonTile) {
-        super(jsonTile);
+    constructor(jsonTile: BasicJsonTile, tileset: Tileset) {
+        super(jsonTile, tileset);
         this.sprite = jsonTile.sprite;
         this.html = this.renderSpriteAsHtml(this.sprite);
     }
@@ -89,8 +84,8 @@ export class OpenableTile extends Tile {
     // private readonly _closed: string | string[];
     readonly html: HTMLElement;
 
-    constructor(jsonTile: OpenableJsonTile) {
-        super(jsonTile);
+    constructor(jsonTile: OpenableJsonTile, tileset: Tileset) {
+        super(jsonTile, tileset);
         this._open = jsonTile.open;
         this.html = this.renderSpriteAsHtml(this._open);
         // this._closed = jsonTile.closed;

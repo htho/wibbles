@@ -1,0 +1,45 @@
+.tile {
+    display: inline-block;
+}
+.row {
+    margin: -4px;
+}
+.stacked {
+    position: absolute;
+}
+.animation-frame {
+    position: absolute;
+    opacity: 0;
+}
+@keyframes change-2 {
+    0%, 50% {
+        opacity: 1;
+    }
+    50.0001%,  100% {
+        opacity: 0;
+    }
+}
+@keyframes change-3 {
+    0%, 33.3333% {
+        opacity: 1;
+    }
+    33.3334%,  100% {
+        opacity: 0;
+    }
+}
+@keyframes change-4 {
+    0%, 25% {
+        opacity: 1;
+    }
+    25.0001%,  100% {
+        opacity: 0;
+    }
+}
+@keyframes change-5 {
+    0%, 20% {
+        opacity: 1;
+    }
+    20.0001%,  100% {
+        opacity: 0;
+    }
+}
