@@ -1,8 +1,15 @@
+body {
+    margin: 0px;
+}
+.map {
+    /* margin: -4px; */
+    position: relative;
+}
 .tile {
     display: inline-block;
 }
 .row {
-    margin: -4px;
+    margin-bottom: -4px;
 }
 .stacked {
     position: absolute;
@@ -48,4 +55,15 @@
     20.0001%,  100% {
         opacity: 0;
     }
+}
+.worm {
+    border: 1px solid red;
+    position: absolute;
+    top:0;
+    left:0;
+}
+.worm-segment {
+    width: 8px;
+    height: 8px;
+    border: 1p solid black;
 }

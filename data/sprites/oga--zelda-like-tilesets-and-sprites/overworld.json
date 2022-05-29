@@ -6,38 +6,38 @@
         "version": 1
     },
     "file": "gfx/Overworld.png",
-    "widthHeight": 16,
+    "indexedWidthHeight": 16,
     "sprites": {
-        "grass": {"index": {"x": 0, "y": 0}},
+        "grass": {"cell": {"col": 0,"row": 0}},
         "log": {
-            "W": {"index": {"x": 3, "y": 5}},
-            "H": {"index": {"x": 4, "y": 5}},
-            "E": {"index": {"x": 5, "y": 5}}
+            "W": {"cell": {"col": 3,"row": 5}},
+            "H": {"cell": {"col": 4,"row": 5}},
+            "E": {"cell": {"col": 5,"row": 5}}
         },
-        "stones": {"index": {"x": 11, "y": 23}},
-        "flowers": {"index": {"x": 0, "y": 8}},
+        "stones": {"cell": {"col": 11,"row": 23}},
+        "flowers": {"cell": {"col": 0,"row": 8}},
         "fence": {
-            "H": {"index": {"x": 4, "y": 17}},
-            "V": {"index": {"x": 4, "y": 18}},
-            "NE": {"index": {"x": 3, "y": 17}},
-            "NW": {"index": {"x": 2, "y": 17}},
-            "SW": {"index": {"x": 2, "y": 18}},
-            "SE": {"index": {"x": 3, "y": 18}},
-            "N": {"index": {"x": 0, "y": 17}},
-            "S": {"index": {"x": 0, "y": 18}},
-            "W": {"index": {"x": 0, "y": 19}},
-            "E": {"index": {"x": 1, "y": 19}}
+            "H": {"cell": {"col": 4,"row": 17}},
+            "V": {"cell": {"col": 4,"row": 18}},
+            "NE": {"cell": {"col": 3,"row": 17}},
+            "NW": {"cell": {"col": 2,"row": 17}},
+            "SW": {"cell": {"col": 2,"row": 18}},
+            "SE": {"cell": {"col": 3,"row": 18}},
+            "N": {"cell": {"col": 0,"row": 17}},
+            "S": {"cell": {"col": 0,"row": 18}},
+            "W": {"cell": {"col": 0,"row": 19}},
+            "E": {"cell": {"col": 1,"row": 19}}
         },
         "well": {
-            "NW": {"time": 1000, "index": [{"x": 22, "y": 9}, {"x": 25, "y": 9}, {"x": 28, "y": 9}]},
-            "N": {"time": 1000, "index": [{"x": 23, "y": 9}, {"x": 26, "y": 9}, {"x": 29, "y": 9}]},
-            "NE": {"time": 1000, "index": [{"x": 24, "y": 9}, {"x": 27, "y": 9}, {"x": 30, "y": 9}]},
-            "W": {"time": 1000, "index": [{"x": 22, "y": 10}, {"x": 25, "y": 10}, {"x": 28, "y": 10}]},
-            "C": {"time": 1000, "index": [{"x": 23, "y": 10}, {"x": 26, "y": 10}, {"x": 29, "y": 10}]},
-            "E": {"time": 1000, "index": [{"x": 24, "y": 10}, {"x": 27, "y": 10}, {"x": 30, "y": 10}]},
-            "SW": {"time": 1000, "index": [{"x": 22, "y": 11}, {"x": 25, "y": 11}, {"x": 28, "y": 11}]},
-            "S": {"time": 1000, "index": [{"x": 23, "y": 11}, {"x": 26, "y": 11}, {"x": 29, "y": 11}]},
-            "SE": {"time": 1000, "index": [{"x": 24, "y": 11}, {"x": 27, "y": 11}, {"x": 30, "y": 11}]}
+            "NW": {"time": 1000, "frames": [{"cell": {"col": 22,"row": 9}}, {"cell": {"col": 25,"row": 9}}, {"cell": {"col": 28,"row": 9 }}]},
+            "N": {"time": 1000, "frames": [{"cell": {"col": 23,"row": 9}}, {"cell": {"col": 26,"row": 9}}, {"cell": {"col": 29,"row": 9 }}]},
+            "NE": {"time": 1000, "frames": [{"cell": {"col": 24,"row": 9}}, {"cell": {"col": 27,"row": 9}}, {"cell": {"col": 30,"row": 9 }}]},
+            "W": {"time": 1000, "frames": [{"cell": {"col": 22,"row": 10}}, {"cell": {"col": 25,"row": 10}}, {"cell": {"col": 28,"row": 10}}]},
+            "C": {"time": 1000, "frames": [{"cell": {"col": 23,"row": 10}}, {"cell": {"col": 26,"row": 10}}, {"cell": {"col": 29,"row": 10}}]},
+            "E": {"time": 1000, "frames": [{"cell": {"col": 24,"row": 10}}, {"cell": {"col": 27,"row": 10}}, {"cell": {"col": 30,"row": 10}}]},
+            "SW": {"time": 1000, "frames": [{"cell": {"col": 22,"row": 11}}, {"cell": {"col": 25,"row": 11}}, {"cell": {"col": 28,"row": 11}}]},
+            "S": {"time": 1000, "frames": [{"cell": {"col": 23,"row": 11}}, {"cell": {"col": 26,"row": 11}}, {"cell": {"col": 29,"row": 11}}]},
+            "SE": {"time": 1000, "frames": [{"cell": {"col": 24,"row": 11}}, {"cell": {"col": 27,"row": 11}}, {"cell": {"col": 30,"row": 11}}]}
         }
     }
 }

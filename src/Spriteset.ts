@@ -3,9 +3,13 @@ import {
     JsonSprite,
     JsonStaticSprite,
     JsonMultiSprite,
-    JsonAnimatedSprite
-} from "./schema/spriteset";
+    JsonAnimatedSprite,
+    isJsonAnmiatedSprite,
+    isJsonMultiSprite,
+    isJsonStaticIndexedSprite
+} from "./schema/spriteset.js";
 import { JsonMeta as JsonMeta } from "./schema/level.js";
+import { Dimensions, Pos } from "./tools.js";
 
 export class SpriteIndex {
     private readonly _index = new Map<string, Sprite>();
@@ -44,15 +48,17 @@ export class Spriteset {
     readonly meta: Readonly<JsonMeta>
     readonly base: string;
     readonly file: string;
-    readonly widthHeight: number;
+    readonly indexedWidthHeight: number;
     readonly sprites: Map<string, Sprite>;
+    readonly styleElement: HTMLStyleElement;
  
     constructor(spriteset: JsonSpriteset & {base: string}) {
         this.meta = spriteset.meta;
         this.base = spriteset.base;
         this.file = spriteset.file;
-        this.widthHeight = spriteset.widthHeight;
+        this.indexedWidthHeight = spriteset.indexedWidthHeight;
         this.sprites = this._createSprites(spriteset);
+        this.styleElement = this.createSpriteStyleElement();
     }
 
     static async Load(collection: string, file: string): Promise<JsonSpriteset & {base: string}> {
@@ -68,32 +74,35 @@ export class Spriteset {
         return new Map(entries);
     }
 
-    private toCss(): string {
+    private createCss(): string {
         return `.${this.meta.name}.sprite {
             background: url(./${this.base}/${this.file});
             display: inline-block;
-            height: ${this.widthHeight}px;
-            width: ${this.widthHeight}px;
+            height: ${this.indexedWidthHeight}px;
+            width: ${this.indexedWidthHeight}px;
         }`;
         
     }
 
-    renderCss(): HTMLElement {
+    private createSpriteStyleElement(): HTMLStyleElement {
         const rendered = document.createElement("style");
+        rendered.id = `style--${this.meta.name}`;
         rendered.innerHTML = this.fileToCssString();
         return rendered;
     }
 
-    fileToCssString(): string {
+    private fileToCssString(): string {
         return [
-            this.toCss(),
-            ...[...this.sprites.values()].map(sprite => sprite.createCss())
+            this.createCss(),
+            ...[...this.sprites.values()].map(sprite => sprite.css)
         ].join("\n");
     }
 }
 export abstract class Sprite {
     readonly name: string;
-    readonly spriteSet: Spriteset;
+    readonly spriteSet: Spriteset
+    abstract readonly css: string;
+    abstract readonly dimensions: Dimensions;
 
     readonly id: string;
 
@@ -103,7 +112,6 @@ export abstract class Sprite {
         this.id = `${this.spriteSet.meta.name}/${this.name}`;
     }
 
-    abstract createCss(): string;
     createHTML(): HTMLElement {
         const result = document.createElement("div");
         result.classList.add("sprite");
@@ -114,48 +122,69 @@ export abstract class Sprite {
 }
 
 function createSprite(name: string, spriteset: Spriteset, sprite: JsonStaticSprite | JsonAnimatedSprite): Sprite {
-    if("time" in sprite) return new AnimatedSprite(name, spriteset, sprite);
+    if(isJsonAnmiatedSprite(sprite)) return new AnimatedSprite(name, spriteset, sprite);
     return new StaticSprite(name, spriteset, sprite);
 }
 function createSprites(name: string, spriteset: Spriteset, sprite: JsonSprite): Sprite[] {
-    if(!("index" in sprite)) return createSpritesForMultiSprite(name, spriteset, sprite);
+    if(isJsonMultiSprite(sprite)) return createSpritesForMultiSprite(name, spriteset, sprite);
     return [createSprite(name, spriteset, sprite)];
 }
 export class StaticSprite extends Sprite {
-    readonly index: {x: number, y: number};
+    readonly position: Pos;
+    readonly dimensions: Dimensions;
+    readonly css: string;
 
     constructor(name: string, spriteSet: Spriteset, sprite: JsonStaticSprite) {
         super(name, spriteSet);
-        this.index = sprite.index;
+        
+        if(isJsonStaticIndexedSprite(sprite)) {
+            this.position = {
+                x: this.spriteSet.indexedWidthHeight * sprite.cell.col,
+                y: this.spriteSet.indexedWidthHeight * sprite.cell.row,
+            };
+            this.dimensions = {
+                width: spriteSet.indexedWidthHeight,
+                height: spriteSet.indexedWidthHeight,
+            };
+        } else {
+            this.position = sprite.pos;
+            this.dimensions = sprite.dim;
+        }
+
+        this.css = this.createCss();
     }
 
-    createCss(): string {
-        const xPos = this.spriteSet.widthHeight * this.index.x;
-        const yPos = this.spriteSet.widthHeight * this.index.y;
+    private createCss(): string {
         return `.${this.spriteSet.meta.name}.${this.name} {
-            background-position: -${xPos}px -${yPos}px;
+            background-position: -${this.position.x}px -${this.position.y}px;
         }`;
     }
 }
 export class AnimatedSprite extends Sprite {
-    readonly sprites: StaticSprite[];
+    readonly dimensions: Dimensions;
+    readonly frames: StaticSprite[];
     readonly time: number;
+    readonly css: string;
 
     constructor(name: string, spriteSet: Spriteset, sprite: JsonAnimatedSprite) {
         super(name, spriteSet);
         this.time = sprite.time;
-        this.sprites = sprite.index.map((index, i) => new StaticSprite(`${name}-${i}`, spriteSet, {index}));
+        this.frames = sprite.frames.map((frame, i) => new StaticSprite(`${name}-${i}`, spriteSet, frame));
+        const firstFrame = this.frames[0];
+        if(firstFrame === undefined) throw new Error(`The animation sprite ${name} has no frames. It is expected to have at least one frame!`);
+        this.dimensions = firstFrame.dimensions;
+        this.css = this.createCss();
     }
 
-    createCss(): string {
-        return this.sprites.map(sprite => sprite.createCss()).join("\n");
+    private createCss(): string {
+        return this.frames.map(frame => frame.css).join("\n");
     }
 
     override createHTML(): HTMLElement {
         const result = super.createHTML();
         result.classList.add("animated");
         
-        const frames = this.sprites.map(sprite => sprite.createHTML());
+        const frames = this.frames.map(sprite => sprite.createHTML());
         frames.forEach(frame => frame.classList.add("animation-frame"));
         frames.forEach((frame, index) => frame.classList.add("animation-frame-"+index));
         const steps = frames.length;

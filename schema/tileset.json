@@ -1,8 +1,35 @@
 {
-  "$ref": "#/definitions/Tileset",
+  "$ref": "#/definitions/JsonTileset",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
-    "Meta": {
+    "BasicJsonTile": {
+      "additionalProperties": false,
+      "properties": {
+        "sprite": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "description": "name of a sprite `${spritecollection}/${spritefile}/${spritename}.${keyof MultiSprite}`"
+        },
+        "type": {
+          "$ref": "#/definitions/TileType"
+        }
+      },
+      "required": [
+        "type",
+        "sprite"
+      ],
+      "type": "object"
+    },
+    "JsonMeta": {
       "additionalProperties": false,
       "properties": {
         "author": {
@@ -22,104 +49,28 @@
       ],
       "type": "object"
     },
-    "Tile": {
+    "JsonTile": {
       "anyOf": [
         {
-          "additionalProperties": false,
-          "properties": {
-            "sprite": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                }
-              ],
-              "description": "name of a sprite `${spriteset}/${spritefile}/${spritename}.${keyof MultiSprite}`"
-            },
-            "type": {
-              "$ref": "#/definitions/TileType"
-            }
-          },
-          "required": [
-            "type",
-            "sprite"
-          ],
-          "type": "object"
+          "$ref": "#/definitions/BasicJsonTile"
         },
         {
-          "additionalProperties": false,
-          "properties": {
-            "closed": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                }
-              ],
-              "description": "name of a sprite `${spriteset}/${spritefile}/${spritename}.${keyof MultiSprite}`"
-            },
-            "open": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                }
-              ],
-              "description": "name of a sprite `${spriteset}/${spritefile}/${spritename}.${keyof MultiSprite}`"
-            },
-            "type": {
-              "enum": [
-                "exit",
-                "start"
-              ],
-              "type": "string"
-            }
-          },
-          "required": [
-            "type",
-            "open",
-            "closed"
-          ],
-          "type": "object"
+          "$ref": "#/definitions/OpenableJsonTile"
         }
       ]
     },
-    "TileType": {
-      "enum": [
-        "wall",
-        "floor",
-        "start",
-        "exit"
-      ],
-      "type": "string"
-    },
-    "Tileset": {
+    "JsonTileset": {
       "additionalProperties": false,
       "properties": {
         "$schema": {
           "type": "string"
         },
         "meta": {
-          "$ref": "#/definitions/Meta"
+          "$ref": "#/definitions/JsonMeta"
         },
         "tiles": {
           "additionalProperties": {
-            "$ref": "#/definitions/Tile"
+            "$ref": "#/definitions/JsonTile"
           },
           "type": "object"
         }
@@ -130,6 +81,61 @@
         "tiles"
       ],
       "type": "object"
+    },
+    "OpenableJsonTile": {
+      "additionalProperties": false,
+      "properties": {
+        "closed": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "description": "name of a sprite `${spritecollection}/${spritefile}/${spritename}.${keyof MultiSprite}`"
+        },
+        "open": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "description": "name of a sprite `${spritecollection}/${spritefile}/${spritename}.${keyof MultiSprite}`"
+        },
+        "type": {
+          "enum": [
+            "exit",
+            "start"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "open",
+        "closed"
+      ],
+      "type": "object"
+    },
+    "TileType": {
+      "enum": [
+        "wall",
+        "floor",
+        "start",
+        "exit"
+      ],
+      "type": "string"
     }
   }
 }

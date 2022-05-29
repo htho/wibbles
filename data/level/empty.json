@@ -8,6 +8,7 @@
     "targets": 3,
     "width": 16,
     "height": 16,
+    "startDir": "N",
     "map": [
         "p--------------q",
         "|              |",

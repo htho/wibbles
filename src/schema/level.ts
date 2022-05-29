@@ -1,3 +1,4 @@
+import { Direction } from "../tools";
 
 export interface JsonLevel {
     $schema: string,
@@ -5,6 +6,7 @@ export interface JsonLevel {
     targets: number,
     width: number,
     height: number,
+    startDir: Direction,
     map: string[],
 };
 

@@ -1,8 +1,17 @@
 {
-  "$ref": "#/definitions/Level",
+  "$ref": "#/definitions/JsonLevel",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
-    "Level": {
+    "Direction": {
+      "enum": [
+        "N",
+        "W",
+        "E",
+        "S"
+      ],
+      "type": "string"
+    },
+    "JsonLevel": {
       "additionalProperties": false,
       "properties": {
         "$schema": {
@@ -18,7 +27,10 @@
           "type": "array"
         },
         "meta": {
-          "$ref": "#/definitions/Meta"
+          "$ref": "#/definitions/JsonMeta"
+        },
+        "startDir": {
+          "$ref": "#/definitions/Direction"
         },
         "targets": {
           "type": "number"
@@ -33,11 +45,12 @@
         "targets",
         "width",
         "height",
+        "startDir",
         "map"
       ],
       "type": "object"
     },
-    "Meta": {
+    "JsonMeta": {
       "additionalProperties": false,
       "properties": {
         "author": {

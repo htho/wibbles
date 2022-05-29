@@ -1,26 +1,29 @@
 {
-  "$ref": "#/definitions/Spriteset",
+  "$ref": "#/definitions/JsonSpriteset",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
-    "AnimatedSprite": {
+    "Dimensions": {
       "additionalProperties": false,
       "properties": {
-        "index": {
+        "height": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "width",
+        "height"
+      ],
+      "type": "object"
+    },
+    "JsonAnimatedSprite": {
+      "additionalProperties": false,
+      "properties": {
+        "frames": {
           "items": {
-            "additionalProperties": false,
-            "properties": {
-              "x": {
-                "type": "number"
-              },
-              "y": {
-                "type": "number"
-              }
-            },
-            "required": [
-              "x",
-              "y"
-            ],
-            "type": "object"
+            "$ref": "#/definitions/JsonStaticSprite"
           },
           "type": "array"
         },
@@ -30,11 +33,11 @@
       },
       "required": [
         "time",
-        "index"
+        "frames"
       ],
       "type": "object"
     },
-    "Meta": {
+    "JsonMeta": {
       "additionalProperties": false,
       "properties": {
         "author": {
@@ -54,16 +57,16 @@
       ],
       "type": "object"
     },
-    "MultiSprite": {
+    "JsonMultiSprite": {
       "additionalProperties": false,
       "properties": {
         "C": {
           "anyOf": [
             {
-              "$ref": "#/definitions/StaticSprite"
+              "$ref": "#/definitions/JsonStaticSprite"
             },
             {
-              "$ref": "#/definitions/AnimatedSprite"
+              "$ref": "#/definitions/JsonAnimatedSprite"
             }
           ],
           "description": "center"
@@ -71,20 +74,20 @@
         "E": {
           "anyOf": [
             {
-              "$ref": "#/definitions/StaticSprite"
+              "$ref": "#/definitions/JsonStaticSprite"
             },
             {
-              "$ref": "#/definitions/AnimatedSprite"
+              "$ref": "#/definitions/JsonAnimatedSprite"
             }
           ]
         },
         "H": {
           "anyOf": [
             {
-              "$ref": "#/definitions/StaticSprite"
+              "$ref": "#/definitions/JsonStaticSprite"
             },
             {
-              "$ref": "#/definitions/AnimatedSprite"
+              "$ref": "#/definitions/JsonAnimatedSprite"
             }
           ],
           "description": "horizontal"
@@ -92,70 +95,70 @@
         "N": {
           "anyOf": [
             {
-              "$ref": "#/definitions/StaticSprite"
+              "$ref": "#/definitions/JsonStaticSprite"
             },
             {
-              "$ref": "#/definitions/AnimatedSprite"
+              "$ref": "#/definitions/JsonAnimatedSprite"
             }
           ]
         },
         "NE": {
           "anyOf": [
             {
-              "$ref": "#/definitions/StaticSprite"
+              "$ref": "#/definitions/JsonStaticSprite"
             },
             {
-              "$ref": "#/definitions/AnimatedSprite"
+              "$ref": "#/definitions/JsonAnimatedSprite"
             }
           ]
         },
         "NW": {
           "anyOf": [
             {
-              "$ref": "#/definitions/StaticSprite"
+              "$ref": "#/definitions/JsonStaticSprite"
             },
             {
-              "$ref": "#/definitions/AnimatedSprite"
+              "$ref": "#/definitions/JsonAnimatedSprite"
             }
           ]
         },
         "S": {
           "anyOf": [
             {
-              "$ref": "#/definitions/StaticSprite"
+              "$ref": "#/definitions/JsonStaticSprite"
             },
             {
-              "$ref": "#/definitions/AnimatedSprite"
+              "$ref": "#/definitions/JsonAnimatedSprite"
             }
           ]
         },
         "SE": {
           "anyOf": [
             {
-              "$ref": "#/definitions/StaticSprite"
+              "$ref": "#/definitions/JsonStaticSprite"
             },
             {
-              "$ref": "#/definitions/AnimatedSprite"
+              "$ref": "#/definitions/JsonAnimatedSprite"
             }
           ]
         },
         "SW": {
           "anyOf": [
             {
-              "$ref": "#/definitions/StaticSprite"
+              "$ref": "#/definitions/JsonStaticSprite"
             },
             {
-              "$ref": "#/definitions/AnimatedSprite"
+              "$ref": "#/definitions/JsonAnimatedSprite"
             }
           ]
         },
         "V": {
           "anyOf": [
             {
-              "$ref": "#/definitions/StaticSprite"
+              "$ref": "#/definitions/JsonStaticSprite"
             },
             {
-              "$ref": "#/definitions/AnimatedSprite"
+              "$ref": "#/definitions/JsonAnimatedSprite"
             }
           ],
           "description": "vertical"
@@ -163,40 +166,40 @@
         "W": {
           "anyOf": [
             {
-              "$ref": "#/definitions/StaticSprite"
+              "$ref": "#/definitions/JsonStaticSprite"
             },
             {
-              "$ref": "#/definitions/AnimatedSprite"
+              "$ref": "#/definitions/JsonAnimatedSprite"
             }
           ]
         },
         "middle": {
           "anyOf": [
             {
-              "$ref": "#/definitions/StaticSprite"
+              "$ref": "#/definitions/JsonStaticSprite"
             },
             {
-              "$ref": "#/definitions/AnimatedSprite"
+              "$ref": "#/definitions/JsonAnimatedSprite"
             }
           ]
         }
       },
       "type": "object"
     },
-    "Sprite": {
+    "JsonSprite": {
       "anyOf": [
         {
-          "$ref": "#/definitions/MultiSprite"
+          "$ref": "#/definitions/JsonMultiSprite"
         },
         {
-          "$ref": "#/definitions/StaticSprite"
+          "$ref": "#/definitions/JsonStaticSprite"
         },
         {
-          "$ref": "#/definitions/AnimatedSprite"
+          "$ref": "#/definitions/JsonAnimatedSprite"
         }
       ]
     },
-    "Spriteset": {
+    "JsonSpriteset": {
       "additionalProperties": false,
       "properties": {
         "$schema": {
@@ -205,50 +208,92 @@
         "file": {
           "type": "string"
         },
+        "indexedWidthHeight": {
+          "type": "number"
+        },
         "meta": {
-          "$ref": "#/definitions/Meta"
+          "$ref": "#/definitions/JsonMeta"
         },
         "sprites": {
           "additionalProperties": {
-            "$ref": "#/definitions/Sprite"
+            "$ref": "#/definitions/JsonSprite"
           },
           "type": "object"
-        },
-        "widthHeight": {
-          "type": "number"
         }
       },
       "required": [
         "$schema",
         "meta",
         "file",
-        "widthHeight",
+        "indexedWidthHeight",
         "sprites"
       ],
       "type": "object"
     },
-    "StaticSprite": {
+    "JsonStaticIndexedSprite": {
       "additionalProperties": false,
       "properties": {
-        "index": {
+        "cell": {
           "additionalProperties": false,
           "properties": {
-            "x": {
+            "col": {
               "type": "number"
             },
-            "y": {
+            "row": {
               "type": "number"
             }
           },
           "required": [
-            "x",
-            "y"
+            "row",
+            "col"
           ],
           "type": "object"
         }
       },
       "required": [
-        "index"
+        "cell"
+      ],
+      "type": "object"
+    },
+    "JsonStaticPositionedSprite": {
+      "additionalProperties": false,
+      "properties": {
+        "dim": {
+          "$ref": "#/definitions/Dimensions"
+        },
+        "pos": {
+          "$ref": "#/definitions/Pos"
+        }
+      },
+      "required": [
+        "pos",
+        "dim"
+      ],
+      "type": "object"
+    },
+    "JsonStaticSprite": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/JsonStaticIndexedSprite"
+        },
+        {
+          "$ref": "#/definitions/JsonStaticPositionedSprite"
+        }
+      ]
+    },
+    "Pos": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
       ],
       "type": "object"
     }
