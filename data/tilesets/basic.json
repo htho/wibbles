@@ -5,6 +5,7 @@
         "author": "bar",
         "version": 1
     },
+    "tileDimensions": {"width": 16, "height": 16},
     "tiles": {
         "b": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-SW"]},
         "d": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/fence-SE"]},

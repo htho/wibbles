@@ -29,6 +29,22 @@
       ],
       "type": "object"
     },
+    "Dimensions": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "width",
+        "height"
+      ],
+      "type": "object"
+    },
     "JsonMeta": {
       "additionalProperties": false,
       "properties": {
@@ -68,6 +84,9 @@
         "meta": {
           "$ref": "#/definitions/JsonMeta"
         },
+        "tileDimensions": {
+          "$ref": "#/definitions/Dimensions"
+        },
         "tiles": {
           "additionalProperties": {
             "$ref": "#/definitions/JsonTile"
@@ -78,6 +97,7 @@
       "required": [
         "$schema",
         "meta",
+        "tileDimensions",
         "tiles"
       ],
       "type": "object"

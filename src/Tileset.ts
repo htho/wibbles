@@ -2,21 +2,23 @@ import { JsonMeta } from "./schema/level.js";
 import { JsonTile, TileType, JsonTileset, BasicJsonTile, OpenableJsonTile, isBasicJsonTile, JsonStartTile, isJsonStartTile } from "./schema/tileset.js";
 import { asChar, Char } from "./Char.js";
 import { Sprite, SpriteIndex } from "./Spriteset.js";
-import { Dimensions, isArray } from "./tools.js";
+import { Dimensions, isArray, Pos } from "./tools.js";
 
 export class Tileset {
     readonly meta: Readonly<JsonMeta>;
     private readonly tiles: Map<Char, JsonTile>;
     readonly spriteIndex: SpriteIndex;
+    readonly tileDimensions: Dimensions;
     knows(char: Char): boolean { return this.tiles.has(char); }
-    create(char: Char): Tile {
+    create(char: Char, absPos: Pos): Tile {
         const tile = this.tiles.get(char);
         if (!tile) throw new Error(`No tile for char '${char}'!`);
-        return createTile(tile, this, char);
+        return createTile(tile, this, char, absPos);
     }
     constructor(tileset: JsonTileset, spriteIndex: SpriteIndex) {
         this.meta = tileset.meta;
         this.spriteIndex = spriteIndex;
+        this.tileDimensions = tileset.tileDimensions;
         this.tiles = new Map(Object.entries(tileset.tiles).map(([jsonChar, jsonTile]) => [asChar(jsonChar), jsonTile]));
     }
 
@@ -27,23 +29,27 @@ export class Tileset {
     }
 }
 
-function createTile(jsonTile: JsonTile, tileset: Tileset, char: Char): Tile {
-    if(isBasicJsonTile(jsonTile)) return new BasicTile(jsonTile, tileset, char);
-    if(isJsonStartTile(jsonTile)) return new StartTile(jsonTile, tileset, char);
-    return new OpenableTile(jsonTile, tileset, char);
+function createTile(jsonTile: JsonTile, tileset: Tileset, char: Char, absPos: Pos): Tile {
+    if(isBasicJsonTile(jsonTile)) return new BasicTile(jsonTile, tileset, char, absPos);
+    if(isJsonStartTile(jsonTile)) return new StartTile(jsonTile, tileset, char, absPos);
+    return new OpenableTile(jsonTile, tileset, char, absPos);
 }
 
 export abstract class Tile {
     readonly type: TileType;
     readonly tileset: Tileset;
     readonly char: Char;
+    readonly absPos: Pos;
+    readonly isSolid: boolean;
     abstract readonly dimensions: Dimensions;
     abstract readonly html: HTMLElement;
     
-    constructor(jsonTile: JsonTile, tileset: Tileset, char: Char) {
+    constructor(jsonTile: JsonTile, tileset: Tileset, char: Char, absPos: Pos) {
         this.type = jsonTile.type;
+        this.isSolid = this.type !== TileType.Floor;
         this.tileset = tileset;
         this.char = char;
+        this.absPos = absPos;
     }
 
     protected jsonSpriteToSprite(sprite: string | string[]): Sprite | Sprite[] {
@@ -85,6 +91,24 @@ export abstract class Tile {
         stack.forEach(el => result.appendChild(el));
         return result;
     }
+
+    get posOfOtherEdge(): Pos {
+        return {
+            x: this.absPos.x + this.dimensions.width,
+            y: this.absPos.y + this.dimensions.height
+        };
+    }
+
+    collides(pos: Pos): boolean {
+        if(!this.isSolid) return false;
+
+        if(pos.x < this.absPos.x) return false;
+        if(pos.y < this.absPos.y) return false;
+        const posOfOtherEdge = this.posOfOtherEdge;
+        if(pos.x > posOfOtherEdge.x) return false;
+        if(pos.y > posOfOtherEdge.y) return false;
+        return true;
+    } 
 };
 
 export class BasicTile extends Tile {
@@ -92,8 +116,8 @@ export class BasicTile extends Tile {
     readonly html: HTMLElement;
     readonly dimensions: Dimensions;
 
-    constructor(jsonTile: BasicJsonTile, tileset: Tileset, char: Char) {
-        super(jsonTile, tileset, char);
+    constructor(jsonTile: BasicJsonTile, tileset: Tileset, char: Char, absPos: Pos) {
+        super(jsonTile, tileset, char, absPos);
         this.sprite = this.jsonSpriteToSprite(jsonTile.sprite);
         this.dimensions = this.getSpriteDimensions(this.sprite);
         this.html = this.renderHtml(this.sprite);
@@ -108,8 +132,8 @@ export class OpenableTile extends Tile {
     readonly html: HTMLElement;
     readonly dimensions: Dimensions;
 
-    constructor(jsonTile: OpenableJsonTile, tileset: Tileset, char: Char) {
-        super(jsonTile, tileset, char);
+    constructor(jsonTile: OpenableJsonTile, tileset: Tileset, char: Char, absPos: Pos) {
+        super(jsonTile, tileset, char, absPos);
         this._open = this.jsonSpriteToSprite(jsonTile.open);
         this._closed = this.jsonSpriteToSprite(jsonTile.closed);
         const htmlOpen = this.renderHtml(this._open);
@@ -129,8 +153,9 @@ export class OpenableTile extends Tile {
         this.open();
     }
 
-    get collides(): boolean {
-        return !this._isOpen;
+    override collides(pos: Pos): boolean {
+        if (this._isOpen) return false;
+        return super.collides(pos);
     }
 
     open() {
@@ -144,7 +169,7 @@ export class OpenableTile extends Tile {
 }
 
 export class StartTile extends OpenableTile {
-    constructor(jsonTile: JsonStartTile, tileset: Tileset, char: Char) {
-        super(jsonTile, tileset, char);
+    constructor(jsonTile: JsonStartTile, tileset: Tileset, char: Char, absPos: Pos) {
+        super(jsonTile, tileset, char, absPos);
     }
 }

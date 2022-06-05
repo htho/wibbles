@@ -15,8 +15,8 @@ const basicTileset = new Tileset(await Tileset.Load("basic"), spriteIndex);
 const emptyLevel = new Level(await Level.Load("empty"));
 
 const emptyLevelRenderer = new LevelRenderer(emptyLevel, basicTileset);
-emptyLevelRenderer.start.close();
-emptyLevelRenderer.exit.open();
+emptyLevelRenderer.start.open();
+emptyLevelRenderer.exit.close();
 
 const p = await page;
 
@@ -24,6 +24,13 @@ p.head.appendChild(basicSpriteSet.styleElement);
 p.content.appendChild(emptyLevelRenderer.renderHtml());
 const worm = new WormHead(emptyLevelRenderer.startPos, emptyLevel.startDirection, (segment, pos) => {
     movingWorm.updateSegment(segment, pos);
+    if(segment instanceof WormHead) {
+        for(const tile of emptyLevelRenderer.list) {
+            if(tile.collides(pos)) {
+                throw new Error("COLLIDES");
+            };
+        }
+    }
 }, 30);
 
 const movingWorm = new WormRenderer(worm, emptyLevelRenderer, p.content);

@@ -1,3 +1,4 @@
+import { Dimensions } from "../tools.js";
 import { JsonMeta } from "./level.js"
 
 export enum TileType {
@@ -43,5 +44,6 @@ export type JsonStartTile = OpenableJsonTile & {
 export type JsonTileset = {
     $schema: string,
     meta: JsonMeta,
+    tileDimensions: Dimensions,
     tiles: {[char: string]: JsonTile},
 }

@@ -1,12 +1,13 @@
 import { Level } from "./Level.js";
 import { TileType } from "./schema/tileset.js";
 import { Tileset, Tile, OpenableTile, StartTile } from "./Tileset.js";
-import { Cell, Direction, Pos, Tuple } from "./tools.js";
+import { Direction, Pos, Tuple } from "./tools.js";
 
 
 export class LevelRenderer<W extends number = number, H extends number = number> {
     readonly level: Level<W, H>;
     readonly map: Tuple<Tuple<Tile, W>, H>;
+    readonly list: Tile[];
     readonly tileset: Tileset;
     readonly start: StartTile;
     readonly startDir: Direction;
@@ -17,35 +18,27 @@ export class LevelRenderer<W extends number = number, H extends number = number>
         this.level = level;
         this.tileset = tileset;
         
-        const mapAsTiles = level.map.map(row => row.map(char => tileset.create(char)));
-        
+        const mapAsTiles = level.map.map((row, rowNum) => row.map((char, colNum) => tileset.create(char, {x: colNum * tileset.tileDimensions.width, y: rowNum * tileset.tileDimensions.height})));
         this.map = mapAsTiles as Tuple<Tuple<Tile, W>, H>;
-        
-        const start = this.map.find(row => row.find(tile => tile instanceof StartTile))?.find(tile => tile instanceof StartTile);
+        this.list = mapAsTiles.flat();
+
+        const start = this.list.find(tile => tile instanceof StartTile);
         if(start === undefined) throw new Error("No Start tile found!");
         this.start = start as StartTile;
         
         this.startDir = this.level.startDirection;
         this.startPos = this.findStartPos();
         
-        const exit = this.map.find(row => row.find(tile => tile.type === TileType.Exit))?.find(tile => tile.type === TileType.Exit);;
-        if(exit === undefined) throw new Error("No Start tile found!");
+        const exit = this.list.find(tile => tile.type === TileType.Exit);
+        if(exit === undefined) throw new Error("No Exit tile found!");
         this.exit = exit as OpenableTile;
     }
-    private findCell(cell: Tile): Cell {
-        const rowIndex = this.map.findIndex(row => row.includes(cell));
-        const row = this.map[rowIndex];
-        if(row === undefined) throw new Error(`Row #${rowIndex} not found!`);
-        const col = row.indexOf(cell);
-        return {row: rowIndex, col};
-
-    }
     private findStartPos(): Pos {
-        const {row, col} = this.findCell(this.start);
-        const {width, height} = this.start.dimensions;
+        const {x, y} = this.start.absPos;
+        const {width, height} = this.tileset.tileDimensions;
         return {
-            x: (col * width) + (width / 2),
-            y: (row * height) + (height / 2)
+            x: x + (width / 2),
+            y: y + (height / 2)
         }
     }
 
