@@ -56,14 +56,16 @@ body {
         opacity: 0;
     }
 }
-.worm {
+.worm-segment.worm-head {
     border: 1px solid red;
+    z-index: 2;
+}
+.worm-segment {
+    border-radius: 50%;
     position: absolute;
     top:0;
     left:0;
-}
-.worm-segment {
-    width: 8px;
-    height: 8px;
-    border: 1p solid black;
+    z-index: 1;
+
+    border: 1px solid black;
 }

@@ -1,19 +1,28 @@
-import { Worm } from "./Worm.js";
-import { Direction, nextAnmiationFrame } from "./tools.js";
+import { WormHead, WormSegment } from "./Worm.js";
+import { Direction, nextAnmiationFrame, Pos } from "./tools.js";
+import { LevelRenderer } from "./LevelRenderer.js";
 
-export class MovingWorm {
-    worm: Worm;
-    stepsPerSecond = 10;
+export class WormRenderer {
+    readonly head: WormHead;
+    tilesPerSecond = 1;
+    readonly standardTileSize: number;
     running = false;
-    currentDir: Direction;
-    constructor(worm: Worm, dir: Direction) {
-        this.currentDir = dir;
-        this.worm = worm;
+    readonly initialDir: Direction;
+    readonly styleElement: HTMLStyleElement;
+    readonly container: HTMLElement;
+
+    constructor(head: WormHead, levelRenderer: LevelRenderer, container: HTMLElement) {
+        this.initialDir = levelRenderer.startDir;
+        this.standardTileSize = levelRenderer.start.dimensions.height;
+        this.head = head;
+        this.container = container;
+        this.styleElement = this.createSegmentStyleElement();
     }
     async start(): Promise<void> {
         this.running = true;
         let lastStepTime = 0;
-        const inteval = 1000 / this.stepsPerSecond;
+        const pxPerSecond = this.standardTileSize * this.tilesPerSecond;
+        const inteval = 1000 / pxPerSecond;
         while (this.running) {
             const time = await nextAnmiationFrame();
             const timeSinceLastStep = time - lastStepTime;
@@ -21,22 +30,50 @@ export class MovingWorm {
                 continue;
 
             lastStepTime = time;
-            this.worm.step(this.currentDir);
+            this.head.nextStep();
         }
     }
+    private createSegmentStyleElement(): HTMLStyleElement {
+        const rendered = document.createElement("style");
+        rendered.id = `style--worm`;
+        rendered.textContent = `
+            .worm-segment {
+                width: ${this.standardTileSize/2}px;
+                height: ${this.standardTileSize/2}px;
+            }
+        `;
+        return rendered;
+    }
     dir(dir: Direction): void {
-        this.currentDir = dir;
+        this.head.changeDir(dir);
     }
-    dirN(): void {
-        this.dir("N");
+
+    private readonly segments = new Map<WormSegment, RenderedWormSegment>();
+    updateSegment(segment: WormSegment, {x, y}: Pos): void {
+        const cachedRenderedSegment = this.segments.get(segment);
+        const renderedSegment = (cachedRenderedSegment) ? cachedRenderedSegment : new RenderedWormSegment(segment);
+        if(!cachedRenderedSegment) {
+            this.segments.set(segment, renderedSegment);
+            this.container.appendChild(renderedSegment.element);
+        }
+
+        renderedSegment.element.style.transform = `translate(${x}px, ${y}px)`;
     }
-    dirW(): void {
-        this.dir("W");
+
+}
+
+export class RenderedWormSegment {
+    readonly element: HTMLElement;
+    constructor(public readonly segment: WormHead | WormSegment) {
+        this.element = this.renderSegment();
     }
-    dirS(): void {
-        this.dir("S");
+    private renderSegment(): HTMLElement {
+        const result = document.createElement("div");
+        result.classList.add("worm-segment");
+        if(this.segment instanceof WormHead) {
+            result.classList.add("worm-head");
+        }
+        return result;
     }
-    dirE(): void {
-        this.dir("E");
-    }
+
 }

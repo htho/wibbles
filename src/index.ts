@@ -3,8 +3,8 @@ import { LevelRenderer } from "./LevelRenderer.js";
 import { page } from "./page.js";
 import { Tileset } from "./Tileset.js";
 import { SpriteIndex, Spriteset } from "./Spriteset.js";
-import { Worm } from "./Worm.js";
-import { MovingWorm } from "./MovingWorm.js";
+import { WormHead } from "./Worm.js";
+import { WormRenderer } from "./MovingWorm.js";
 
 const basicSpriteSet = new Spriteset(await Spriteset.Load("oga--zelda-like-tilesets-and-sprites", "overworld"));
 
@@ -22,23 +22,23 @@ const p = await page;
 
 p.head.appendChild(basicSpriteSet.styleElement);
 p.content.appendChild(emptyLevelRenderer.renderHtml());
-const worm = new Worm(emptyLevelRenderer.startPos, ({x, y}) => {
-    worm.html.style.transform = `translate(${x}px, ${y}px)`
-}, 1);
-p.content.appendChild(worm.html);
+const worm = new WormHead(emptyLevelRenderer.startPos, emptyLevel.startDirection, (segment, pos) => {
+    movingWorm.updateSegment(segment, pos);
+}, 30);
 
-const movingWorm = new MovingWorm(worm, emptyLevelRenderer.startDir);
+const movingWorm = new WormRenderer(worm, emptyLevelRenderer, p.content);
+p.head.appendChild(movingWorm.styleElement);
 window.addEventListener("keydown", (ev) => {
-    if(ev.key === "ArrowLeft") movingWorm.dirW();
-    if(ev.key === "ArrowRight") movingWorm.dirE();
-    if(ev.key === "ArrowUp") movingWorm.dirN();
-    if(ev.key === "ArrowDown") movingWorm.dirS();
+    if(ev.key === "ArrowLeft") movingWorm.dir("W");
+    if(ev.key === "ArrowRight") movingWorm.dir("E");
+    if(ev.key === "ArrowUp") movingWorm.dir("N");
+    if(ev.key === "ArrowDown") movingWorm.dir("S");
 });
 movingWorm.start();
 
 declare global {
     interface Window {
-        worm: MovingWorm;
+        worm: WormRenderer;
         lvl: LevelRenderer; 
     }
 }

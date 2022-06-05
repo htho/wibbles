@@ -1,64 +1,71 @@
 import { Pos, Direction } from "./tools";
 
-export class Worm {
+
+export class WormSegment {
     readonly pos: Pos;
-    readonly onAfterMove: (newPos: Pos) => void;
-    readonly html: HTMLElement;
-    length = 0;
-    constructor(pos: Pos, onAfterMove: (newPos: Pos) => void, length: number) {
-        this.pos = pos;
+    readonly onAfterMove: (segment: WormSegment, newPos: Pos) => void;
+    tail?: WormSegment;
+    currentDirection: Direction;
+    constructor(
+        position: Pos,
+        direction: Direction,
+        onAfterMove: (segment: WormSegment, newPos: Pos) => void,
+    ) {
+        this.pos = {...position};
+        this.currentDirection = direction;
         this.onAfterMove = onAfterMove;
-        this.html = this.createHTML();
+    }
+    grow(): void {
+        if(this.tail) {
+            this.tail.grow();
+            return;
+        }
+        this.tail = new WormSegment(
+            this.pos,
+            this.currentDirection,
+            this.onAfterMove,
+        );
+    }
+    
+    protected updatePos({x, y}: Pos): void {
+        if(this.tail) this.tail.updatePos(this.pos);
+        this.pos.x = x;
+        this.pos.y = y;
+        this.onAfterMove(this, this.pos);
+    }
+}
+export class WormHead extends WormSegment {
+    constructor(
+        pos: Pos,
+        direction: Direction,
+        onAfterMove: (segment: WormSegment, newPos: Pos) => void,
+        length: number,
+        ) {
+        super(
+            pos,
+            direction,
+            onAfterMove,
+        );
         for (let i = 0; i < length; i++) {
-            this.addSegment();
+            this.grow();
         }
     }
 
-    private createHTML(): HTMLElement {
-        const result = document.createElement("div");
-        result.classList.add("worm");
-        return result;
+    changeDir(dir: Direction): void {
+        this.currentDirection = dir;
     }
+    nextStep(): void {
+        this.step(this.currentDirection);
+    }
+    protected step(dir: Direction): void {
+        const nextPos: Pos = {...this.pos};
 
-    private createSegmentHTML(): HTMLElement {
-        const result = document.createElement("div");
-        result.classList.add("worm-segment");
-        return result;
-    }
+        if (dir === "N") nextPos.y--;
+        else if (dir === "W") nextPos.x--;
+        else if (dir === "S") nextPos.y++;
+        else if (dir === "E") nextPos.x++;
 
-    addSegment(): void {
-        this.length++;
-        const segment = this.createSegmentHTML();
-        this.html.appendChild(segment);
-    }
-
-    step(dir: Direction): void {
-        if (dir === "N")
-            this.stepN();
-        if (dir === "W")
-            this.stepW();
-        if (dir === "S")
-            this.stepS();
-        if (dir === "E")
-            this.stepE();
-    }
-    stepN(): void {
-        this.pos.y--;
-        this.onAfterMove(this.pos);
-    }
-
-    stepS(): void {
-        this.pos.y++;
-        this.onAfterMove(this.pos);
-    }
-
-    stepE(): void {
-        this.pos.x++;
-        this.onAfterMove(this.pos);
-    }
-
-    stepW(): void {
-        this.pos.x--;
-        this.onAfterMove(this.pos);
+        this.updatePos(nextPos);
     }
 }
+
