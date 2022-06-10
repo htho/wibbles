@@ -1,17 +1,20 @@
-export const documentReady = new Promise<Document>((resolve) => {
-    if(document.readyState === "complete") return resolve(document);
-    document.addEventListener("readystatechange", () => {
-        if(document.readyState === "complete") return resolve(document);
-    });
-});
-function notNull<T>(o: T | null): T {
-    if(o === null) throw new Error("object is null!");
-    return o;
-    
+import { documentReady } from "./dom.js";
+import { notNullCoersed } from "./tools.js";
+
+
+export class Page {
+    constructor(
+        public head: HTMLHeadElement,
+        public content: HTMLDivElement,
+    ) {}
+        
+    static async Create(): Promise<Page> {
+        await documentReady;
+        return new Page(
+            document.head,
+            document.getElementById("content") ?? notNullCoersed("#content not found!"),
+        );
+    }
 }
-export const page = documentReady.then(() => ({
-    head: document.head,
-    content: notNull(document.getElementById("content")),
-}));
 
 

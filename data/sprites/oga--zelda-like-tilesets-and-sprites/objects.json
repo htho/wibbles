@@ -1,0 +1,20 @@
+{
+    "$schema": "../../../schema/spriteset.json",
+    "meta": {
+        "author": "htho",
+        "name": "zelda-like-objects",
+        "version": 1
+    },
+    "collection": "oga--zelda-like-tilesets-and-sprites",
+    "file": "gfx/objects.png",
+    "indexedWidthHeight": 16,
+    "sprites": {
+        "health100": {"cell": {"col": 4,"row": 0}},
+        "health75": {"cell": {"col": 5,"row": 0}},
+        "health50": {"cell": {"col": 6,"row": 0}},
+        "health25": {"cell": {"col": 7,"row": 0}},
+        "health0": {"cell": {"col": 8,"row": 0}},
+        "fire": {"time": 1000, "frames": [{"cell":{"col":4,"row":3}},{"cell":{"col":5,"row":3}},{"cell":{"col":6,"row":3}},{"cell":{"col":7,"row":3}},{"cell":{"col":8,"row":3}},{"cell":{"col":9,"row":3}},{"cell":{"col":10,"row":3}}]},
+        "coin": {"time": 1000, "frames": [{"cell":{"col":0,"row":4}},{"cell":{"col":1,"row":4}},{"cell":{"col":2,"row":4}},{"cell":{"col":3,"row":4}}]}
+    }
+}

@@ -9,7 +9,7 @@ import {
     isJsonStaticIndexedSprite
 } from "./schema/spriteset.js";
 import { JsonMeta as JsonMeta } from "./schema/level.js";
-import { Dimensions, Pos } from "./tools.js";
+import { Cell, Dimensions, Pos } from "./tools.js";
 
 export class SpriteIndex {
     private readonly _index = new Map<string, Sprite>();
@@ -62,10 +62,14 @@ export class Spriteset {
     }
 
     static async Load(collection: string, file: string): Promise<JsonSpriteset & {base: string}> {
-        const base = `./data/sprites/${collection}`
+        const base = this.CreateBaseFromCollection(collection);
         const fileResponse = await fetch(`${base}/${file}.json`);
         const spriteset = await fileResponse.json() as JsonSpriteset;
         return {...spriteset, base};
+    }
+    static CreateBaseFromCollection(collection: string): string {
+        const base = `./data/sprites/${collection}`;
+        return base;
     }
 
     private _createSprites(spriteset: JsonSpriteset): Map<string, Sprite> {
@@ -74,7 +78,7 @@ export class Spriteset {
         return new Map(entries);
     }
 
-    private createCss(): string {
+    public createCss(): string {
         return `.${this.meta.name}.sprite {
             background: url(./${this.base}/${this.file});
             display: inline-block;

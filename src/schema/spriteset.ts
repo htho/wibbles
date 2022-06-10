@@ -1,10 +1,15 @@
 import { Dimensions, Pos } from "../tools.js";
 import { JsonMeta } from "./level.js"
 
+export function isJsonSpriteset(obj: any): obj is JsonSpriteset {
+    if (!("$schema" in obj)) return false;
+    if (typeof obj["$schema"] !== "string") return false;
+    return obj["$schema"] === "../../../schema/spriteset.json";
+}
 export type JsonSpriteset = {
     $schema: string,
     meta: JsonMeta,
-    
+    collection: string,
     file: string,
     indexedWidthHeight: number,
 

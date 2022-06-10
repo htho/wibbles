@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>SpriteEditor</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <script src='src/SpriteEditor.js' type="module"></script>
+    <style>
+        #gridBox * {
+            box-sizing: border-box;
+        }
+        #gridBox {
+            /* border: 1px solid red; */
+            position: relative;
+        }
+        #grid {
+            /* border: 1px dashed black; */
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .grid-item {
+            position: absolute;
+
+            border-style: dashed;
+            border-width: 1px;
+            border-color: grey;
+        }
+        #sprite {
+            /* border: 1px dashed green; */
+        }
+        #bar {
+            position: sticky;
+            bottom: 0px;
+            width: 100%;
+        }
+        #input {
+            width: 100%;
+            font-family: monospace;
+        }
+        .selected {
+            border-style: solid;
+        }
+        .static-indexed {
+            border-width: 2px;
+            border-color: green;
+        }
+        .multi {
+            border-width: 2px;
+            border-color: blue;
+        }
+        .animated {
+            border-width: 2px;
+            border-color: red;
+        }
+    </style>
+</head>
+<body>
+    <label for="spriteFile">Sprite File: <input type="file" name="spriteFile" id="spriteFile"></label>
+    <div id="gridBox">
+        <img id="sprite">
+        <div id="grid">
+        </div>
+    </div>
+    <div id="list">
+
+    </div>
+    <div id="bar"><input type="text" id="input"></div>
+</body>
+</html>

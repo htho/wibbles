@@ -11,6 +11,10 @@ export type Dimensions = { width: number; height: number; };
 export type Direction = "N" | "W" | "E" | "S";
 export type Cell = {row: number, col: number};
 
+export function notNullCoersed(msg: string): never {
+    throw new Error(msg)
+}
+
 export function nextAnmiationFrame(): Promise<DOMHighResTimeStamp> {
     return new Promise<DOMHighResTimeStamp>((resolve) => {
         requestAnimationFrame((time) => {

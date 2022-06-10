@@ -5,6 +5,7 @@
         "name": "zelda-like-overworld",
         "version": 1
     },
+    "collection": "oga--zelda-like-tilesets-and-sprites",
     "file": "gfx/Overworld.png",
     "indexedWidthHeight": 16,
     "sprites": {

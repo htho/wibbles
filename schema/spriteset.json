@@ -205,6 +205,9 @@
         "$schema": {
           "type": "string"
         },
+        "collection": {
+          "type": "string"
+        },
         "file": {
           "type": "string"
         },
@@ -224,6 +227,7 @@
       "required": [
         "$schema",
         "meta",
+        "collection",
         "file",
         "indexedWidthHeight",
         "sprites"

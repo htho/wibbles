@@ -1,6 +1,6 @@
 import { Level } from "./Level.js";
 import { LevelRenderer } from "./LevelRenderer.js";
-import { page } from "./page.js";
+import { Page } from "./page.js";
 import { Tileset } from "./Tileset.js";
 import { SpriteIndex, Spriteset } from "./Spriteset.js";
 import { WormHead } from "./Worm.js";
@@ -18,7 +18,7 @@ const emptyLevelRenderer = new LevelRenderer(emptyLevel, basicTileset);
 emptyLevelRenderer.start.open();
 emptyLevelRenderer.exit.close();
 
-const p = await page;
+const p = await Page.Create();
 
 p.head.appendChild(basicSpriteSet.styleElement);
 p.content.appendChild(emptyLevelRenderer.renderHtml());
