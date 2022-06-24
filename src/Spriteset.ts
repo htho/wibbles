@@ -9,7 +9,7 @@ import {
     isJsonStaticIndexedSprite
 } from "./schema/spriteset.js";
 import { JsonMeta as JsonMeta } from "./schema/level.js";
-import { Cell, Dimensions, Pos } from "./tools.js";
+import { Dimensions, Pos } from "./tools.js";
 
 export class SpriteIndex {
     private readonly _index = new Map<string, Sprite>();
@@ -79,9 +79,10 @@ export class Spriteset {
     }
 
     public createCss(): string {
-        return `.${this.meta.name}.sprite {
+        return `.${this.meta.name} {
             background: url(./${this.base}/${this.file});
-            display: inline-block;
+        }
+        .${this.meta.name}.indexed {
             height: ${this.indexedWidthHeight}px;
             width: ${this.indexedWidthHeight}px;
         }`;
@@ -137,10 +138,12 @@ export class StaticSprite extends Sprite {
     readonly position: Pos;
     readonly dimensions: Dimensions;
     readonly css: string;
+    readonly isIndexed: boolean;
 
     constructor(name: string, spriteSet: Spriteset, sprite: JsonStaticSprite) {
         super(name, spriteSet);
         
+        this.isIndexed = isJsonStaticIndexedSprite(sprite);
         if(isJsonStaticIndexedSprite(sprite)) {
             this.position = {
                 x: this.spriteSet.indexedWidthHeight * sprite.cell.col,
@@ -156,6 +159,12 @@ export class StaticSprite extends Sprite {
         }
 
         this.css = this.createCss();
+    }
+
+    override createHTML(): HTMLElement {
+        const result = super.createHTML();
+        if(this.isIndexed) result.classList.add("indexed");
+        return result;
     }
 
     private createCss(): string {
@@ -174,9 +183,11 @@ export class AnimatedSprite extends Sprite {
         super(name, spriteSet);
         this.time = sprite.time;
         this.frames = sprite.frames.map((frame, i) => new StaticSprite(`${name}-${i}`, spriteSet, frame));
+
         const firstFrame = this.frames[0];
         if(firstFrame === undefined) throw new Error(`The animation sprite ${name} has no frames. It is expected to have at least one frame!`);
         this.dimensions = firstFrame.dimensions;
+        
         this.css = this.createCss();
     }
 
@@ -189,11 +200,14 @@ export class AnimatedSprite extends Sprite {
         result.classList.add("animated");
         
         const frames = this.frames.map(sprite => sprite.createHTML());
-        frames.forEach(frame => frame.classList.add("animation-frame"));
-        frames.forEach((frame, index) => frame.classList.add("animation-frame-"+index));
         const steps = frames.length;
-        frames.forEach((frame, index) => frame.style.animation = `${this.time}ms steps(${steps}) ${index * (this.time/steps)}ms infinite change-${steps}`);
-        frames.forEach(frame => result.appendChild(frame));
+        for (let index = 0; index < frames.length; index++) {
+            const frame = frames[index] as HTMLElement;
+            frame.classList.add("animation-frame");
+            frame.classList.add("animation-frame-"+index)
+            frame.style.animation = `${this.time}ms steps(${steps}) ${index * (this.time/steps)}ms infinite change-${steps}`;
+            result.appendChild(frame)
+        }
         return result;
     };
 }

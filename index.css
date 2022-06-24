@@ -1,8 +1,8 @@
 body {
     margin: 0px;
 }
+
 .map {
-    /* margin: -4px; */
     position: relative;
 }
 .tile {
@@ -14,16 +14,20 @@ body {
 .stacked {
     position: absolute;
 }
-.animation-frame {
-    position: absolute;
-    opacity: 0;
-}
+
 .openable:not(.is-open) .open {
     display: none;
 }
 .openable.is-open .closed {
     display: none;
 }
+
+.animation-frame {
+    position: absolute;
+    /* opacity is set by animation */
+    opacity: 0;
+}
+
 @keyframes change-2 {
     0%, 50% {
         opacity: 1;
@@ -56,6 +60,47 @@ body {
         opacity: 0;
     }
 }
+@keyframes change-6 {
+    0%, 16.6666% {
+        opacity: 1;
+    }
+    16.6667%,  100% {
+        opacity: 0;
+    }
+}
+@keyframes change-7 {
+    0%, 14.2857% {
+        opacity: 1;
+    }
+    14.2858%,  100% {
+        opacity: 0;
+    }
+}
+@keyframes change-8 {
+    0%, 12.5000% {
+        opacity: 1;
+    }
+    12.5001%,  100% {
+        opacity: 0;
+    }
+}
+@keyframes change-9 {
+    0%, 11.1111% {
+        opacity: 1;
+    }
+    11.1112%,  100% {
+        opacity: 0;
+    }
+}
+@keyframes change-10 {
+    0%, 10.0000% {
+        opacity: 1;
+    }
+    10.0001%,  100% {
+        opacity: 0;
+    }
+}
+
 .worm-segment.worm-head {
     border: 1px solid red;
     z-index: 2;
@@ -66,6 +111,16 @@ body {
     top:0;
     left:0;
     z-index: 1;
-
+    
     border: 1px solid black;
+}
+
+.target {
+    width: 8px;
+    height: 8px;
+    border: 1px solid gold;
+    position: absolute;
+    top:0;
+    left:0;
+    z-index: 1;
 }
