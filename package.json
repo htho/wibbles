@@ -15,7 +15,8 @@
     "copy-static:html": "copy .\\*.html .\\dist\\",
     "copy-static:css": "copy .\\*.css .\\dist\\",
     "copy-static:data": "xcopy data dist\\data /IEY",
-    "serve": "http-server ./dist/"
+    "serve": "http-server -c-1 ./dist/",
+    "watch": "chokidar \"**/*\" \"!dist/**/*\" -c \"npm run build\""
   },
   "author": "",
   "license": "ISC",
@@ -24,6 +25,7 @@
     "typescript": "^4.6.4"
   },
   "dependencies": {
+    "chokidar-cli": "^3.0.0",
     "http-server": "^14.1.0"
   }
 }
