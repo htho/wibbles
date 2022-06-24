@@ -67,5 +67,23 @@ export class WormHead extends WormSegment {
 
         this.updatePos(nextPos);
     }
+
+    segments(): WormSegment[] {
+        const segments: WormSegment[] = [];
+        let segment = this.tail;        
+        while(segment !== undefined) {
+            segments.push(segment);
+            segment = segment.tail;
+        }
+        return segments;
+    }
+
+    collides(pos: Pos, radius: number): boolean {
+        if(pos.x > this.pos.x + radius) return false;
+        if(pos.x < this.pos.x) return false;
+        if(pos.y > this.pos.y + radius) return false;
+        if(pos.y < this.pos.y) return false;
+        return true;
+    }
 }
 
