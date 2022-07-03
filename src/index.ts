@@ -1,69 +1,123 @@
-import { Level } from "./Level.js";
-import { LevelRenderer } from "./LevelRenderer.js";
-import { Page } from "./page.js";
-import { Tileset } from "./Tileset.js";
-import { SpriteIndex, Spriteset } from "./Spriteset.js";
-import { WormHead } from "./Worm.js";
+import { Page } from "./browser/page.js";
+import { Game } from "./Game.js";
+import { LevelLoader } from "./Level.js";
 import { WormRenderer } from "./MovingWorm.js";
-import { Points } from "./Target";
+import { LevelRenderer } from "./renderer/LevelRenderer.js";
+import { SpriteIndex } from "./Spriteset.js";
+import { Target, TargetPositioner } from "./Target.js";
+import { Tileset } from "./Tileset.js";
+import { Pos } from "./tools/tools.js";
+import { WormHead, WormSegment } from "./Worm.js";
 
-const overworld = new Spriteset(await Spriteset.Load("oga--zelda-like-tilesets-and-sprites", "overworld"));
-const objects = new Spriteset(await Spriteset.Load("oga--zelda-like-tilesets-and-sprites", "objects"));
+const page = await Page.Load();
 
-const spriteIndex = new SpriteIndex([overworld, objects]);
+const spriteIndex = new SpriteIndex(await SpriteIndex.Load({
+    "oga--zelda-like-tilesets-and-sprites": [
+        "overworld",
+        "objects"
+    ],
+}));
+
+spriteIndex.spritesets.forEach(spriteset => page.addStyle(spriteset.meta.name, spriteset.cssStyle))
+// spriteIndex.getAll().forEach((sprite) => {
+//     page.addStyle(sprite.id, sprite.css);
+// });
+
 
 const basicTileset = new Tileset(await Tileset.Load("basic"), spriteIndex);
 
-const level = new Level(await Level.Load("empty"));
-
-export const levelRenderer = new LevelRenderer(level, basicTileset);
-levelRenderer.start.open();
-levelRenderer.exit.close();
-
-export const p = await Page.Create();
-p.head.appendChild(overworld.styleElement);
-p.content.appendChild(levelRenderer.renderHtml());
-
-const pts = new Points(levelRenderer);
-pts.nextTarget();
-
-const worm = new WormHead(levelRenderer.startPos, level.startDirection, (segment, pos) => {
-    movingWorm.updateSegment(segment, pos);
-    if(segment instanceof WormHead) {
-        for(const tile of levelRenderer.list) {
-            if(tile.collides(pos)) {
-                throw new Error("COLLIDES with Tile");
-            };
+const game = new Game({
+        initialLives: 5,
+        levelNames: ["empty"],
+        meta: {
+            author: "",
+            name: "",
+            version: 0
         }
-        for(const segment of worm.segments()) {
-            if (worm.collides(segment.pos, 0)) {
-                throw new Error("COLLIDES with Worm");
-            }
-        }
-        if(pts.currentTarget && worm.collides(pts.currentTarget.pos, 8)) {
-            pts.nextTarget();
-            console.log("targets left", pts.targetsLeft)
-        }
-        
+    },
+    {
+        levelLoader: new LevelLoader(),
     }
-}, 30);
+)
 
-const movingWorm = new WormRenderer(worm, levelRenderer, p.content);
-p.head.appendChild(movingWorm.styleElement);
-window.addEventListener("keydown", (ev) => {
-    if(ev.key === "ArrowLeft") movingWorm.dir("W");
-    if(ev.key === "ArrowRight") movingWorm.dir("E");
-    if(ev.key === "ArrowUp") movingWorm.dir("N");
-    if(ev.key === "ArrowDown") movingWorm.dir("S");
-});
-movingWorm.start();
+let round: Round | undefined = undefined;
 
-declare global {
-    interface Window {
-        worm: WormRenderer;
-        lvl: LevelRenderer; 
+export class Round {
+    public readonly renderer: LevelRenderer;
+    public readonly targetPositioner: TargetPositioner;
+    public readonly worm: WormHead;
+    public readonly movingWorm: WormRenderer;
+    private _currentTarget!: Target;
+    public get currentTarget(): Target {
+        return this._currentTarget;
+    }
+    public set currentTarget(value: Target) {
+        this._currentTarget = value;
+    }
+    constructor({ renderer, targetPositioner, worm, movingWorm }: { renderer: LevelRenderer; targetPositioner: TargetPositioner; worm: WormHead; movingWorm: WormRenderer; }) {
+        this.renderer = renderer;
+        this.targetPositioner = targetPositioner;
+        this.worm = worm;
+        this.movingWorm = movingWorm;
     }
 }
-window.worm = movingWorm;
-window.lvl = levelRenderer;
 
+
+game.on("GameOver", () => {
+    page.showAlert("Game Over");
+    if(round) page.content.removeChild(round.renderer.html);
+})
+game.on("GameWon", () => {
+    page.showAlert("Game Over");
+    if(round) page.content.removeChild(round.renderer.html);
+})
+game.on("LevelLoaded", (level) => {
+    if(round) page.content.removeChild(round.renderer.html);
+
+    const renderer = new LevelRenderer(level, basicTileset);
+    const targetPositioner = new TargetPositioner(renderer);
+    const worm = new WormHead(renderer.startPos, level.startDirection, onWormUpdate, 30);
+    const movingWorm = new WormRenderer(worm, renderer, page.content);
+    function onWormUpdate(segment: WormSegment, pos: Pos): void {
+        movingWorm.updateSegment(segment, pos);
+        if(segment instanceof WormHead) {
+            for(const tile of renderer.list) {
+                if(tile.collides(pos)) {
+                    page.showAlert("COLLIDES with SOLID TILE!")
+                    game.liveLost();
+                };
+            }
+            for(const segment of worm.segments()) {
+                if (worm.collides(segment.pos, 0)) {
+                    page.showAlert("COLLIDES with WORM!")
+                    game.liveLost();
+                }
+            }
+            if(round?.currentTarget && worm.collides(round.currentTarget.pos, 8)) {
+                page.showInfo("COLLIDES with TARGET.")
+                const pos = round.targetPositioner.findSpot();
+                round.currentTarget = new Target(pos, page.content);
+            }
+        }
+    }   
+    page.addStyle("worm", movingWorm.css);
+    window.addEventListener("keydown", (ev) => {
+        if(ev.key === "ArrowLeft") movingWorm.dir("W");
+        if(ev.key === "ArrowRight") movingWorm.dir("E");
+        if(ev.key === "ArrowUp") movingWorm.dir("N");
+        if(ev.key === "ArrowDown") movingWorm.dir("S");
+    });
+    round = new Round({
+        renderer,
+        targetPositioner,
+        worm,
+        movingWorm,
+    });
+    const pos = round.targetPositioner.findSpot();
+    round.currentTarget = new Target(pos, page.content);
+    round.renderer.start.open();
+    round.renderer.exit.close();
+    
+    page.content.appendChild(round.renderer.html);
+    movingWorm.start();
+});

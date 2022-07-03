@@ -1,4 +1,4 @@
-import { Dimensions } from "../tools.js";
+import { Dimensions } from "../tools/tools.js";
 import { JsonMeta } from "./level.js"
 
 export enum TileType {

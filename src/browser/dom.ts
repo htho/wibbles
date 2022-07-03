@@ -1,4 +1,4 @@
-import { isArray, Tuple } from "./tools.js";
+import { isArray, Tuple } from "../tools/tools.js";
 
 export const documentReady = new Promise<Document>((resolve) => {
     if(document.readyState === "complete") return resolve(document);

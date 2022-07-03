@@ -8,20 +8,51 @@ import {
     isJsonMultiSprite,
     isJsonStaticIndexedSprite
 } from "./schema/spriteset.js";
-import { JsonMeta as JsonMeta } from "./schema/level.js";
-import { Dimensions, Pos } from "./tools.js";
+import { JsonMeta } from "./schema/level.js";
+import { Dimensions, Pos } from "./tools/tools.js";
+import { EventEmitter, IEventEmitter } from "./tools/EventEmitter.js";
 
-export class SpriteIndex {
+type SpriteIndexEvents = {
+    "SpriteAdded": (sprite: Sprite) => void,
+}
+
+export class SpriteIndex implements IEventEmitter<SpriteIndexEvents> {
     private readonly _index = new Map<string, Sprite>();
-    private readonly _knownSpritesets: Set<string>;
+    private readonly _knownSpritesets = new Set<string>();
+    private readonly _spritesets = new Set<Spriteset>();
+    private readonly _emitter = new EventEmitter<SpriteIndexEvents>();
 
     constructor(spritesets: Spriteset[]) {
-        spritesets.forEach(spriteset => this._indexSpriteset(spriteset));
-        this._knownSpritesets = new Set(spritesets.map(spriteset => spriteset.meta.name));
+        spritesets.forEach(spriteset => this.add(spriteset));
+    }
+
+    public get spritesets(): readonly Spriteset[] {
+        return [...this._spritesets];
+    }
+
+    on<K extends "SpriteAdded">(event: K, cb: SpriteIndexEvents[K]): void {
+        return this._emitter.on(event, cb);
+    }
+    off<K extends "SpriteAdded">(event: K, cb: SpriteIndexEvents[K]): void {
+        return this._emitter.off(event, cb);
+    }
+
+    static async Load(spriteSetsInCollections: {[collection: string]: string[]}): Promise<Spriteset[]> {
+        const sets = [];
+        for (const [collection, spritesets] of Object.entries(spriteSetsInCollections)) {
+            for (const spriteset of spritesets) {
+                const jsonSpritesetAndBase = await Spriteset.Load(collection, spriteset);
+                const spritesetObj = new Spriteset(jsonSpritesetAndBase);
+                sets.push(spritesetObj);
+            }
+        }
+        return sets;
     }
     
-    private _indexSpriteset(spriteset: Spriteset): void {
+    add(spriteset: Spriteset): void {
         spriteset.sprites.forEach(sprite => this._index.set(sprite.id, sprite));
+        this._knownSpritesets.add(spriteset.meta.name)
+        this._spritesets.add(spriteset);
     }
     
     get(spriteId: string): Sprite {
@@ -30,6 +61,10 @@ export class SpriteIndex {
         const {spriteset, name} = this._splitId(spriteId);
         if(!this._knownSpritesets.has(spriteset)) throw new Error(`Unknown Spriteset "${spriteset}" from given SpriteId "${spriteId}"!`);
         throw new Error(`Spriteset "${spriteset}" does not contain a Sprite named "${name}" from given SpriteId "${spriteId}"!`);
+    }
+
+    getAll(): Sprite[] {
+        return [...this._index.values()];
     }
 
     private _splitId(sprite: string): {spriteset: string, name: string} {
@@ -51,6 +86,7 @@ export class Spriteset {
     readonly indexedWidthHeight: number;
     readonly sprites: Map<string, Sprite>;
     readonly styleElement: HTMLStyleElement;
+    readonly cssStyle: string;
  
     constructor(spriteset: JsonSpriteset & {base: string}) {
         this.meta = spriteset.meta;
@@ -58,6 +94,7 @@ export class Spriteset {
         this.file = spriteset.file;
         this.indexedWidthHeight = spriteset.indexedWidthHeight;
         this.sprites = this._createSprites(spriteset);
+        this.cssStyle = this.fileToCssString();
         this.styleElement = this.createSpriteStyleElement();
     }
 

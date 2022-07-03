@@ -1,4 +1,4 @@
-import { Dimensions, Pos } from "../tools.js";
+import { Dimensions, Pos } from "../tools/tools.js";
 import { JsonMeta } from "./level.js"
 
 export function isJsonSpriteset(obj: any): obj is JsonSpriteset {

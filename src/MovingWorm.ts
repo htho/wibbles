@@ -1,6 +1,6 @@
 import { WormHead, WormSegment } from "./Worm.js";
-import { Direction, nextAnmiationFrame, Pos } from "./tools.js";
-import { LevelRenderer } from "./LevelRenderer.js";
+import { Direction, nextAnmiationFrame, Pos } from "./tools/tools.js";
+import { LevelRenderer } from "./renderer/LevelRenderer.js";
 
 export class WormRenderer {
     readonly head: WormHead;
@@ -8,7 +8,7 @@ export class WormRenderer {
     readonly standardTileSize: number;
     running = false;
     readonly initialDir: Direction;
-    readonly styleElement: HTMLStyleElement;
+    readonly css: string;
     readonly container: HTMLElement;
 
     constructor(head: WormHead, levelRenderer: LevelRenderer, container: HTMLElement) {
@@ -16,7 +16,7 @@ export class WormRenderer {
         this.standardTileSize = levelRenderer.start.dimensions.height;
         this.head = head;
         this.container = container;
-        this.styleElement = this.createSegmentStyleElement();
+        this.css = this.createSegmentStyleCss();
     }
     async start(): Promise<void> {
         this.running = true;
@@ -33,16 +33,13 @@ export class WormRenderer {
             this.head.nextStep();
         }
     }
-    private createSegmentStyleElement(): HTMLStyleElement {
-        const rendered = document.createElement("style");
-        rendered.id = `style--worm`;
-        rendered.textContent = `
+    private createSegmentStyleCss(): string {
+        return `
             .worm-segment {
                 width: ${this.standardTileSize/2}px;
                 height: ${this.standardTileSize/2}px;
             }
         `;
-        return rendered;
     }
     dir(dir: Direction): void {
         this.head.changeDir(dir);

@@ -1,4 +1,4 @@
-import { Pos, Direction } from "./tools";
+import { Pos, Direction } from "./tools/tools";
 
 
 export class WormSegment {

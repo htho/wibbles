@@ -1,8 +1,8 @@
 import { JsonMeta } from "./schema/level.js";
 import { JsonTile, TileType, JsonTileset, BasicJsonTile, OpenableJsonTile, isBasicJsonTile, JsonStartTile, isJsonStartTile } from "./schema/tileset.js";
-import { asChar, Char } from "./Char.js";
+import { asChar, Char } from "./tools/Char.js";
 import { Sprite, SpriteIndex } from "./Spriteset.js";
-import { Dimensions, isArray, Pos } from "./tools.js";
+import { Dimensions, isArray, Pos } from "./tools/tools.js";
 
 export class Tileset {
     readonly meta: Readonly<JsonMeta>;

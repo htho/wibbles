@@ -1,4 +1,4 @@
-import { Direction } from "../tools";
+import { Direction } from "../tools/tools";
 
 export interface JsonLevel {
     $schema: string,

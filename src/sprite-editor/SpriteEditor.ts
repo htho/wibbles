@@ -1,7 +1,7 @@
-import { createTable, documentReady, setImgSrc } from "./dom.js";
-import { isJsonSpriteset, JsonSpriteset, JsonStaticSprite } from "./schema/spriteset.js";
-import { Sprite, Spriteset } from "./Spriteset.js";
-import { Cell, Dimensions, notNullCoersed } from "./tools.js";
+import { createTable, documentReady, setImgSrc } from "../browser/dom.js";
+import { isJsonSpriteset, JsonSpriteset, JsonStaticSprite } from "../schema/spriteset.js";
+import { Sprite, Spriteset } from "../Spriteset.js";
+import { Cell, Dimensions, notNullCoersed } from "../tools/tools.js";
 
 
 class Page {
