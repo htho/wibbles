@@ -3,21 +3,13 @@ import { Game } from "./Game.js";
 import { LevelLoader } from "./Level.js";
 import { WormRenderer } from "./MovingWorm.js";
 import { LevelRenderer } from "./renderer/LevelRenderer.js";
-import { SpriteIndex } from "./Spriteset.js";
+import { SpritesetLoader } from "./Spriteset.js";
 import { Target, TargetPositioner } from "./Target.js";
 import { TilesetLoader } from "./Tileset.js";
 import { Pos } from "./tools/tools.js";
 import { WormHead, WormSegment } from "./Worm.js";
 
 const page = await Page.Load();
-
-const spriteIndex = new SpriteIndex(await SpriteIndex.Load({
-    "oga--zelda-like-tilesets-and-sprites": [
-        "overworld",
-        "objects"
-    ],
-}));
-spriteIndex.spritesets.forEach(spriteset => page.addStyle(spriteset.meta.name, spriteset.cssStyle))
 
 const game = new Game({
         initialLives: 5,
@@ -31,7 +23,7 @@ const game = new Game({
     {
         levelLoader: new LevelLoader(),
         tilesetLoader: new TilesetLoader(),
-        spriteIndex,
+        spritesetLoader: new SpritesetLoader(),
     }
 )
 
@@ -68,6 +60,8 @@ game.on("GameWon", () => {
 })
 game.on("LevelLoaded", (level, tileset) => {
     if(round) page.content.removeChild(round.renderer.html);
+
+    tileset.spriteIndex.spritesets.forEach(spriteset => page.addStyle(spriteset.meta.name, spriteset.cssStyle))
 
 
     const renderer = new LevelRenderer(level, tileset);

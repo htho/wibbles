@@ -79,10 +79,20 @@
       "additionalProperties": false,
       "properties": {
         "$schema": {
+          "const": "../../schema/tileset.json",
           "type": "string"
         },
         "meta": {
           "$ref": "#/definitions/JsonMeta"
+        },
+        "spritesets": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "type": "object"
         },
         "tileDimensions": {
           "$ref": "#/definitions/Dimensions"
@@ -95,9 +105,9 @@
         }
       },
       "required": [
-        "$schema",
         "meta",
         "tileDimensions",
+        "spritesets",
         "tiles"
       ],
       "type": "object"

@@ -42,8 +42,9 @@ export type JsonStartTile = OpenableJsonTile & {
 }
 
 export type JsonTileset = {
-    $schema: string,
+    $schema?: "../../schema/tileset.json",
     meta: JsonMeta,
     tileDimensions: Dimensions,
+    spritesets: {[collection: string]: string[]}
     tiles: {[char: string]: JsonTile},
 }

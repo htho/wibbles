@@ -10,17 +10,11 @@ import {
 } from "./schema/spriteset.js";
 import { JsonMeta } from "./schema/level.js";
 import { Dimensions, Pos } from "./tools/tools.js";
-import { EventEmitter, IEventEmitter } from "./tools/EventEmitter.js";
 
-type SpriteIndexEvents = {
-    "SpriteAdded": (sprite: Sprite) => void,
-}
-
-export class SpriteIndex implements IEventEmitter<SpriteIndexEvents> {
+export class SpriteIndex {
     private readonly _index = new Map<string, Sprite>();
     private readonly _knownSpritesets = new Set<string>();
     private readonly _spritesets = new Set<Spriteset>();
-    private readonly _emitter = new EventEmitter<SpriteIndexEvents>();
 
     constructor(spritesets: Spriteset[]) {
         spritesets.forEach(spriteset => this.add(spriteset));
@@ -30,25 +24,6 @@ export class SpriteIndex implements IEventEmitter<SpriteIndexEvents> {
         return [...this._spritesets];
     }
 
-    on<K extends "SpriteAdded">(event: K, cb: SpriteIndexEvents[K]): void {
-        return this._emitter.on(event, cb);
-    }
-    off<K extends "SpriteAdded">(event: K, cb: SpriteIndexEvents[K]): void {
-        return this._emitter.off(event, cb);
-    }
-
-    static async Load(spriteSetsInCollections: {[collection: string]: string[]}): Promise<Spriteset[]> {
-        const sets = [];
-        for (const [collection, spritesets] of Object.entries(spriteSetsInCollections)) {
-            for (const spriteset of spritesets) {
-                const jsonSpritesetAndBase = await Spriteset.Load(collection, spriteset);
-                const spritesetObj = new Spriteset(jsonSpritesetAndBase);
-                sets.push(spritesetObj);
-            }
-        }
-        return sets;
-    }
-    
     add(spriteset: Spriteset): void {
         spriteset.sprites.forEach(sprite => this._index.set(sprite.id, sprite));
         this._knownSpritesets.add(spriteset.meta.name)
@@ -79,6 +54,25 @@ export class SpriteIndex implements IEventEmitter<SpriteIndexEvents> {
     }
 }
 
+export class SpritesetLoader {
+    async load(spritesets: {[collection: string]: string[]}): Promise<(JsonSpriteset & {base: string})[]> {
+        const filesInCollections = Object.entries(spritesets).map(([collection, files]) => files.map(file => ({collection, file}))).flat(2);
+        const result = filesInCollections.map(({collection, file}) => this.loadFile(collection, file));
+        return Promise.all(result);
+    }
+    async loadFile(collection: string, spriteset: string): Promise<JsonSpriteset & {base: string}> {
+        const base = this.createBaseFromCollection(collection);
+        const fileResponse = await fetch(`${base}/${spriteset}.json`);
+        const jsonSpriteset = await fileResponse.json() as JsonSpriteset;
+        return {...jsonSpriteset, base};
+    }
+    createBaseFromCollection(collection: string): string {
+        const base = `./data/sprites/${collection}`;
+        return base;
+    }
+}
+
+
 export class Spriteset {
     readonly meta: Readonly<JsonMeta>
     readonly base: string;
@@ -96,17 +90,6 @@ export class Spriteset {
         this.sprites = this._createSprites(spriteset);
         this.cssStyle = this.fileToCssString();
         this.styleElement = this.createSpriteStyleElement();
-    }
-
-    static async Load(collection: string, file: string): Promise<JsonSpriteset & {base: string}> {
-        const base = this.CreateBaseFromCollection(collection);
-        const fileResponse = await fetch(`${base}/${file}.json`);
-        const spriteset = await fileResponse.json() as JsonSpriteset;
-        return {...spriteset, base};
-    }
-    static CreateBaseFromCollection(collection: string): string {
-        const base = `./data/sprites/${collection}`;
-        return base;
     }
 
     private _createSprites(spriteset: JsonSpriteset): Map<string, Sprite> {

@@ -1,7 +1,7 @@
 import { Level, LevelLoader } from "./Level.js";
 import { JsonGame } from "./schema/game.js";
 import { JsonMeta } from "./schema/level.js";
-import { SpriteIndex } from "./Spriteset.js";
+import { SpriteIndex, Spriteset, SpritesetLoader } from "./Spriteset.js";
 import { Tileset, TilesetLoader } from "./Tileset.js";
 import { EventEmitter, IEventEmitter } from "./tools/EventEmitter.js";
 
@@ -25,13 +25,19 @@ export class Game implements IEventEmitter<GameEvents> {
     private readonly _emitter = new EventEmitter<GameEvents>();
     private readonly _levelLoader: LevelLoader;
     private readonly _tilesetLoader: TilesetLoader;
-    private readonly _spriteIndex: SpriteIndex;
+    private readonly _spritesetLoader: SpritesetLoader;
     private readonly _lives: Lives;
     private readonly _level: {name: string, tileset: string}[];
     private readonly _meta: JsonMeta;
     private _currentLevelIndex = 0;
 
-    constructor({initialLives, level, meta}: JsonGame, {levelLoader, tilesetLoader, spriteIndex}: {levelLoader: LevelLoader, tilesetLoader: TilesetLoader, spriteIndex: SpriteIndex}) {
+    constructor(
+        {initialLives, level, meta}: JsonGame,
+        {levelLoader, tilesetLoader, spritesetLoader}: {
+            levelLoader: LevelLoader,
+            tilesetLoader: TilesetLoader,
+            spritesetLoader: SpritesetLoader,
+        }) {
         this._lives = new Lives(initialLives);
         this._level = level;
         this._meta = meta;
@@ -40,7 +46,7 @@ export class Game implements IEventEmitter<GameEvents> {
 
         this._levelLoader = levelLoader;
         this._tilesetLoader = tilesetLoader;
-        this._spriteIndex = spriteIndex;
+        this._spritesetLoader = spritesetLoader;
 
         this._initializeLevel();
     }
@@ -67,7 +73,10 @@ export class Game implements IEventEmitter<GameEvents> {
         const jsonTileset = await this._tilesetLoader.load(currentLevelData.tileset);
 
         const level = new Level(jsonLevel);
-        const tileset = new Tileset(jsonTileset, this._spriteIndex);
+        const jsonSpritesetsInTileset = await this._spritesetLoader.load(jsonTileset.spritesets);
+        const spritesetsInTileset = jsonSpritesetsInTileset.map(jsonSpriteset => new Spriteset(jsonSpriteset));
+        const spriteIndex = new SpriteIndex(spritesetsInTileset);
+        const tileset = new Tileset(jsonTileset, spriteIndex);
 
         await this._emit("LevelLoaded", level, tileset);
     }

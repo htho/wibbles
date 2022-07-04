@@ -1,6 +1,6 @@
 import { createTable, documentReady, setImgSrc } from "../browser/dom.js";
 import { isJsonSpriteset, JsonSpriteset, JsonStaticSprite } from "../schema/spriteset.js";
-import { Sprite, Spriteset } from "../Spriteset.js";
+import { Sprite, Spriteset, SpritesetLoader } from "../Spriteset.js";
 import { Cell, Dimensions, notNullCoersed } from "../tools/tools.js";
 
 
@@ -39,11 +39,13 @@ page.spriteFileInput.addEventListener("input", async () => {
     const editor = new SpriteEditor(page, parsed);
     editor.init();
 })
+
+const spritesetLoader = new SpritesetLoader();
     
 class SpriteEditor {
     readonly spriteset: Spriteset;
     constructor(public readonly page: Page, public readonly jsonSpriteSet: JsonSpriteset) {
-        this.spriteset = new Spriteset({...jsonSpriteSet, base: Spriteset.CreateBaseFromCollection(jsonSpriteSet.collection)});
+        this.spriteset = new Spriteset({...jsonSpriteSet, base: spritesetLoader.createBaseFromCollection(jsonSpriteSet.collection)});
     }
     inputData: JsonStaticSprite[] = [];
     async init() {
