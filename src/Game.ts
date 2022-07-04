@@ -1,6 +1,8 @@
 import { Level, LevelLoader } from "./Level.js";
 import { JsonGame } from "./schema/game.js";
 import { JsonMeta } from "./schema/level.js";
+import { SpriteIndex } from "./Spriteset.js";
+import { Tileset, TilesetLoader } from "./Tileset.js";
 import { EventEmitter, IEventEmitter } from "./tools/EventEmitter.js";
 
 export class Lives {
@@ -17,25 +19,28 @@ export class Lives {
     }
 }
 
-export type GameEvents = {"LevelLoaded": (level: Level) => void, "GameOver": () => void, "GameWon": () => void};
+export type GameEvents = {"LevelLoaded": (level: Level, tileset: Tileset) => void, "GameOver": () => void, "GameWon": () => void};
 
 export class Game implements IEventEmitter<GameEvents> {
     private readonly _emitter = new EventEmitter<GameEvents>();
     private readonly _levelLoader: LevelLoader;
+    private readonly _tilesetLoader: TilesetLoader;
+    private readonly _spriteIndex: SpriteIndex;
     private readonly _lives: Lives;
-    private readonly _levelNames: string[];
+    private readonly _level: {name: string, tileset: string}[];
     private readonly _meta: JsonMeta;
-    private _currentLevel?: Level;
     private _currentLevelIndex = 0;
 
-    constructor({initialLives, levelNames, meta}: JsonGame, {levelLoader}: {levelLoader: LevelLoader}) {
+    constructor({initialLives, level, meta}: JsonGame, {levelLoader, tilesetLoader, spriteIndex}: {levelLoader: LevelLoader, tilesetLoader: TilesetLoader, spriteIndex: SpriteIndex}) {
         this._lives = new Lives(initialLives);
-        this._levelNames = levelNames;
+        this._level = level;
         this._meta = meta;
 
         console.log(this._meta);
 
         this._levelLoader = levelLoader;
+        this._tilesetLoader = tilesetLoader;
+        this._spriteIndex = spriteIndex;
 
         this._initializeLevel();
     }
@@ -55,12 +60,16 @@ export class Game implements IEventEmitter<GameEvents> {
     }
 
     private async _initializeLevel(): Promise<void> {
-        const currentLevelName = this._levelNames[this._currentLevelIndex];
-        if(!currentLevelName) return void this._emit("GameWon")
+        const currentLevelData = this._level[this._currentLevelIndex];
+        if(!currentLevelData) return void this._emit("GameWon");
         
-        const level = await this._levelLoader.load(currentLevelName);
-        this._currentLevel = new Level(level);
-        this._emit("LevelLoaded", this._currentLevel);
+        const jsonLevel = await this._levelLoader.load(currentLevelData.name);
+        const jsonTileset = await this._tilesetLoader.load(currentLevelData.tileset);
+
+        const level = new Level(jsonLevel);
+        const tileset = new Tileset(jsonTileset, this._spriteIndex);
+
+        await this._emit("LevelLoaded", level, tileset);
     }
 
     private async _emit<K extends keyof GameEvents>(event: K, ...args: Parameters<GameEvents[K]>): Promise<void> {

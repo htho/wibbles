@@ -21,8 +21,10 @@ export class Tileset {
         this.tileDimensions = tileset.tileDimensions;
         this.tiles = new Map(Object.entries(tileset.tiles).map(([jsonChar, jsonTile]) => [asChar(jsonChar), jsonTile]));
     }
+}
 
-    static async Load(name: string): Promise<JsonTileset> {
+export class TilesetLoader {
+    async load(name: string): Promise<JsonTileset> {
         const file = await fetch(`./data/tilesets/${name}.json`);
         const tileset = await file.json() as JsonTileset;
         return tileset;

@@ -5,7 +5,7 @@ import { WormRenderer } from "./MovingWorm.js";
 import { LevelRenderer } from "./renderer/LevelRenderer.js";
 import { SpriteIndex } from "./Spriteset.js";
 import { Target, TargetPositioner } from "./Target.js";
-import { Tileset } from "./Tileset.js";
+import { TilesetLoader } from "./Tileset.js";
 import { Pos } from "./tools/tools.js";
 import { WormHead, WormSegment } from "./Worm.js";
 
@@ -17,18 +17,11 @@ const spriteIndex = new SpriteIndex(await SpriteIndex.Load({
         "objects"
     ],
 }));
-
 spriteIndex.spritesets.forEach(spriteset => page.addStyle(spriteset.meta.name, spriteset.cssStyle))
-// spriteIndex.getAll().forEach((sprite) => {
-//     page.addStyle(sprite.id, sprite.css);
-// });
-
-
-const basicTileset = new Tileset(await Tileset.Load("basic"), spriteIndex);
 
 const game = new Game({
         initialLives: 5,
-        levelNames: ["empty"],
+        level: [{name: "empty", tileset: "basic"}],
         meta: {
             author: "",
             name: "",
@@ -37,6 +30,8 @@ const game = new Game({
     },
     {
         levelLoader: new LevelLoader(),
+        tilesetLoader: new TilesetLoader(),
+        spriteIndex,
     }
 )
 
@@ -71,10 +66,11 @@ game.on("GameWon", () => {
     page.showAlert("Game Over");
     if(round) page.content.removeChild(round.renderer.html);
 })
-game.on("LevelLoaded", (level) => {
+game.on("LevelLoaded", (level, tileset) => {
     if(round) page.content.removeChild(round.renderer.html);
 
-    const renderer = new LevelRenderer(level, basicTileset);
+
+    const renderer = new LevelRenderer(level, tileset);
     const targetPositioner = new TargetPositioner(renderer);
     const worm = new WormHead(renderer.startPos, level.startDirection, onWormUpdate, 30);
     const movingWorm = new WormRenderer(worm, renderer, page.content);
