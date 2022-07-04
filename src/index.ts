@@ -50,19 +50,18 @@ export class Round {
 }
 
 
-game.on("GameOver", () => {
+game.onGameOver.add(() => {
     page.showAlert("Game Over");
     if(round) page.content.removeChild(round.renderer.html);
 })
-game.on("GameWon", () => {
+game.onGameWon.add(() => {
     page.showAlert("Game Over");
     if(round) page.content.removeChild(round.renderer.html);
 })
-game.on("LevelLoaded", (level, tileset) => {
+game.onLevelLoaded.add((level, tileset) => {
     if(round) page.content.removeChild(round.renderer.html);
 
     tileset.spriteIndex.spritesets.forEach(spriteset => page.addStyle(spriteset.meta.name, spriteset.cssStyle))
-
 
     const renderer = new LevelRenderer(level, tileset);
     const targetPositioner = new TargetPositioner(renderer);

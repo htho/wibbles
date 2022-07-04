@@ -1,6 +1,6 @@
 type CbParams = (...args: any[]) => void | Promise<void>;
 type CbNoParams = () => void | Promise<void>;
-type Cb = CbParams | CbNoParams;
+export type Cb = CbParams | CbNoParams;
 
 export interface IEventEmitter<Events extends {[event: string]: Cb}> {
     on<K extends keyof Events>(event: K, cb: Events[K]): void;
