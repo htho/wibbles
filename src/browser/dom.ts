@@ -1,9 +1,9 @@
 import { isArray, Tuple } from "../tools/tools.js";
 
-export const documentReady = new Promise<Document>((resolve) => {
-    if(document.readyState === "complete") return resolve(document);
+export const documentReady = new Promise<void>((resolve) => {
+    if(document.readyState === "complete") return resolve();
     document.addEventListener("readystatechange", () => {
-        if(document.readyState === "complete") return resolve(document);
+        if(document.readyState === "complete") return resolve();
     });
 });
 
@@ -15,31 +15,42 @@ export const setImgSrc = async (img: HTMLImageElement, src: string) => {
     });
 }
 
+    export function createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, {id, text, innerHTML, classList, style}: {id?: string, text?: string, innerHTML?: string, classList?: readonly string[], style?: Partial<CSSStyleDeclaration>} = {}): HTMLElementTagNameMap[K] {
+    const el = document.createElement(tagName);
+    if(id) el.id = id;
+    if(text) el.innerText = text;
+    if(innerHTML) el.innerHTML = innerHTML;
+    if(classList) el.classList.add(...classList);
+    if(style) Object.assign(el.style, style);
+    return el;
+}
+
 export function createTable<COLS extends number>({header, data, headerTransform, dataTransform} : {
     header: Tuple<any, COLS>,
     data: Tuple<any, COLS>[],
     headerTransform?: Tuple<undefined | ((cell: any) => string), COLS>,
     dataTransform?: Tuple<undefined | ((cell: any) => string | HTMLElement | HTMLElement[]), COLS>
 }): HTMLTableElement {
-    const table = document.createElement("table");
-    const headerRow = document.createElement("tr");
+    const table = createElement("table");
+    const headerRow = createElement("tr");
     const fallbackTransform = (cell: any) => `${cell}`;
     for (let i = 0; i < header.length; i++) {
         const cell = header[i];
         const transform = (headerTransform && headerTransform[i]) ?? fallbackTransform;
         const stringCell = transform(cell);
-        const th = document.createElement("th");
-        th.innerText = stringCell;
+        const th = createElement("th", {
+            text: stringCell
+        });
         headerRow.appendChild(th);
     }
     table.appendChild(headerRow);
     for (const dataRow of data) {
-        const tr = document.createElement("tr");
+        const tr = createElement("tr");
         for (let i = 0; i < dataRow.length; i++) {
             const cell = dataRow[i];
             const transform = (dataTransform && dataTransform[i]) ?? fallbackTransform;
             const transformedCell = transform(cell);
-            const td = document.createElement("td");
+            const td = createElement("td");
             if (typeof transformedCell === "string") td.innerText = transformedCell;
             else if (isArray(transformedCell)) td.append(...transformedCell);
             else td.append(transformedCell);;

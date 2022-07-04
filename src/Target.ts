@@ -1,3 +1,4 @@
+import { createElement } from "./browser/dom.js";
 import { LevelRenderer } from "./renderer/LevelRenderer.js";
 import { getRandomIntInclusive, Pos } from "./tools/tools.js";
 
@@ -9,9 +10,12 @@ export class Target {
         this.pos = pos;
         this.targetContainer = targetContainer;
 
-        this.target = document.createElement("div");
-        this.target.classList.add("target");
-        this.target.style.transform = `translate(${this.pos.x}px, ${this.pos.y}px)`;
+        this.target = createElement("div", {
+            classList: ["target"],
+            style: {
+                transform: `translate(${this.pos.x}px, ${this.pos.y}px)`,
+            }
+        });
     }
 
     draw(): void {

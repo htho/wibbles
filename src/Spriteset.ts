@@ -10,6 +10,7 @@ import {
 } from "./schema/spriteset.js";
 import { JsonMeta } from "./schema/level.js";
 import { Dimensions, Pos } from "./tools/tools.js";
+import { createElement } from "./browser/dom.js";
 
 export class SpriteIndex {
     private readonly _index = new Map<string, Sprite>();
@@ -110,9 +111,10 @@ export class Spriteset {
     }
 
     private createSpriteStyleElement(): HTMLStyleElement {
-        const rendered = document.createElement("style");
-        rendered.id = `style--${this.meta.name}`;
-        rendered.innerHTML = this.fileToCssString();
+        const rendered = createElement("style", {
+            id: `style--${this.meta.name}`,
+            innerHTML: this.fileToCssString(),
+        });
         return rendered;
     }
 
@@ -138,10 +140,13 @@ export abstract class Sprite {
     }
 
     createHTML(): HTMLElement {
-        const result = document.createElement("div");
-        result.classList.add("sprite");
-        result.classList.add(this.spriteSet.meta.name);
-        result.classList.add(this.name);
+        const result = createElement("div", {
+            classList: [
+                "sprite",
+                this.spriteSet.meta.name,
+                this.name,
+            ]
+        });
         return result;
     };
 }

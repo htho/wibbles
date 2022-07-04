@@ -3,6 +3,7 @@ import { JsonTile, TileType, JsonTileset, BasicJsonTile, OpenableJsonTile, isBas
 import { asChar, Char } from "./tools/Char.js";
 import { Sprite, SpriteIndex } from "./Spriteset.js";
 import { Dimensions, isArray, Pos } from "./tools/tools.js";
+import { createElement } from "./browser/dom.js";
 
 export class Tileset {
     readonly meta: Readonly<JsonMeta>;
@@ -140,9 +141,12 @@ export class OpenableTile extends Tile {
         this._closed = this.jsonSpriteToSprite(jsonTile.closed);
         const htmlOpen = this.renderHtml(this._open);
         const htmlClosed = this.renderHtml(this._closed);
-        this.html = document.createElement("div");
-        this.html.classList.add("openable");
-        this.html.classList.add("tile");
+        this.html = createElement("div", {
+            classList: [
+                "openable",
+                "tile",
+            ]
+        });
         htmlOpen.classList.add("open");
         htmlClosed.classList.add("closed");
         this.html.appendChild(htmlOpen);
