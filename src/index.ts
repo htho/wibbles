@@ -6,6 +6,7 @@ import { LevelRenderer } from "./renderer/LevelRenderer.js";
 import { SpritesetLoader } from "./Spriteset.js";
 import { Target, TargetPositioner } from "./Target.js";
 import { TilesetLoader } from "./Tileset.js";
+import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
 import { Pos } from "./tools/tools.js";
 import { WormHead, WormSegment } from "./Worm.js";
 
@@ -29,44 +30,87 @@ const game = new Game({
 
 let round: Round | undefined = undefined;
 
-export class Round {
+export class Round implements IDisposable {
     public readonly renderer: LevelRenderer;
     public readonly targetPositioner: TargetPositioner;
     public readonly worm: WormHead;
     public readonly movingWorm: WormRenderer;
-    private _currentTarget!: Target;
+    private _currentTarget: Target;
     public get currentTarget(): Target {
         return this._currentTarget;
     }
     public set currentTarget(value: Target) {
         this._currentTarget = value;
     }
+    public stopped: Promise<void>;
     constructor({ renderer, targetPositioner, worm, movingWorm }: { renderer: LevelRenderer; targetPositioner: TargetPositioner; worm: WormHead; movingWorm: WormRenderer; }) {
         this.renderer = renderer;
         this.targetPositioner = targetPositioner;
         this.worm = worm;
         this.movingWorm = movingWorm;
+
+        renderer.tileset.spriteIndex.spritesets.forEach(spriteset => page.addStyle(spriteset.meta.name, spriteset.cssStyle))
+
+        page.addStyle("worm", movingWorm.css);
+
+        const pos = targetPositioner.findSpot();
+        this._currentTarget = new Target(pos, page.content);
+        renderer.start.open();
+        renderer.exit.close();
+        this._currentTarget.draw();
+
+        page.content.appendChild(renderer.html);
+        window.addEventListener("keydown", this._keydownhandler);
+        this.stopped = this.movingWorm.start();
     }
+
+    private readonly _keydownhandler = (ev: KeyboardEvent) => {
+        if(ev.key === "ArrowLeft") this.movingWorm.dir("W");
+        if(ev.key === "ArrowRight") this.movingWorm.dir("E");
+        if(ev.key === "ArrowUp") this.movingWorm.dir("N");
+        if(ev.key === "ArrowDown") this.movingWorm.dir("S");
+    }
+
+    private _isDisposed = false;
+    get isDisposed(): boolean {
+        return this._isDisposed;
+    }
+    async dispose(): Promise<void> {
+        this._isDisposed = true;
+
+        this.movingWorm.stop();
+        await this.stopped;
+        window.removeEventListener("keydown", this._keydownhandler);
+        page.content.removeChild(this.renderer.html);
+        this._currentTarget.clear();
+        page.removeStyle("worm");
+        this.renderer.tileset.spriteIndex.spritesets.forEach(spriteset => page.removeStyle(spriteset.meta.name))
+
+        finalizeDisposal(this);
+    };
 }
 
-
-game.onGameOver.add(() => {
-    page.showAlert("Game Over");
-    if(round) page.content.removeChild(round.renderer.html);
+game.onLiveLost.add(async (lives) => {
+    page.showAlert(`Live Lost! Lives left: ${lives.left}`);
+    if(round && !round.isDisposed) await round.dispose();
 })
-game.onGameWon.add(() => {
+game.onGameOver.add(async () => {
     page.showAlert("Game Over");
-    if(round) page.content.removeChild(round.renderer.html);
+    if(round && !round.isDisposed) await round.dispose();
 })
-game.onLevelLoaded.add((level, tileset) => {
-    if(round) page.content.removeChild(round.renderer.html);
-
-    tileset.spriteIndex.spritesets.forEach(spriteset => page.addStyle(spriteset.meta.name, spriteset.cssStyle))
+game.onGameWon.add(async () => {
+    page.showAlert("Game Won");
+    if(round && !round.isDisposed) await round.dispose();
+})
+game.onLevelLoaded.add(async (level, tileset) => {
+    page.showInfo("New Round");
+    if(round && !round.isDisposed) await round.dispose();
 
     const renderer = new LevelRenderer(level, tileset);
     const targetPositioner = new TargetPositioner(renderer);
     const worm = new WormHead(renderer.startPos, level.startDirection, onWormUpdate, 30);
     const movingWorm = new WormRenderer(worm, renderer, page.content);
+    
     function onWormUpdate(segment: WormSegment, pos: Pos): void {
         movingWorm.updateSegment(segment, pos);
         if(segment instanceof WormHead) {
@@ -89,24 +133,11 @@ game.onLevelLoaded.add((level, tileset) => {
             }
         }
     }   
-    page.addStyle("worm", movingWorm.css);
-    window.addEventListener("keydown", (ev) => {
-        if(ev.key === "ArrowLeft") movingWorm.dir("W");
-        if(ev.key === "ArrowRight") movingWorm.dir("E");
-        if(ev.key === "ArrowUp") movingWorm.dir("N");
-        if(ev.key === "ArrowDown") movingWorm.dir("S");
-    });
+
     round = new Round({
         renderer,
         targetPositioner,
         worm,
         movingWorm,
     });
-    const pos = round.targetPositioner.findSpot();
-    round.currentTarget = new Target(pos, page.content);
-    round.renderer.start.open();
-    round.renderer.exit.close();
-    
-    page.content.appendChild(round.renderer.html);
-    movingWorm.start();
 });

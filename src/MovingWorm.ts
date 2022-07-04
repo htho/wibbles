@@ -7,7 +7,7 @@ export class WormRenderer {
     readonly head: WormHead;
     tilesPerSecond = 1;
     readonly standardTileSize: number;
-    running = false;
+    isRunning = false;
     readonly initialDir: Direction;
     readonly css: string;
     readonly container: HTMLElement;
@@ -20,19 +20,22 @@ export class WormRenderer {
         this.css = this.createSegmentStyleCss();
     }
     async start(): Promise<void> {
-        this.running = true;
+        this.isRunning = true;
         let lastStepTime = 0;
         const pxPerSecond = this.standardTileSize * this.tilesPerSecond;
         const inteval = 1000 / pxPerSecond;
-        while (this.running) {
+        
+        while (this.isRunning) {
             const time = await nextAnmiationFrame();
             const timeSinceLastStep = time - lastStepTime;
-            if (timeSinceLastStep < inteval)
-                continue;
-
+            if (timeSinceLastStep < inteval) continue;
+            
             lastStepTime = time;
-            this.head.nextStep();
+            if(this.isRunning) this.head.nextStep();
         }
+    }
+    stop(): void {
+        this.isRunning = false;
     }
     private createSegmentStyleCss(): string {
         return `

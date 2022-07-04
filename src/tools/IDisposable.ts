@@ -7,7 +7,7 @@ export class ObjectDisposedError<T extends IDisposable> extends Error {
 }
 
 export interface IDisposable {
-    dispose(): void;
+    dispose(): void | Promise<void>;
     get isDisposed(): boolean;
 }
 

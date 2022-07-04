@@ -50,6 +50,7 @@ export class Game {
         this._initializeLevel();
     }
 
+    public readonly onLiveLost = new EventProp<(lives: Lives) => void>();
     public readonly onLevelLoaded = new EventProp<(level: Level, tileset: Tileset) => void>();
     public readonly onGameOver = new EventProp<() => void>();
     public readonly onGameWon = new EventProp<() => void>();
@@ -60,6 +61,7 @@ export class Game {
     }
     async liveLost(): Promise<void> {
         this._lives.decrease();
+        await this.onLiveLost._emit(this._lives);
         if(this._lives.left > 0) return;
      
         await this.onGameOver._emit();
