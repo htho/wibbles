@@ -3,7 +3,7 @@ import { JsonGame } from "./schema/game.js";
 import { JsonMeta } from "./schema/level.js";
 import { SpriteIndex, Spriteset, SpritesetLoader } from "./Spriteset.js";
 import { Tileset, TilesetLoader } from "./Tileset.js";
-import { EventProp } from "./tools/EventProp.js";
+import { SingleEventProp } from "./tools/EventProp.js";
 
 export class Lives {
     readonly amount: number;
@@ -50,10 +50,10 @@ export class Game {
         this._initializeLevel();
     }
 
-    public readonly onLiveLost = new EventProp<(lives: Lives) => void>();
-    public readonly onLevelLoaded = new EventProp<(level: Level, tileset: Tileset) => void>();
-    public readonly onGameOver = new EventProp<() => void>();
-    public readonly onGameWon = new EventProp<() => void>();
+    public readonly onLiveLost = new SingleEventProp<(lives: Lives) => void>();
+    public readonly onLevelLoaded = new SingleEventProp<(level: Level, tileset: Tileset) => void>();
+    public readonly onGameOver = new SingleEventProp<() => void>();
+    public readonly onGameWon = new SingleEventProp<() => void>();
 
     nextLevel(): void {
         this._currentLevelIndex++;

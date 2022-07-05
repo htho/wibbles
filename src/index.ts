@@ -1,11 +1,11 @@
 import { Page } from "./browser/page.js";
 import { Game } from "./Game.js";
-import { LevelLoader } from "./Level.js";
+import { Level, LevelLoader } from "./Level.js";
 import { WormRenderer } from "./MovingWorm.js";
 import { LevelRenderer } from "./renderer/LevelRenderer.js";
 import { SpritesetLoader } from "./Spriteset.js";
 import { Target, TargetPositioner } from "./Target.js";
-import { TilesetLoader } from "./Tileset.js";
+import { Tileset, TilesetLoader } from "./Tileset.js";
 import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
 import { Pos } from "./tools/tools.js";
 import { WormHead, WormSegment } from "./Worm.js";
@@ -28,7 +28,8 @@ const game = new Game({
     }
 )
 
-let round: Round | undefined = undefined;
+let round: Round | undefined;
+let appData: {level: Level, tileset: Tileset} | undefined;
 
 export class Round implements IDisposable {
     public readonly renderer: LevelRenderer;
@@ -90,22 +91,12 @@ export class Round implements IDisposable {
     };
 }
 
-game.onLiveLost.add(async (lives) => {
-    page.showAlert(`Live Lost! Lives left: ${lives.left}`);
-    if(round && !round.isDisposed) await round.dispose();
-})
-game.onGameOver.add(async () => {
-    page.showAlert("Game Over");
-    if(round && !round.isDisposed) await round.dispose();
-})
-game.onGameWon.add(async () => {
-    page.showAlert("Game Won");
-    if(round && !round.isDisposed) await round.dispose();
-})
-game.onLevelLoaded.add(async (level, tileset) => {
-    page.showInfo("New Round");
-    if(round && !round.isDisposed) await round.dispose();
-
+async function clean() {
+    if(!round) return;
+    if(round.isDisposed) return;
+    await round.dispose();
+}
+async function start(level: Level, tileset: Tileset) {
     const renderer = new LevelRenderer(level, tileset);
     const targetPositioner = new TargetPositioner(renderer);
     const worm = new WormHead(renderer.startPos, level.startDirection, onWormUpdate, 30);
@@ -140,4 +131,30 @@ game.onLevelLoaded.add(async (level, tileset) => {
         worm,
         movingWorm,
     });
+
+
+}
+
+game.onLiveLost.set(async (lives) => {
+    page.showAlert(`Live Lost! Lives left: ${lives.left}`);
+    await clean();
+    if(!appData) throw new Error("App Data not initialized yet!");
+    await start(appData.level, appData.tileset)
+
+})
+game.onGameOver.set(async () => {
+    page.showAlert("Game Over");
+    await clean();
+})
+game.onGameWon.set(async () => {
+    page.showAlert("Game Won");
+    await clean();
+})
+game.onLevelLoaded.set(async (level, tileset) => {
+    page.showInfo("New Round");
+    await clean();
+    appData = {
+        level, tileset
+    };
+    await start(appData.level, appData.tileset)
 });
