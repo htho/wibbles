@@ -33,15 +33,15 @@ export class Page {
     }
     showInfo(msg: string): void {
         const box = this._createBox("info", msg);
-        this.msgArea.appendChild(box);
+        this.msgArea.insertAdjacentElement("afterbegin", box);
     }
     showWarn(msg: string): void {
         const box = this._createBox("warn", msg);
-        this.msgArea.appendChild(box);
+        this.msgArea.insertAdjacentElement("afterbegin", box);
     }
     showAlert(msg: string): void {
         const box = this._createBox("alert", msg);
-        this.msgArea.appendChild(box);
+        this.msgArea.insertAdjacentElement("afterbegin", box);
     }
     addStyle(id: string, cssString: string): void {
         if(document.getElementById(id)) throw new Error(`There is already an element with the ID "${id}" in the DOM!`);
