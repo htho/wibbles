@@ -1,7 +1,9 @@
-import { WormHead, WormSegment } from "./Worm.js";
-import { Direction, nextAnmiationFrame, Pos } from "./tools/tools.js";
-import { LevelRenderer } from "./renderer/LevelRenderer.js";
+import type { LevelRenderer } from "./renderer/LevelRenderer.js";
+import type { Direction, Pos } from "./tools/tools.js";
+import type { WormHead, WormSegment } from "./Worm.js";
+
 import { createElement } from "./browser/dom.js";
+import { nextAnmiationFrame } from "./tools/tools.js";
 
 export class WormRenderer {
     readonly head: WormHead;
@@ -72,7 +74,7 @@ export class RenderedWormSegment {
         const result = createElement("div", {
             classList: ["worm-segment"]
         });
-        if(this.segment instanceof WormHead) {
+        if("isHead" in this.segment) {
             result.classList.add("worm-head");
         }
         return result;

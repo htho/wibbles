@@ -10,6 +10,9 @@ export interface IDisposable {
     dispose(): void | Promise<void>;
     get isDisposed(): boolean;
 }
+export interface IDisposed {
+    isDisposed: true;
+}
 
 export function finalizeDisposal<T extends IDisposable>(obj: T): void {
     const descriptors = Object.getOwnPropertyDescriptors(obj);

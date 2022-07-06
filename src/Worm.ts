@@ -1,19 +1,18 @@
-import { Pos, Direction } from "./tools/tools";
+import type { Pos, Direction } from "./tools/tools.js";
 
+import { SingleEventProp } from "./tools/EventProp.js";
 
 export class WormSegment {
+    readonly onAfterMove = new SingleEventProp<(head: WormSegment, newPos: Pos) => void>();
     readonly pos: Pos;
-    readonly onAfterMove: (segment: WormSegment, newPos: Pos) => void;
     tail?: WormSegment;
     currentDirection: Direction;
     constructor(
         position: Pos,
         direction: Direction,
-        onAfterMove: (segment: WormSegment, newPos: Pos) => void,
     ) {
         this.pos = {...position};
         this.currentDirection = direction;
-        this.onAfterMove = onAfterMove;
     }
     grow(): void {
         if(this.tail) {
@@ -23,28 +22,28 @@ export class WormSegment {
         this.tail = new WormSegment(
             this.pos,
             this.currentDirection,
-            this.onAfterMove,
         );
+        this.tail.onAfterMove.set((head, newPos) => this.onAfterMove._emit(head, newPos));
     }
     
     protected updatePos({x, y}: Pos): void {
         if(this.tail) this.tail.updatePos(this.pos);
         this.pos.x = x;
         this.pos.y = y;
-        this.onAfterMove(this, this.pos);
+        this.onAfterMove._emit(this, this.pos);
     }
 }
 export class WormHead extends WormSegment {
+    readonly onAfterHeadMove = new SingleEventProp<(head: WormHead, newPos: Pos) => void>();
+    readonly isHead = true;
     constructor(
         pos: Pos,
         direction: Direction,
-        onAfterMove: (segment: WormSegment, newPos: Pos) => void,
         length: number,
         ) {
         super(
             pos,
             direction,
-            onAfterMove,
         );
         for (let i = 0; i < length; i++) {
             this.grow();
@@ -54,9 +53,11 @@ export class WormHead extends WormSegment {
     changeDir(dir: Direction): void {
         this.currentDirection = dir;
     }
+
     nextStep(): void {
         this.step(this.currentDirection);
     }
+
     protected step(dir: Direction): void {
         const nextPos: Pos = {...this.pos};
 
@@ -66,6 +67,7 @@ export class WormHead extends WormSegment {
         else if (dir === "E") nextPos.x++;
 
         this.updatePos(nextPos);
+        this.onAfterHeadMove._emit(this, nextPos);
     }
 
     segments(): WormSegment[] {
