@@ -1,79 +1,82 @@
 import { Level, LevelLoader } from "./Level.js";
+import { Lives } from "./Lives.js";
+import { RoundFactory } from "./Round.js";
 import { JsonGame } from "./schema/game.js";
 import { JsonMeta } from "./schema/level.js";
 import { SpriteIndex, Spriteset, SpritesetLoader } from "./Spriteset.js";
 import { Tileset, TilesetLoader } from "./Tileset.js";
-import { SingleEventProp } from "./tools/EventProp.js";
-
-export class Lives {
-    readonly amount: number;
-    left: number;
-
-    constructor(amount: number) {
-        this.amount = amount;
-        this.left = amount;
-    }
-
-    decrease(): void {
-        this.left--;
-    }
-}
-
-export type GameEvents = {"LevelLoaded": (level: Level, tileset: Tileset) => void, "GameOver": () => void, "GameWon": () => void};
 
 export class Game {
     private readonly _levelLoader: LevelLoader;
     private readonly _tilesetLoader: TilesetLoader;
     private readonly _spritesetLoader: SpritesetLoader;
-    private readonly _lives: Lives;
-    private readonly _level: {name: string, tileset: string}[];
+    private readonly _roundFactory: RoundFactory;
+    private readonly _logger: {info: (msg: string) => void, alert: (msg: string) => void};
+    private _lives: Lives;
+    private readonly _level: { name: string, tileset: string }[];
     private readonly _meta: JsonMeta;
     private _currentLevelIndex = 0;
     private _currentLevel!: Level;
     private _currentTileset!: Tileset;
 
     constructor(
-        {initialLives, level, meta}: JsonGame,
-        {levelLoader, tilesetLoader, spritesetLoader}: {
+        { initialLives, level, meta }: JsonGame,
+        { levelLoader, tilesetLoader, spritesetLoader, roundFactory, logger }: {
             levelLoader: LevelLoader,
             tilesetLoader: TilesetLoader,
             spritesetLoader: SpritesetLoader,
+            roundFactory: RoundFactory,
+            logger: {info: (msg: string) => void, alert: (msg: string) => void}
         }) {
+        console.log(`new Game`)
         this._lives = new Lives(initialLives);
         this._level = level;
         this._meta = meta;
 
-        console.log(this._meta);
-
         this._levelLoader = levelLoader;
         this._tilesetLoader = tilesetLoader;
         this._spritesetLoader = spritesetLoader;
-
-        this._initializeLevel();
+        this._roundFactory = roundFactory;
+        this._logger = logger;
+       
+        this._logger.info(JSON.stringify(this._meta));
     }
 
-    public readonly onLiveLost = new SingleEventProp<(lives: Lives) => void>();
-    public readonly onNewRound = new SingleEventProp<(level: Level, tileset: Tileset) => void>();
-    public readonly onGameOver = new SingleEventProp<() => void>();
-    public readonly onGameWon = new SingleEventProp<() => void>();
-
-    nextLevel(): void {
-        this._currentLevelIndex++;
-        this._initializeLevel();
+    async start(): Promise<void> {
+        console.log(`Game.start()`)
+        while (this.hasNextLevel) {
+            await this._initializeLevel();
+            console.log(`level initialzed`, this._currentLevel)
+            while(true) {
+                console.log(`createRound()`)
+                const round = this._roundFactory.createRound(this._currentLevel, this._currentTileset);
+                const roundResult = await round.start();
+                console.log(`round over`, roundResult)
+                if(!roundResult.liveLost) {
+                    await round.dispose();
+                    this._logger.info("Round Won!");
+                    break;
+                } else {
+                    this._lives.decrease();
+                    if(this._lives.left > 0) {
+                        await round.dispose();
+                        this._logger.alert(`Lives Left ${this._lives.left}`);
+                    } else {
+                        this._logger.alert("Game Over!");
+                        await round.dispose();
+                        return;
+                    }
+                }
+            }
+            
+            this._currentLevelIndex++;
+        }
+        this._logger.alert("Game Won!");
     }
-    async liveLost(): Promise<void> {
-        this._lives.decrease();
-        await this.onLiveLost._emit(this._lives);
-        await this.onNewRound._emit(this._currentLevel, this._currentTileset);
-        if(this._lives.left > 0) return;
-     
-        await this.onGameOver._emit();
+    get hasNextLevel(): boolean {
+        return this._currentLevelIndex <= this._level.length;
     }
-    get livesLeft(): number {
-        return this._lives.left;
-    }
-
-    private async _loadLevel({name, tileset}: {name: string, tileset: string}): Promise<{level: Level, tileset: Tileset}> {
+    private async _loadLevel({ name, tileset }: { name: string, tileset: string }): Promise<{ level: Level, tileset: Tileset }> {
         const jsonLevel = await this._levelLoader.load(name);
         const jsonTileset = await this._tilesetLoader.load(tileset);
 
@@ -83,19 +86,17 @@ export class Game {
         const spriteIndex = new SpriteIndex(spritesetsInTileset);
         const tilesetObj = new Tileset(jsonTileset, spriteIndex);
 
-        return {level, tileset: tilesetObj};
+        return { level, tileset: tilesetObj };
     }
-
     private async _initializeLevel(): Promise<void> {
         const currentLevelData = this._level[this._currentLevelIndex];
-        if(!currentLevelData) return await this.onGameWon._emit();
+        if (!currentLevelData) throw new Error("No level data available! Probably increased level too far.");
         
-        const {level, tileset} = await this._loadLevel(currentLevelData);
+
+        const { level, tileset } = await this._loadLevel(currentLevelData);
 
         this._currentLevel = level;
         this._currentTileset = tileset;
-
-        await this.onNewRound._emit(this._currentLevel, this._currentTileset);
     }
 
     static async Load(name: string): Promise<JsonGame> {

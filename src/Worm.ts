@@ -1,18 +1,37 @@
-import type { Pos, Direction } from "./tools/tools.js";
+import { createElement } from "./browser/dom.js";
+import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
+import { Pos, Direction, nextAnmiationFrame } from "./tools/tools.js";
 
-import { SingleEventProp } from "./tools/EventProp.js";
-
-export class WormSegment {
-    readonly onAfterMove = new SingleEventProp<(head: WormSegment, newPos: Pos) => void>();
+export class WormSegment implements IDisposable {
     readonly pos: Pos;
     tail?: WormSegment;
-    currentDirection: Direction;
+    element: HTMLElement;
+    container: HTMLElement;
     constructor(
         position: Pos,
-        direction: Direction,
+        container: HTMLElement,
     ) {
         this.pos = {...position};
-        this.currentDirection = direction;
+        this.container = container;
+        this.element = this._render();
+    }
+    dispose(): void {
+        this._isDisposed = true;
+        if(this.tail) {
+            this.container.removeChild(this.tail.element)
+            this.tail.dispose();
+        }
+        finalizeDisposal(this);
+    };
+    protected _isDisposed = false;
+    get isDisposed(): boolean {
+        return this._isDisposed;
+    }
+    protected _render(): HTMLElement {
+        const result = createElement("div", {
+            classList: ["worm-segment"]
+        });
+        return result;
     }
     grow(): void {
         if(this.tail) {
@@ -21,44 +40,49 @@ export class WormSegment {
         }
         this.tail = new WormSegment(
             this.pos,
-            this.currentDirection,
+            this.container,
         );
-        this.tail.onAfterMove.set((head, newPos) => this.onAfterMove._emit(head, newPos));
+        this.container.appendChild(this.tail.element);
     }
     
     protected updatePos({x, y}: Pos): void {
-        if(this.tail) this.tail.updatePos(this.pos);
+        const currentPos = {...this.pos};
         this.pos.x = x;
         this.pos.y = y;
-        this.onAfterMove._emit(this, this.pos);
+        this.element.style.transform = `translate(${x}px, ${y}px)`;
+
+        if(this.tail) this.tail.updatePos(currentPos);
     }
 }
 export class WormHead extends WormSegment {
-    readonly onAfterHeadMove = new SingleEventProp<(head: WormHead, newPos: Pos) => void>();
     readonly isHead = true;
+    private _currentDirection: Direction;
     constructor(
         pos: Pos,
         direction: Direction,
+        container: HTMLElement,
         length: number,
         ) {
         super(
             pos,
-            direction,
+            container,
         );
+        this._currentDirection = direction;
+        this._updateRender();
         for (let i = 0; i < length; i++) {
             this.grow();
         }
     }
-
+    private _updateRender(): void {
+        this.element.classList.add("worm-head");
+    }
     changeDir(dir: Direction): void {
-        this.currentDirection = dir;
+        this._currentDirection = dir;
     }
-
-    nextStep(): void {
-        this.step(this.currentDirection);
+    async nextStep(): Promise<void> {
+        await this.step(this._currentDirection);
     }
-
-    protected step(dir: Direction): void {
+    private async step(dir: Direction): Promise<void> {
         const nextPos: Pos = {...this.pos};
 
         if (dir === "N") nextPos.y--;
@@ -66,8 +90,8 @@ export class WormHead extends WormSegment {
         else if (dir === "S") nextPos.y++;
         else if (dir === "E") nextPos.x++;
 
+        await nextAnmiationFrame();
         this.updatePos(nextPos);
-        this.onAfterHeadMove._emit(this, nextPos);
     }
 
     segments(): WormSegment[] {
@@ -80,11 +104,20 @@ export class WormHead extends WormSegment {
         return segments;
     }
 
+    getLastTail(): WormSegment {
+        let segment: WormSegment = this;        
+        while(segment?.tail) {
+            segment = segment.tail;
+        }
+        return segment;
+    }
+
     collides(pos: Pos, radius: number): boolean {
         if(pos.x > this.pos.x + radius) return false;
         if(pos.x < this.pos.x) return false;
         if(pos.y > this.pos.y + radius) return false;
         if(pos.y < this.pos.y) return false;
+        console.log(`Worm collides ${JSON.stringify(pos)} is within ${JSON.stringify(this.pos)} + ${radius}`)
         return true;
     }
 }

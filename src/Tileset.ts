@@ -132,6 +132,9 @@ export class OpenableTile extends Tile {
     private readonly _open: Sprite | Sprite[];
     private readonly _closed: Sprite | Sprite[];
     private _isOpen = false;
+    get isOpen() {
+        return this._isOpen;
+    }
     readonly html: HTMLElement;
     readonly dimensions: Dimensions;
 
@@ -161,6 +164,9 @@ export class OpenableTile extends Tile {
 
     override collides(pos: Pos): boolean {
         if (this._isOpen) return false;
+        return super.collides(pos);
+    }
+    collidesRegardlessOfState(pos: Pos): boolean {
         return super.collides(pos);
     }
 

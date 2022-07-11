@@ -13,6 +13,8 @@ export class LevelRenderer<W extends number = number, H extends number = number>
     readonly startPos: Pos;
     readonly exit: OpenableTile;
     readonly html: HTMLElement;
+    readonly standardTileSize: number;
+
 
     constructor(level: Level<W, H>, tileset: Tileset) {
         this.level = level;
@@ -34,6 +36,8 @@ export class LevelRenderer<W extends number = number, H extends number = number>
         this.exit = exit as OpenableTile;
 
         this.html = this._renderHtml();
+
+        this.standardTileSize = this.start.dimensions.height;
     }
     private _findStartPos(): Pos {
         const {x, y} = this.start.absPos;

@@ -1,15 +1,17 @@
 import { Page } from "./browser/page.js";
-import { Controller } from "./Controller.js";
 import { Game } from "./Game.js";
 import { LevelLoader } from "./Level.js";
+import { RoundFactory } from "./Round.js";
 import { SpritesetLoader } from "./Spriteset.js";
 import { TilesetLoader } from "./Tileset.js";
 
 const page = await Page.Load();
-
 const game = new Game({
     initialLives: 5,
-    level: [{name: "empty", tileset: "basic"}],
+    level: [
+        {name: "empty", tileset: "basic"},
+        {name: "treeTrunk", tileset: "basic"},
+    ],
     meta: {
         author: "",
         name: "",
@@ -20,9 +22,16 @@ const game = new Game({
     levelLoader: new LevelLoader(),
     tilesetLoader: new TilesetLoader(),
     spritesetLoader: new SpritesetLoader(),
+    roundFactory: new RoundFactory(page),
+    logger: {
+        alert(msg) {
+            page.showAlert(msg);
+        },
+        info(msg) {
+            page.showInfo(msg);
+        },
+    }
 }
-)
-
-const controller = new Controller({page, game});
-await controller.start();
+);
+await game.start();
 
