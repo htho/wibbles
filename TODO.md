@@ -4,7 +4,6 @@
  * [] show game won instead of exception
  * [] update direction on level change
  * [] double speed when arrow for current direction is pressed
- * [] update flowchart
 
  !!!REFACTOR!!!
 
