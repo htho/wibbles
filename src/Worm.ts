@@ -1,19 +1,25 @@
 import { createElement } from "./browser/dom.js";
+import { FixedSizeQueue } from "./tools/FixedSizeQueue.js";
 import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
 import { Pos, Direction, nextAnmiationFrame } from "./tools/tools.js";
 
 export class WormSegment implements IDisposable {
     readonly pos: Pos;
     tail?: WormSegment;
-    element: HTMLElement;
-    container: HTMLElement;
+    readonly element: HTMLElement;
+    readonly container: HTMLElement;
+    private readonly segmentDistance: number;
+    private readonly updateQueue: FixedSizeQueue<Pos>;
     constructor(
         position: Pos,
         container: HTMLElement,
+        segmentDistance: number,
     ) {
         this.pos = {...position};
         this.container = container;
         this.element = this._render();
+        this.segmentDistance = segmentDistance;
+        this.updateQueue = new FixedSizeQueue(segmentDistance);
     }
     dispose(): void {
         this._isDisposed = true;
@@ -41,8 +47,9 @@ export class WormSegment implements IDisposable {
         this.tail = new WormSegment(
             this.pos,
             this.container,
+            this.segmentDistance,
         );
-        this.container.appendChild(this.tail.element);
+        this.container.insertAdjacentElement("beforeend", this.tail.element);
     }
     
     protected updatePos({x, y}: Pos): void {
@@ -51,7 +58,10 @@ export class WormSegment implements IDisposable {
         this.pos.y = y;
         this.element.style.transform = `translate(${x}px, ${y}px)`;
 
-        if(this.tail) this.tail.updatePos(currentPos);
+        if(!this.tail) return;
+        const nextTailPos = this.updateQueue.enqueue(currentPos);
+        if(!nextTailPos) return;
+        this.tail.updatePos(nextTailPos);
     }
 }
 export class WormHead extends WormSegment {
@@ -61,11 +71,13 @@ export class WormHead extends WormSegment {
         pos: Pos,
         direction: Direction,
         container: HTMLElement,
+        segmentDistance: number,
         length: number,
         ) {
         super(
             pos,
             container,
+            segmentDistance,
         );
         this._currentDirection = direction;
         this._updateRender();

@@ -21,6 +21,7 @@ export class Page {
     }
     
     content = document.getElementById<HTMLDivElement>("content") ?? notNullCoersed("#content not found!");
+    worm = document.getElementById<HTMLDivElement>("worm") ?? notNullCoersed("#worm not found!");
     msgArea = document.getElementById<HTMLDivElement>("msgArea") ?? notNullCoersed("#msgArea not found!");
     
 

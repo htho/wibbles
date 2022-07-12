@@ -16,7 +16,7 @@ export class RoundFactory {
     createRound(level: Level, tileset: Tileset): Round {
         const renderer = new LevelRenderer(level, tileset);
         const targetPositioner = new TargetPositioner(renderer);
-        const worm = new WormHead(renderer.startPos, level.startDirection, this.page.content, 30);
+        const worm = new WormHead(renderer.startPos, level.startDirection, this.page.worm, renderer.standardTileSize/4, 10);
     
         return new Round({
             renderer,
@@ -50,8 +50,8 @@ export class Round implements IDisposable {
 
         this.renderer.tileset.spriteIndex.spritesets.forEach(spriteset => page.addStyle(spriteset.meta.name, spriteset.cssStyle));
 
-        this.page.addStyle("worm", this.createWormSegmentStyleCss());
-        this.page.content.appendChild(this.worm.element);
+        this.page.addStyle("standard-tile-size", this.createStandardTileSizeCssProperty());
+        this.page.worm.insertAdjacentElement("afterbegin", this.worm.element);
 
         this.page.content.appendChild(renderer.html);
         window.addEventListener("keydown", this._keydownhandler);
@@ -64,8 +64,8 @@ export class Round implements IDisposable {
         window.removeEventListener("keydown", this._keydownhandler);
         this.page.content.removeChild(this.renderer.html);
         this._currentTarget.clear();
-        this.page.content.removeChild(this.worm.element);
-        this.page.removeStyle("worm");
+        this.page.worm.removeChild(this.worm.element);
+        this.page.removeStyle("standard-tile-size");
         this.renderer.tileset.spriteIndex.spritesets.forEach(spriteset => this.page.removeStyle(spriteset.meta.name));
         this.worm.dispose();
 
@@ -73,11 +73,10 @@ export class Round implements IDisposable {
         console.log(`Round.dispose() ... disposed!`)
     };
 
-    private createWormSegmentStyleCss(): string {
+    private createStandardTileSizeCssProperty(): string {
         return `
-            .worm-segment {
-                width: ${this.renderer.standardTileSize/2}px;
-                height: ${this.renderer.standardTileSize/2}px;
+            :root {
+                --standard-tile-size: ${this.renderer.standardTileSize}px;
             }
         `;
     }
@@ -123,7 +122,7 @@ export class Round implements IDisposable {
         }
         throw new Error("This loop never ends!");
     }
-        
+
     private togglePause() {
         this._isPaused = !this._isPaused;
         if(this._isPaused) console.log("Paused!");
