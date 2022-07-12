@@ -32,7 +32,8 @@ export class Round implements IDisposable {
     public readonly targetPositioner: TargetPositioner;
     public readonly worm: WormHead;
     public readonly page: Page;
-    public readonly tilesPerSecond = 1;
+    public readonly tilesPerSecond = 2;
+    private _isPaused = false;
     private _currentTarget!: Target;
     public get currentTarget(): Target {
         return this._currentTarget;
@@ -97,6 +98,7 @@ export class Round implements IDisposable {
         
         while (true) {
             const time = await nextAnmiationFrame();
+            if(this._isPaused) continue;
             const timeSinceLastStep = time - lastStepTime;
             if (timeSinceLastStep < interval) continue;
             
@@ -120,7 +122,12 @@ export class Round implements IDisposable {
             if(this.renderer.start.isOpen) this._closeStartOnceTheWormIsIn();
         }
         throw new Error("This loop never ends!");
+    }
         
+    private togglePause() {
+        this._isPaused = !this._isPaused;
+        if(this._isPaused) console.log("Paused!");
+        else console.log("Unpaused!");
     }
 
     private _collidesWithWall(): boolean {
@@ -165,6 +172,7 @@ export class Round implements IDisposable {
         if (ev.key === "ArrowRight") this.worm.changeDir("E");
         if (ev.key === "ArrowUp") this.worm.changeDir("N");
         if (ev.key === "ArrowDown") this.worm.changeDir("S");
+        if (ev.key === "p") this.togglePause();
     };
 
     private _isDisposed = false;
