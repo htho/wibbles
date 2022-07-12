@@ -74,7 +74,7 @@ export class Game {
         this._logger.alert("Game Won!");
     }
     get hasNextLevel(): boolean {
-        return this._currentLevelIndex <= this._level.length;
+        return this._currentLevelIndex < this._level.length;
     }
     private async _loadLevel({ name, tileset }: { name: string, tileset: string }): Promise<{ level: Level, tileset: Tileset }> {
         const jsonLevel = await this._levelLoader.load(name);

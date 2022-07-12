@@ -1,7 +1,6 @@
 # Current TODO List
 
  * [] new target when target hit
- * [] show game won instead of exception
  * [] double speed when arrow for current direction is pressed
 
  !!!REFACTOR!!!
