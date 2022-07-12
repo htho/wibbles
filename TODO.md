@@ -2,7 +2,6 @@
 
  * [] new target when target hit
  * [] show game won instead of exception
- * [] update direction on level change
  * [] double speed when arrow for current direction is pressed
 
  !!!REFACTOR!!!
