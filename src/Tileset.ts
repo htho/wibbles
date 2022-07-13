@@ -2,7 +2,7 @@ import { JsonMeta } from "./schema/level.js";
 import { JsonTile, TileType, JsonTileset, BasicJsonTile, OpenableJsonTile, isBasicJsonTile, JsonStartTile, isJsonStartTile } from "./schema/tileset.js";
 import { asChar, Char } from "./tools/Char.js";
 import { Sprite, SpriteIndex } from "./Spriteset.js";
-import { Dimensions, isArray, Pos } from "./tools/tools.js";
+import { Cell, Dimensions, isArray, Pos } from "./tools/tools.js";
 import { createElement } from "./browser/dom.js";
 
 export class Tileset {
@@ -11,9 +11,11 @@ export class Tileset {
     readonly spriteIndex: SpriteIndex;
     readonly tileDimensions: Dimensions;
     knows(char: Char): boolean { return this.tiles.has(char); }
-    create(char: Char, absPos: Pos): Tile {
+    create(char: Char, {row, col}: Cell): Tile {
         const tile = this.tiles.get(char);
         if (!tile) throw new Error(`No tile for char '${char}'!`);
+        const {width, height} = this.tileDimensions;
+        const absPos = {x: col * width, y: row * height};
         return createTile(tile, this, char, absPos);
     }
     constructor(tileset: JsonTileset, spriteIndex: SpriteIndex) {

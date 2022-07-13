@@ -1,6 +1,6 @@
 import { Page } from "./browser/page.js";
 import { Level } from "./Level.js";
-import { LevelRenderer } from "./renderer/LevelRenderer.js";
+import { RenderedLevel } from "./renderer/RenderedLevel.js";
 import { Target, TargetPositioner } from "./Target.js";
 import { Tileset } from "./Tileset.js";
 import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
@@ -14,12 +14,12 @@ export class RoundFactory {
         this.page = page;
     }
     createRound(level: Level, tileset: Tileset): Round {
-        const renderer = new LevelRenderer(level, tileset);
-        const targetPositioner = new TargetPositioner(renderer);
-        const worm = new WormHead(renderer.startPos, level.startDirection, this.page.worm, renderer.standardTileSize/2, 10);
+        const renderedLevel = new RenderedLevel(level, tileset, this.page.content, this.page);
+        const targetPositioner = new TargetPositioner(renderedLevel);
+        const worm = new WormHead(renderedLevel.startPos, level.startDirection, this.page.worm, renderedLevel.tilesize/2, 10);
     
         return new Round({
-            renderer,
+            level: renderedLevel,
             targetPositioner,
             worm,
             page: this.page,
@@ -28,7 +28,7 @@ export class RoundFactory {
 }
 
 export class Round implements IDisposable {
-    public readonly renderer: LevelRenderer;
+    public readonly level: RenderedLevel;
     public readonly targetPositioner: TargetPositioner;
     public readonly worm: WormHead;
     public readonly page: Page;
@@ -41,20 +41,16 @@ export class Round implements IDisposable {
     public set currentTarget(value: Target) {
         this._currentTarget = value;
     }
-    constructor({ renderer, targetPositioner, worm, page }: { renderer: LevelRenderer; targetPositioner: TargetPositioner; worm: WormHead; page: Page;}) {
-        console.log(`new Round`)
-        this.renderer = renderer;
+    constructor({ level, targetPositioner, worm, page }: { level: RenderedLevel; targetPositioner: TargetPositioner; worm: WormHead; page: Page;}) {
+        console.log(`new Round`);
+        this.level = level;
         this.targetPositioner = targetPositioner;
         this.worm = worm;
         this.page = page;
 
-        this.renderer.tileset.spriteIndex.spritesets.forEach(spriteset => page.addStyle(spriteset.meta.name, spriteset.cssStyle));
-
-        this.page.addStyle("standard-tile-size", this.createStandardTileSizeCssProperty());
         this.page.worm.insertAdjacentElement("afterbegin", this.worm.element);
         this.page.addStyle("worm-segment-size", worm.createWormSegmentSizeCssProperty());
         
-        this.page.content.appendChild(renderer.html);
         window.addEventListener("keydown", this._keydownhandler);
     }
     async dispose(): Promise<void> {
@@ -63,38 +59,31 @@ export class Round implements IDisposable {
         this._isDisposed = true;
         
         window.removeEventListener("keydown", this._keydownhandler);
-        this.page.content.removeChild(this.renderer.html);
-        this.page.removeStyle("worm-segment-size");
+
         this._currentTarget.clear();
+        
+        this.page.removeStyle("worm-segment-size");
         this.page.worm.removeChild(this.worm.element);
-        this.page.removeStyle("standard-tile-size");
-        this.renderer.tileset.spriteIndex.spritesets.forEach(spriteset => this.page.removeStyle(spriteset.meta.name));
         this.worm.dispose();
+        
+        this.level.dispose();
 
         finalizeDisposal(this);
         console.log(`Round.dispose() ... disposed!`)
     };
-
-    private createStandardTileSizeCssProperty(): string {
-        return `
-            :root {
-                --standard-tile-size: ${this.renderer.standardTileSize}px;
-            }
-        `;
-    }
     
     async start(): Promise<{liveLost: true} | {liveLost: false}> {
         console.log(`Round.start()`)
         const pos = this.targetPositioner.findSpot();
         this._currentTarget = new Target(pos, this.page.content);
         this._currentTarget.draw();
-        let targetsLeft = this.renderer.level.targets;
+        let targetsLeft = this.level.level.targets;
         
-        this.renderer.start.open();
-        this.renderer.exit.close();
+        this.level.start.open();
+        this.level.exit.close();
 
         let lastStepTime = 0;
-        const pxPerSecond = this.renderer.standardTileSize * this.tilesPerSecond;
+        const pxPerSecond = this.level.tilesize * this.tilesPerSecond;
         const interval = 1000 / pxPerSecond;
         
         while (true) {
@@ -115,12 +104,12 @@ export class Round implements IDisposable {
             } else if(this._collidesWitTarget()) {
                 console.log("HIT TARGET!");
                 targetsLeft--;
-                if(targetsLeft <= 0) this.renderer.exit.open();
+                if(targetsLeft <= 0) this.level.exit.open();
             } else if(this._tailCollidesWithExit()) {
                 console.log("LEAVE THROUGH EXIT!");
                 return {liveLost: false};
             }
-            if(this.renderer.start.isOpen) this._closeStartOnceTheWormIsIn();
+            if(this.level.start.isOpen) this._closeStartOnceTheWormIsIn();
         }
         throw new Error("This loop never ends!");
     }
@@ -132,7 +121,7 @@ export class Round implements IDisposable {
     }
 
     private _collidesWithWall(): boolean {
-        for(const tile of this.renderer.list) {
+        for(const tile of this.level.list) {
             if(tile.collides(this.worm.pos)) {
                 return true;
             };
@@ -155,16 +144,16 @@ export class Round implements IDisposable {
     }
     private _tailCollidesWithExit(): boolean {
         const lastTail = this.worm.getLastTail();
-        if(this.renderer.exit.collidesRegardlessOfState(lastTail.pos)) {
+        if(this.level.exit.collidesRegardlessOfState(lastTail.pos)) {
             return true;
         };
         return false;
     }
     private _closeStartOnceTheWormIsIn(): void {
         const lastTail = this.worm.getLastTail();
-        const collides = this.renderer.start.collidesRegardlessOfState(lastTail.pos);
+        const collides = this.level.start.collidesRegardlessOfState(lastTail.pos);
         if (collides) return;
-        this.renderer.start.close();
+        this.level.start.close();
         return;
     }
 

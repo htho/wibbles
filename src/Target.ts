@@ -1,5 +1,5 @@
 import { createElement } from "./browser/dom.js";
-import { LevelRenderer } from "./renderer/LevelRenderer.js";
+import { RenderedLevel } from "./renderer/RenderedLevel.js";
 import { getRandomIntInclusive, Pos } from "./tools/tools.js";
 
 export class Target {
@@ -27,18 +27,18 @@ export class Target {
     }
 }
 export class TargetPositioner {
-    public readonly levelRenderer: LevelRenderer
-    constructor(levelRenderer: LevelRenderer) {
-        this.levelRenderer = levelRenderer;
+    public readonly level: RenderedLevel
+    constructor(level: RenderedLevel) {
+        this.level = level;
     }
     _randomPos(): Pos {
         return {
-            x: getRandomIntInclusive(0, this.levelRenderer.level.cols * this.levelRenderer.tileset.tileDimensions.width),
-            y: getRandomIntInclusive(0, this.levelRenderer.level.rows * this.levelRenderer.tileset.tileDimensions.height),
+            x: getRandomIntInclusive(0, this.level.dimensions.width),
+            y: getRandomIntInclusive(0, this.level.dimensions.height),
         };
     }
     _collidesWithAnySolidTile(pos: Pos): boolean {
-        for (const tile of this.levelRenderer.list) {
+        for (const tile of this.level.list) {
             if (tile.collides(pos)) {
                 return true;
             };
