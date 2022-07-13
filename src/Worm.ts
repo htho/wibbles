@@ -8,18 +8,18 @@ export class WormSegment implements IDisposable {
     tail?: WormSegment;
     readonly element: HTMLElement;
     readonly container: HTMLElement;
-    private readonly segmentDistance: number;
+    protected readonly diameter: number;
     private readonly updateQueue: FixedSizeQueue<Pos>;
     constructor(
         position: Pos,
         container: HTMLElement,
-        segmentDistance: number,
+        diameter: number,
     ) {
         this.pos = {...position};
         this.container = container;
         this.element = this._render();
-        this.segmentDistance = segmentDistance;
-        this.updateQueue = new FixedSizeQueue(segmentDistance);
+        this.diameter = diameter;
+        this.updateQueue = new FixedSizeQueue(this.diameter/2);
     }
     dispose(): void {
         this._isDisposed = true;
@@ -47,7 +47,7 @@ export class WormSegment implements IDisposable {
         this.tail = new WormSegment(
             this.pos,
             this.container,
-            this.segmentDistance,
+            this.diameter,
         );
         this.container.insertAdjacentElement("beforeend", this.tail.element);
     }
@@ -71,15 +71,17 @@ export class WormHead extends WormSegment {
         pos: Pos,
         direction: Direction,
         container: HTMLElement,
-        segmentDistance: number,
+        diameter: number,
         length: number,
         ) {
         super(
             pos,
             container,
-            segmentDistance,
+            diameter,
         );
         this._currentDirection = direction;
+        this.changeDir(direction);
+
         this._updateRender();
         for (let i = 0; i < length; i++) {
             this.grow();
@@ -89,6 +91,8 @@ export class WormHead extends WormSegment {
         this.element.classList.add("worm-head");
     }
     changeDir(dir: Direction): void {
+        this.element.classList.remove(`dir-${this._currentDirection}`);
+        this.element.classList.add(`dir-${dir}`);
         this._currentDirection = dir;
     }
     async nextStep(): Promise<void> {
@@ -131,6 +135,14 @@ export class WormHead extends WormSegment {
         if(pos.y < this.pos.y) return false;
         console.log(`Worm collides ${JSON.stringify(pos)} is within ${JSON.stringify(this.pos)} + ${radius}`)
         return true;
+    }
+
+    createWormSegmentSizeCssProperty(): string {
+        return `
+            :root {
+                --worm-segment-size: ${this.diameter}px;
+            }
+        `;
     }
 }
 

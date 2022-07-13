@@ -16,7 +16,7 @@ export class RoundFactory {
     createRound(level: Level, tileset: Tileset): Round {
         const renderer = new LevelRenderer(level, tileset);
         const targetPositioner = new TargetPositioner(renderer);
-        const worm = new WormHead(renderer.startPos, level.startDirection, this.page.worm, renderer.standardTileSize/4, 10);
+        const worm = new WormHead(renderer.startPos, level.startDirection, this.page.worm, renderer.standardTileSize/2, 10);
     
         return new Round({
             renderer,
@@ -52,7 +52,8 @@ export class Round implements IDisposable {
 
         this.page.addStyle("standard-tile-size", this.createStandardTileSizeCssProperty());
         this.page.worm.insertAdjacentElement("afterbegin", this.worm.element);
-
+        this.page.addStyle("worm-segment-size", worm.createWormSegmentSizeCssProperty());
+        
         this.page.content.appendChild(renderer.html);
         window.addEventListener("keydown", this._keydownhandler);
     }
@@ -63,6 +64,7 @@ export class Round implements IDisposable {
         
         window.removeEventListener("keydown", this._keydownhandler);
         this.page.content.removeChild(this.renderer.html);
+        this.page.removeStyle("worm-segment-size");
         this._currentTarget.clear();
         this.page.worm.removeChild(this.worm.element);
         this.page.removeStyle("standard-tile-size");
