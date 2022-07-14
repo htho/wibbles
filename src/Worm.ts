@@ -1,4 +1,5 @@
 import { createElement } from "./browser/dom.js";
+import { StyleContainer } from "./browser/page.js";
 import { FixedSizeQueue } from "./tools/FixedSizeQueue.js";
 import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
 import { Pos, Direction, nextAnmiationFrame } from "./tools/tools.js";
@@ -67,12 +68,14 @@ export class WormSegment implements IDisposable {
 export class WormHead extends WormSegment {
     readonly isHead = true;
     private _currentDirection: Direction;
+    private _styleContainer: StyleContainer;
     constructor(
         pos: Pos,
         direction: Direction,
         container: HTMLElement,
         diameter: number,
         length: number,
+        styleContainer: StyleContainer,
         ) {
         super(
             pos,
@@ -80,13 +83,27 @@ export class WormHead extends WormSegment {
             diameter,
         );
         this._currentDirection = direction;
+        this._styleContainer = styleContainer;
+
         this.changeDir(direction);
 
         this._updateRender();
         for (let i = 0; i < length; i++) {
             this.grow();
         }
+        
+        this.container.insertAdjacentElement("afterbegin", this.element);
+        this._styleContainer.addStyle("worm-segment-size", this._createWormSegmentSizeCssProperty());
+        
     }
+    override dispose(): void {
+        this._isDisposed = true;
+        
+        this._styleContainer.removeStyle("worm-segment-size");
+        this.container.removeChild(this.element);
+
+        super.dispose();
+    };
     private _updateRender(): void {
         this.element.classList.add("worm-head");
     }
@@ -137,7 +154,7 @@ export class WormHead extends WormSegment {
         return true;
     }
 
-    createWormSegmentSizeCssProperty(): string {
+    _createWormSegmentSizeCssProperty(): string {
         return `
             :root {
                 --worm-segment-size: ${this.diameter}px;

@@ -1,10 +1,10 @@
-import { Page } from "./browser/page.js";
+import { Page, StyleContainer } from "./browser/page.js";
 import { Level } from "./Level.js";
 import { RenderedLevel } from "./renderer/RenderedLevel.js";
 import { Target, TargetPositioner } from "./Target.js";
 import { Tileset } from "./Tileset.js";
 import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
-import { nextAnmiationFrame } from "./tools/tools.js";
+import { assertNonNullish, nextAnmiationFrame } from "./tools/tools.js";
 import { WormHead } from "./Worm.js";
 
 export class RoundFactory {
@@ -14,9 +14,10 @@ export class RoundFactory {
         this.page = page;
     }
     createRound(level: Level, tileset: Tileset): Round {
-        const renderedLevel = new RenderedLevel(level, tileset, this.page.content, this.page);
+        const styleContainer: StyleContainer = this.page;
+        const renderedLevel = new RenderedLevel(level, tileset, this.page.content, styleContainer);
         const targetPositioner = new TargetPositioner(renderedLevel);
-        const worm = new WormHead(renderedLevel.startPos, level.startDirection, this.page.worm, renderedLevel.tilesize/2, 10);
+        const worm = new WormHead(renderedLevel.startPos, level.startDirection, this.page.worm, renderedLevel.tilesize/2, 10, styleContainer);
     
         return new Round({
             level: renderedLevel,
@@ -34,13 +35,7 @@ export class Round implements IDisposable {
     public readonly page: Page;
     public readonly tilesPerSecond = 2;
     private _isPaused = false;
-    private _currentTarget!: Target;
-    public get currentTarget(): Target {
-        return this._currentTarget;
-    }
-    public set currentTarget(value: Target) {
-        this._currentTarget = value;
-    }
+    private _currentTarget: Target | undefined;
     constructor({ level, targetPositioner, worm, page }: { level: RenderedLevel; targetPositioner: TargetPositioner; worm: WormHead; page: Page;}) {
         console.log(`new Round`);
         this.level = level;
@@ -48,9 +43,6 @@ export class Round implements IDisposable {
         this.worm = worm;
         this.page = page;
 
-        this.page.worm.insertAdjacentElement("afterbegin", this.worm.element);
-        this.page.addStyle("worm-segment-size", worm.createWormSegmentSizeCssProperty());
-        
         window.addEventListener("keydown", this._keydownhandler);
     }
     async dispose(): Promise<void> {
@@ -60,12 +52,9 @@ export class Round implements IDisposable {
         
         window.removeEventListener("keydown", this._keydownhandler);
 
-        this._currentTarget.clear();
+        if(this._currentTarget && !this._currentTarget.isDisposed) this._currentTarget.dispose();
         
-        this.page.removeStyle("worm-segment-size");
-        this.page.worm.removeChild(this.worm.element);
         this.worm.dispose();
-        
         this.level.dispose();
 
         finalizeDisposal(this);
@@ -76,7 +65,6 @@ export class Round implements IDisposable {
         console.log(`Round.start()`)
         const pos = this.targetPositioner.findSpot();
         this._currentTarget = new Target(pos, this.page.content);
-        this._currentTarget.draw();
         let targetsLeft = this.level.level.targets;
         
         this.level.start.open();
@@ -104,7 +92,11 @@ export class Round implements IDisposable {
             } else if(this._collidesWitTarget()) {
                 console.log("HIT TARGET!");
                 targetsLeft--;
+                assertNonNullish(this._currentTarget, `_currentTarget expected to be defined! Can only collide with tile if it actually exists!`);
+                this._currentTarget.dispose();
+                this._currentTarget = undefined;
                 if(targetsLeft <= 0) this.level.exit.open();
+                else this._currentTarget = new Target(pos, this.page.content);
             } else if(this._tailCollidesWithExit()) {
                 console.log("LEAVE THROUGH EXIT!");
                 return {liveLost: false};
@@ -137,7 +129,7 @@ export class Round implements IDisposable {
         return false;
     }
     private _collidesWitTarget(): boolean {
-        if(this.currentTarget && this.worm.collides(this.currentTarget.pos, 8)) {
+        if(this._currentTarget && this.worm.collides(this._currentTarget.pos, 8)) {
             return true;
         }
         return false;

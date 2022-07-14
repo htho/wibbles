@@ -1,4 +1,4 @@
-import { Page } from "../browser/page.js";
+import { StyleContainer } from "../browser/page.js";
 import { Level } from "../Level.js";
 import { TileType } from "../schema/tileset.js";
 import { OpenableTile, StartTile, Tile, Tileset } from "../Tileset.js";
@@ -11,7 +11,7 @@ export class RenderedLevel<W extends number = number, H extends number = number>
     readonly list: Tile[];
     readonly tileset: Tileset;
     readonly container: HTMLElement;
-    readonly page: Page;
+    readonly styleContainer: StyleContainer;
     readonly start: StartTile;
     readonly startDir: Direction;
     readonly startPos: Pos;
@@ -20,11 +20,11 @@ export class RenderedLevel<W extends number = number, H extends number = number>
     readonly tilesize: number;
     readonly dimensions: Dimensions;
 
-    constructor(level: Level<W, H>, tileset: Tileset, container: HTMLElement, page: Page) {
+    constructor(level: Level<W, H>, tileset: Tileset, container: HTMLElement, styleContainer: StyleContainer) {
         this.level = level;
         this.tileset = tileset;
         this.container = container;
-        this.page = page;
+        this.styleContainer = styleContainer;
         
         const gridAsTiles = level.grid.map(
             (gridRow, row) => gridRow.map(
@@ -51,16 +51,16 @@ export class RenderedLevel<W extends number = number, H extends number = number>
         this.dimensions = {width: this.level.cols * this.tilesize, height: this.level.rows * this.tilesize};
 
 
-        this.tileset.spriteIndex.spritesets.forEach(spriteset => this.page.addStyle(spriteset.meta.name, spriteset.cssStyle));
+        this.tileset.spriteIndex.spritesets.forEach(spriteset => this.styleContainer.addStyle(spriteset.meta.name, spriteset.cssStyle));
         this.container.insertAdjacentElement("afterbegin", this.element);
-        this.page.addStyle("standard-tile-size", this._createStandardTileSizeCssProperty());
+        this.styleContainer.addStyle("standard-tile-size", this._createStandardTileSizeCssProperty());
     }
     dispose(): void {
         this._isDisposed = true;
 
-        this.page.removeStyle("standard-tile-size");
+        this.styleContainer.removeStyle("standard-tile-size");
         this.container.removeChild(this.element);
-        this.tileset.spriteIndex.spritesets.forEach(spriteset => this.page.removeStyle(spriteset.meta.name));
+        this.tileset.spriteIndex.spritesets.forEach(spriteset => this.styleContainer.removeStyle(spriteset.meta.name));
 
         finalizeDisposal(this);
     };

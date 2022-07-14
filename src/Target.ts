@@ -1,8 +1,9 @@
 import { createElement } from "./browser/dom.js";
 import { RenderedLevel } from "./renderer/RenderedLevel.js";
+import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
 import { getRandomIntInclusive, Pos } from "./tools/tools.js";
 
-export class Target {
+export class Target implements IDisposable {
     readonly target: HTMLElement;
     public readonly pos: Pos
     public readonly targetContainer: HTMLElement
@@ -16,13 +17,25 @@ export class Target {
                 transform: `translate(${this.pos.x}px, ${this.pos.y}px)`,
             }
         });
+        this._draw();
+    }
+    dispose(): void {
+        this._isDisposed = true;
+
+        this._clear();
+
+        finalizeDisposal(this);
+    };
+    protected _isDisposed = false;
+    get isDisposed(): boolean {
+        return this._isDisposed;
     }
 
-    draw(): void {
+    private _draw(): void {
         this.targetContainer.appendChild(this.target);
     }
 
-    clear(): void {
+    private _clear(): void {
         this.targetContainer.removeChild(this.target);
     }
 }

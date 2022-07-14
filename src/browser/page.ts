@@ -11,7 +11,12 @@ const classes = {
     }
 } as const;
 
-export class Page {
+export interface StyleContainer {
+    addStyle(id: string, cssString: string): void;
+    removeStyle(id: string): void;
+}
+
+export class Page implements StyleContainer {
     static async Load(): Promise<Page> {
         await documentReady;
         return new Page();
