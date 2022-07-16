@@ -13,11 +13,12 @@ export class WormSegment implements IDisposable {
     private readonly updateQueue: FixedSizeQueue<Pos>;
     readonly stepSize = 0.1;
     constructor(
-        position: Pos,
+        pos: Pos,
         container: HTMLElement,
         diameter: number,
     ) {
-        this.pos = {...position};
+        console.log("new WormSegment", {pos, container, diameter});
+        this.pos = {...pos};
         this.container = container;
         this.element = this._render();
         this.diameter = diameter;
@@ -25,12 +26,14 @@ export class WormSegment implements IDisposable {
         this.updateQueue = new FixedSizeQueue(distance/this.stepSize);
     }
     dispose(): void {
+        console.log("dispose WormSegment...")
         this._isDisposed = true;
         if(this.tail) {
             this.container.removeChild(this.tail.element)
             this.tail.dispose();
         }
         finalizeDisposal(this);
+        console.log("...WormSegment disposed!")
     };
     protected _isDisposed = false;
     get isDisposed(): boolean {
@@ -79,6 +82,7 @@ export class WormHead extends WormSegment {
         length: number,
         styleContainer: StyleContainer,
         ) {
+        console.log("new WormHead", {pos, direction, container, diameter, length, styleContainer});
         super(
             pos,
             container,
@@ -99,12 +103,15 @@ export class WormHead extends WormSegment {
         
     }
     override dispose(): void {
+        console.log("dispose WormHead...")
+
         this._isDisposed = true;
         
         this._styleContainer.removeStyle("worm-segment-size");
         this.container.removeChild(this.element);
 
         super.dispose();
+        console.log("...WormHead disposed!")
     };
     private _updateRender(): void {
         this.element.classList.add("worm-head");

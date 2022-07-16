@@ -21,6 +21,7 @@ export class RenderedLevel<W extends number = number, H extends number = number>
     readonly dimensions: Dimensions;
 
     constructor(level: Level<W, H>, tileset: Tileset, container: HTMLElement, styleContainer: StyleContainer) {
+        console.log("new RenderedLevel", {level, tileset, container, styleContainer});
         this.level = level;
         this.tileset = tileset;
         this.container = container;
@@ -56,6 +57,7 @@ export class RenderedLevel<W extends number = number, H extends number = number>
         this.styleContainer.addStyle("standard-tile-size", this._createStandardTileSizeCssProperty());
     }
     dispose(): void {
+        console.log("dispose RenderedLevel...")
         this._isDisposed = true;
 
         this.styleContainer.removeStyle("standard-tile-size");
@@ -63,6 +65,7 @@ export class RenderedLevel<W extends number = number, H extends number = number>
         this.tileset.spriteIndex.spritesets.forEach(spriteset => this.styleContainer.removeStyle(spriteset.meta.name));
 
         finalizeDisposal(this);
+        console.log("...RenderedLevel disposed!")
     };
     protected _isDisposed = false;
     get isDisposed(): boolean {

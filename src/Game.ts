@@ -53,17 +53,17 @@ export class Game {
                 const roundResult = await round.start();
                 console.log(`round over`, roundResult)
                 if(!roundResult.liveLost) {
-                    await round.dispose();
+                    round.dispose();
                     this._logger.info("Round Won!");
                     break;
                 } else {
                     this._lives.decrease();
                     if(this._lives.left > 0) {
-                        await round.dispose();
+                        round.dispose();
                         this._logger.alert(`Lives Left ${this._lives.left}`);
                     } else {
                         this._logger.alert("Game Over!");
-                        await round.dispose();
+                        round.dispose();
                         return;
                     }
                 }

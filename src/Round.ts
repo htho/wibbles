@@ -47,8 +47,8 @@ export class Round implements IDisposable {
         window.addEventListener("keydown", this._keydownhandler);
         window.addEventListener("keyup", this._keyuphandler);
     }
-    async dispose(): Promise<void> {
-        console.log(`Round.dispose()`)
+    dispose(): void {
+        console.log(`dispose Round...`);
         
         this._isDisposed = true;
         
@@ -61,7 +61,7 @@ export class Round implements IDisposable {
         this.level.dispose();
 
         finalizeDisposal(this);
-        console.log(`Round.dispose() ... disposed!`)
+        console.log(`...Round disposed!`);
     };
     
     async start(): Promise<{liveLost: true} | {liveLost: false}> {
@@ -70,7 +70,9 @@ export class Round implements IDisposable {
         this._currentTarget = new Target(pos, this.page.content);
         let targetsLeft = this.level.level.targets;
         
+        console.log("start.open()")
         this.level.start.open();
+        console.log("exit.close()")
         this.level.exit.close();
 
         let lastFrameTime = 0;
@@ -84,7 +86,6 @@ export class Round implements IDisposable {
             if(this._isPaused) continue;
             const speedFactor = this.doubleSpeed ? 4 : 1;
             const stepWidth = pxPerMillisecond * timeSinceLastFrame * speedFactor;
-            console.log(stepWidth, timeSinceLastFrame);
             let walkedWidth = 0
             while (walkedWidth < stepWidth) {
                 this.worm.nextStep();
@@ -153,6 +154,7 @@ export class Round implements IDisposable {
         const lastTail = this.worm.getLastTail();
         const collides = this.level.start.collidesRegardlessOfState(lastTail.pos);
         if (collides) return;
+        console.log("start.close()")
         this.level.start.close();
         return;
     }

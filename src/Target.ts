@@ -20,11 +20,14 @@ export class Target implements IDisposable {
         this._draw();
     }
     dispose(): void {
+        console.log(`dispose Target...`)
+
         this._isDisposed = true;
 
         this._clear();
 
         finalizeDisposal(this);
+        console.log(`...Target disposed!`);
     };
     protected _isDisposed = false;
     get isDisposed(): boolean {
@@ -42,6 +45,7 @@ export class Target implements IDisposable {
 export class TargetPositioner {
     public readonly level: RenderedLevel
     constructor(level: RenderedLevel) {
+        console.log("new TargetPositioner", {level});
         this.level = level;
     }
     _randomPos(): Pos {
