@@ -106,7 +106,7 @@ export class Round implements IDisposable {
                 this._currentTarget.dispose();
                 this._currentTarget = undefined;
                 if(targetsLeft <= 0) this.level.exit.open();
-                else this._currentTarget = new Target(pos, this.worm.radius, this.page.content);
+                else this._currentTarget = new Target(this.targetPositioner.findSpot(), this.worm.radius, this.page.content);
             } else if(this._tailCollidesWithExit()) {
                 console.log("LEAVE THROUGH EXIT!");
                 return {liveLost: false};
