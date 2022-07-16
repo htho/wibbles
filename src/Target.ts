@@ -6,15 +6,17 @@ import { getRandomIntInclusive, Pos } from "./tools/tools.js";
 export class Target implements IDisposable {
     readonly target: HTMLElement;
     public readonly pos: Pos
+    public readonly radius: number
     public readonly targetContainer: HTMLElement
-    constructor(pos: Pos, targetContainer: HTMLElement) {
+    constructor(pos: Pos, radius: number, targetContainer: HTMLElement) {
         this.pos = pos;
+        this.radius = radius;
         this.targetContainer = targetContainer;
 
         this.target = createElement("div", {
             classList: ["target"],
             style: {
-                transform: `translate(${this.pos.x}px, ${this.pos.y}px)`,
+                transform: `translate(${this.pos.x-radius}px, ${this.pos.y-radius}px)`,
             }
         });
         this._draw();
@@ -43,10 +45,12 @@ export class Target implements IDisposable {
     }
 }
 export class TargetPositioner {
-    public readonly level: RenderedLevel
-    constructor(level: RenderedLevel) {
-        console.log("new TargetPositioner", {level});
+    public readonly level: RenderedLevel;
+    public readonly targetRadius: number;
+    constructor(level: RenderedLevel, targetRadius: number) {
+        console.log("new TargetPositioner", {level, targetRadius});
         this.level = level;
+        this.targetRadius = targetRadius;
     }
     _randomPos(): Pos {
         return {
@@ -54,11 +58,21 @@ export class TargetPositioner {
             y: getRandomIntInclusive(0, this.level.dimensions.height),
         };
     }
+    _getBoxEdges(pos: Pos): {topLeft: Pos, topRight: Pos, bottomLeft: Pos, bottomRight: Pos} {
+        return {
+            topLeft: {x: pos.x - this.targetRadius, y: pos.y - this.targetRadius},
+            topRight: {x: pos.x + this.targetRadius, y: pos.y - this.targetRadius},
+            bottomLeft: {x: pos.x - this.targetRadius, y: pos.y + this.targetRadius},
+            bottomRight: {x: pos.x + this.targetRadius, y: pos.y + this.targetRadius},
+        }
+    }
     _collidesWithAnySolidTile(pos: Pos): boolean {
+        const edges = this._getBoxEdges(pos);
         for (const tile of this.level.list) {
-            if (tile.collides(pos)) {
-                return true;
-            };
+            if (tile.collides(edges.topLeft)) return true;
+            if (tile.collides(edges.topRight)) return true;
+            if (tile.collides(edges.bottomLeft)) return true;
+            if (tile.collides(edges.bottomRight)) return true;
         }
         return false;
     }

@@ -9,20 +9,20 @@ export class WormSegment implements IDisposable {
     tail?: WormSegment;
     readonly element: HTMLElement;
     readonly container: HTMLElement;
-    protected readonly diameter: number;
+    readonly radius: number;
     private readonly updateQueue: FixedSizeQueue<Pos>;
     readonly stepSize = 0.1;
     constructor(
         pos: Pos,
         container: HTMLElement,
-        diameter: number,
+        radius: number,
     ) {
-        console.log("new WormSegment", {pos, container, diameter});
+        console.log("new WormSegment", {pos, container, radius});
         this.pos = {...pos};
         this.container = container;
         this.element = this._render();
-        this.diameter = diameter;
-        const distance = this.diameter/2;
+        this.radius = radius;
+        const distance = this.radius;
         this.updateQueue = new FixedSizeQueue(distance/this.stepSize);
     }
     dispose(): void {
@@ -53,7 +53,7 @@ export class WormSegment implements IDisposable {
         this.tail = new WormSegment(
             this.pos,
             this.container,
-            this.diameter,
+            this.radius,
         );
         this.container.insertAdjacentElement("beforeend", this.tail.element);
     }
@@ -78,15 +78,15 @@ export class WormHead extends WormSegment {
         pos: Pos,
         direction: Direction,
         container: HTMLElement,
-        diameter: number,
+        radius: number,
         length: number,
         styleContainer: StyleContainer,
         ) {
-        console.log("new WormHead", {pos, direction, container, diameter, length, styleContainer});
+        console.log("new WormHead", {pos, direction, container, radius, length, styleContainer});
         super(
             pos,
             container,
-            diameter,
+            radius,
         );
         this._currentDirection = direction;
         this._styleContainer = styleContainer;
@@ -153,6 +153,29 @@ export class WormHead extends WormSegment {
         return segment;
     }
 
+    collidesBox(topLeftCorner: Pos, bottomRightCorner: Pos): boolean {
+        const {x, y} = this.pos;
+        const {x: tx, y: ty} = topLeftCorner;
+        const {x: bx, y: by} = bottomRightCorner;
+        if(tx > bx || ty > by) throw new Error(`first parameter is topLeftCorner, second is bottomRightCorner!`);
+         
+        if(x < tx) return false;
+        if(x > bx) return false;
+        if(y < ty) return false;
+        if(y > by) return false;
+        console.log(`Worm collides ${JSON.stringify(this.pos)} is within ${JSON.stringify(topLeftCorner)} and ${JSON.stringify(bottomRightCorner)}`);
+        return true;
+    }
+    collidesCircle(center: Pos, radius: number): boolean {
+        const {x, y} = this.pos;
+        const {x: cx, y: cy} = center;
+        if(x < cx - radius) return false;
+        if(x > cx + radius) return false;
+        if(y < cy - radius) return false;
+        if(y > cy + radius) return false;
+        console.log(`Worm collides ${JSON.stringify(this.pos)} is within ${JSON.stringify(center)} + ${radius}`)
+        return true;
+    }
     collides(pos: Pos, radius: number): boolean {
         if(pos.x > this.pos.x + radius) return false;
         if(pos.x < this.pos.x) return false;
@@ -165,7 +188,7 @@ export class WormHead extends WormSegment {
     _createWormSegmentSizeCssProperty(): string {
         return `
             :root {
-                --worm-segment-size: ${this.diameter}px;
+                --worm-segment-size: ${this.radius*2}px;
             }
         `;
     }

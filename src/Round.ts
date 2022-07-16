@@ -16,8 +16,9 @@ export class RoundFactory {
     createRound(level: Level, tileset: Tileset): Round {
         const styleContainer: StyleContainer = this.page;
         const renderedLevel = new RenderedLevel(level, tileset, this.page.content, styleContainer);
-        const targetPositioner = new TargetPositioner(renderedLevel);
-        const worm = new WormHead(renderedLevel.startPos, level.startDirection, this.page.worm, renderedLevel.tilesize/2, 10, styleContainer);
+        const wormRadius = renderedLevel.tilesize/4;
+        const targetPositioner = new TargetPositioner(renderedLevel, wormRadius);
+        const worm = new WormHead(renderedLevel.startPos, level.startDirection, this.page.worm, wormRadius, 10, styleContainer);
     
         return new Round({
             level: renderedLevel,
@@ -67,7 +68,7 @@ export class Round implements IDisposable {
     async start(): Promise<{liveLost: true} | {liveLost: false}> {
         console.log(`Round.start()`)
         const pos = this.targetPositioner.findSpot();
-        this._currentTarget = new Target(pos, this.page.content);
+        this._currentTarget = new Target(pos, this.worm.radius, this.page.content);
         let targetsLeft = this.level.level.targets;
         
         console.log("start.open()")
@@ -105,7 +106,7 @@ export class Round implements IDisposable {
                 this._currentTarget.dispose();
                 this._currentTarget = undefined;
                 if(targetsLeft <= 0) this.level.exit.open();
-                else this._currentTarget = new Target(pos, this.page.content);
+                else this._currentTarget = new Target(pos, this.worm.radius, this.page.content);
             } else if(this._tailCollidesWithExit()) {
                 console.log("LEAVE THROUGH EXIT!");
                 return {liveLost: false};
@@ -130,15 +131,20 @@ export class Round implements IDisposable {
         return false;
     }
     private _collidesWithWorm(): boolean {
-        for(const segment of this.worm.segments()) {
-            if (this.worm.collides(segment.pos, 0)) {
+        const segements = this.worm.segments();
+        const firstSegment = segements[0];
+        if(!firstSegment) return false;
+        if(firstSegment.pos.x === this.level.startPos.x && firstSegment.pos.y === this.level.startPos.y) return false;
+
+        for(const segment of segements.slice(1)) {
+            if (this.worm.collidesCircle(segment.pos, this.worm.radius)) {
                 return true;
             }
         }
         return false;
     }
     private _collidesWitTarget(): boolean {
-        if(this._currentTarget && this.worm.collides(this._currentTarget.pos, 8)) {
+        if(this._currentTarget && this.worm.collidesCircle(this._currentTarget.pos, this._currentTarget.radius)) {
             return true;
         }
         return false;
