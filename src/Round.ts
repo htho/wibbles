@@ -79,11 +79,11 @@ export class Round implements IDisposable {
         
         while (true) {
             const time = await nextAnmiationFrame();
+            const timeSinceLastFrame = time - lastFrameTime;
+            lastFrameTime = time;
             if(this._isPaused) continue;
             const speedFactor = this.doubleSpeed ? 4 : 1;
-            const timeSinceLastFrame = time - lastFrameTime;
             const stepWidth = pxPerMillisecond * timeSinceLastFrame * speedFactor;
-            lastFrameTime = time;
             console.log(stepWidth, timeSinceLastFrame);
             let walkedWidth = 0
             while (walkedWidth < stepWidth) {
