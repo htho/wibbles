@@ -105,6 +105,9 @@ export class Round implements IDisposable {
                 assertNonNullish(this._currentTarget, `_currentTarget expected to be defined! Can only collide with tile if it actually exists!`);
                 this._currentTarget.dispose();
                 this._currentTarget = undefined;
+                for (let i = 0; i < 3; i++) {
+                    this.worm.grow();
+                }
                 if(targetsLeft <= 0) this.level.exit.open();
                 else this._currentTarget = new Target(this.targetPositioner.findSpot(), this.worm.radius, this.page.content);
             } else if(this._tailCollidesWithExit()) {
