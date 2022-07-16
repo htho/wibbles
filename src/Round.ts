@@ -75,7 +75,7 @@ export class Round implements IDisposable {
         console.log("exit.close()")
         this.level.exit.close();
 
-        let lastFrameTime = 0;
+        let lastFrameTime = performance.now();
         const tilesPerMillisecond = this.tilesPerSecond / 1000;
         const pxPerMillisecond = this.level.tilesize * tilesPerMillisecond;
         
