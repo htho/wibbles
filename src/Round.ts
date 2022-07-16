@@ -34,16 +34,19 @@ export class Round implements IDisposable {
     public readonly targetPositioner: TargetPositioner;
     public readonly worm: WormHead;
     public readonly page: Page;
-    public readonly tilesPerSecond = 1;
+    private _pxPerMillisecond: number;
     public doubleSpeed = false;
     private _isPaused = false;
     private _currentTarget: Target | undefined;
-    constructor({ level, targetPositioner, worm, page }: { level: RenderedLevel; targetPositioner: TargetPositioner; worm: WormHead; page: Page;}) {
+    constructor({ level, targetPositioner, worm, page, tilesPerSecond=1 }: { level: RenderedLevel; targetPositioner: TargetPositioner; worm: WormHead; page: Page; tilesPerSecond?: number}) {
         console.log(`new Round`);
         this.level = level;
         this.targetPositioner = targetPositioner;
         this.worm = worm;
         this.page = page;
+
+        const tilesPerMillisecond = tilesPerSecond / 1000;
+        this._pxPerMillisecond = this.level.tilesize * tilesPerMillisecond;
 
         window.addEventListener("keydown", this._keydownhandler);
         window.addEventListener("keyup", this._keyuphandler);
@@ -77,8 +80,6 @@ export class Round implements IDisposable {
         this.level.exit.close();
 
         let lastFrameTime = performance.now();
-        const tilesPerMillisecond = this.tilesPerSecond / 1000;
-        const pxPerMillisecond = this.level.tilesize * tilesPerMillisecond;
         
         while (true) {
             const time = await nextAnmiationFrame();
@@ -86,7 +87,7 @@ export class Round implements IDisposable {
             lastFrameTime = time;
             if(this._isPaused) continue;
             const speedFactor = this.doubleSpeed ? 4 : 1;
-            const stepWidth = pxPerMillisecond * timeSinceLastFrame * speedFactor;
+            const stepWidth = this._pxPerMillisecond * timeSinceLastFrame * speedFactor;
             let walkedWidth = 0
             while (walkedWidth < stepWidth) {
                 this.worm.nextStep();
@@ -102,14 +103,11 @@ export class Round implements IDisposable {
             } else if(this._collidesWitTarget()) {
                 console.log("HIT TARGET!");
                 targetsLeft--;
-                assertNonNullish(this._currentTarget, `_currentTarget expected to be defined! Can only collide with tile if it actually exists!`);
-                this._currentTarget.dispose();
-                this._currentTarget = undefined;
-                for (let i = 0; i < 3; i++) {
-                    this.worm.grow();
-                }
+                this._cleanTarget();
+                this._growWorm();
+                this._increseSpeed();
                 if(targetsLeft <= 0) this.level.exit.open();
-                else this._currentTarget = new Target(this.targetPositioner.findSpot(), this.worm.radius, this.page.content);
+                else this._showNextTarget();
             } else if(this._tailCollidesWithExit()) {
                 console.log("LEAVE THROUGH EXIT!");
                 return {liveLost: false};
@@ -117,6 +115,23 @@ export class Round implements IDisposable {
             if(this.level.start.isOpen) this._closeStartOnceTheWormIsIn();
         }
         throw new Error("This loop never ends!");
+    }
+
+    private _cleanTarget(): void {
+        assertNonNullish(this._currentTarget, `_currentTarget expected to be defined! Can only collide with tile if it actually exists!`);
+        this._currentTarget.dispose();
+        this._currentTarget = undefined;
+    }
+    private _showNextTarget(): void {
+        this._currentTarget = new Target(this.targetPositioner.findSpot(), this.worm.radius, this.page.content);
+    }
+    private _growWorm(): void {
+        for (let i = 0; i < 3; i++) {
+            this.worm.grow();
+        }
+    }
+    private _increseSpeed(): void {
+        this._pxPerMillisecond *= 1.1;
     }
 
     private togglePause() {
