@@ -2,7 +2,7 @@ import { createElement } from "./browser/dom.js";
 import { StyleContainer } from "./browser/page.js";
 import { FixedSizeQueue } from "./tools/FixedSizeQueue.js";
 import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
-import { Pos, Direction, nextAnmiationFrame } from "./tools/tools.js";
+import { Pos, Direction } from "./tools/tools.js";
 
 export class WormSegment implements IDisposable {
     readonly pos: Pos;
@@ -11,6 +11,7 @@ export class WormSegment implements IDisposable {
     readonly container: HTMLElement;
     protected readonly diameter: number;
     private readonly updateQueue: FixedSizeQueue<Pos>;
+    readonly stepSize = 0.1;
     constructor(
         position: Pos,
         container: HTMLElement,
@@ -20,7 +21,8 @@ export class WormSegment implements IDisposable {
         this.container = container;
         this.element = this._render();
         this.diameter = diameter;
-        this.updateQueue = new FixedSizeQueue(this.diameter/2);
+        const distance = this.diameter/2;
+        this.updateQueue = new FixedSizeQueue(distance/this.stepSize);
     }
     dispose(): void {
         this._isDisposed = true;
@@ -118,12 +120,11 @@ export class WormHead extends WormSegment {
     private async step(dir: Direction): Promise<void> {
         const nextPos: Pos = {...this.pos};
 
-        if (dir === "N") nextPos.y--;
-        else if (dir === "W") nextPos.x--;
-        else if (dir === "S") nextPos.y++;
-        else if (dir === "E") nextPos.x++;
+        if (dir === "N") nextPos.y -= this.stepSize;
+        else if (dir === "W") nextPos.x -= this.stepSize;
+        else if (dir === "S") nextPos.y += this.stepSize;
+        else if (dir === "E") nextPos.x += this.stepSize;
 
-        await nextAnmiationFrame();
         this.updatePos(nextPos);
     }
 

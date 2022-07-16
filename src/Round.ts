@@ -85,7 +85,11 @@ export class Round implements IDisposable {
             const stepWidth = pxPerMillisecond * timeSinceLastFrame * speedFactor;
             lastFrameTime = time;
             console.log(stepWidth, timeSinceLastFrame);
-            this.worm.nextStep(stepWidth);
+            let walkedWidth = 0
+            while (walkedWidth < stepWidth) {
+                this.worm.nextStep();
+                walkedWidth = walkedWidth + this.worm.stepSize;
+            }
             
             if(this._collidesWithWall()) {
                 console.log("COLLIDE WITH WALL!");
