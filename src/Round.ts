@@ -33,7 +33,8 @@ export class Round implements IDisposable {
     public readonly targetPositioner: TargetPositioner;
     public readonly worm: WormHead;
     public readonly page: Page;
-    public readonly tilesPerSecond = 2;
+    public readonly tilesPerSecond = 1;
+    public doubleSpeed = false;
     private _isPaused = false;
     private _currentTarget: Target | undefined;
     constructor({ level, targetPositioner, worm, page }: { level: RenderedLevel; targetPositioner: TargetPositioner; worm: WormHead; page: Page;}) {
@@ -44,6 +45,7 @@ export class Round implements IDisposable {
         this.page = page;
 
         window.addEventListener("keydown", this._keydownhandler);
+        window.addEventListener("keyup", this._keyuphandler);
     }
     async dispose(): Promise<void> {
         console.log(`Round.dispose()`)
@@ -51,6 +53,7 @@ export class Round implements IDisposable {
         this._isDisposed = true;
         
         window.removeEventListener("keydown", this._keydownhandler);
+        window.removeEventListener("keyup", this._keyuphandler);
 
         if(this._currentTarget && !this._currentTarget.isDisposed) this._currentTarget.dispose();
         
@@ -70,18 +73,19 @@ export class Round implements IDisposable {
         this.level.start.open();
         this.level.exit.close();
 
-        let lastStepTime = 0;
-        const pxPerSecond = this.level.tilesize * this.tilesPerSecond;
-        const interval = 1000 / pxPerSecond;
+        let lastFrameTime = 0;
+        const tilesPerMillisecond = this.tilesPerSecond / 1000;
+        const pxPerMillisecond = this.level.tilesize * tilesPerMillisecond;
         
         while (true) {
             const time = await nextAnmiationFrame();
             if(this._isPaused) continue;
-            const timeSinceLastStep = time - lastStepTime;
-            if (timeSinceLastStep < interval) continue;
-            
-            lastStepTime = time;
-            await this.worm.nextStep();
+            const speedFactor = this.doubleSpeed ? 4 : 1;
+            const timeSinceLastFrame = time - lastFrameTime;
+            const stepWidth = pxPerMillisecond * timeSinceLastFrame * speedFactor;
+            lastFrameTime = time;
+            console.log(stepWidth, timeSinceLastFrame);
+            this.worm.nextStep(stepWidth);
             
             if(this._collidesWithWall()) {
                 console.log("COLLIDE WITH WALL!");
@@ -149,7 +153,15 @@ export class Round implements IDisposable {
         return;
     }
 
+    private readonly _keyuphandler = () => {
+        this.doubleSpeed = false;
+    }
     private readonly _keydownhandler = (ev: KeyboardEvent) => {
+        if(ev.repeat) {
+            this.doubleSpeed = true;
+            return;
+        }
+        
         if (ev.key === "ArrowLeft") this.worm.changeDir("W");
         if (ev.key === "ArrowRight") this.worm.changeDir("E");
         if (ev.key === "ArrowUp") this.worm.changeDir("N");
