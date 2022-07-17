@@ -211,9 +211,6 @@
         "file": {
           "type": "string"
         },
-        "indexedWidthHeight": {
-          "type": "number"
-        },
         "meta": {
           "$ref": "#/definitions/JsonMeta"
         },
@@ -222,6 +219,9 @@
             "$ref": "#/definitions/JsonSprite"
           },
           "type": "object"
+        },
+        "standardSpriteSize": {
+          "type": "number"
         }
       },
       "required": [
@@ -229,7 +229,7 @@
         "meta",
         "collection",
         "file",
-        "indexedWidthHeight",
+        "standardSpriteSize",
         "sprites"
       ],
       "type": "object"

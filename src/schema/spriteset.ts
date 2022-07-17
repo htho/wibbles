@@ -11,7 +11,7 @@ export type JsonSpriteset = {
     meta: JsonMeta,
     collection: string,
     file: string,
-    indexedWidthHeight: number,
+    standardSpriteSize: number,
 
     sprites: {[name: string]: JsonSprite},
 }

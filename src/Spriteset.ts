@@ -73,12 +73,11 @@ export class SpritesetLoader {
     }
 }
 
-
 export class Spriteset {
     readonly meta: Readonly<JsonMeta>
     readonly base: string;
     readonly file: string;
-    readonly indexedWidthHeight: number;
+    readonly standardSpriteSize: number;
     readonly sprites: Map<string, Sprite>;
     readonly styleElement: HTMLStyleElement;
     readonly cssStyle: string;
@@ -87,7 +86,7 @@ export class Spriteset {
         this.meta = spriteset.meta;
         this.base = spriteset.base;
         this.file = spriteset.file;
-        this.indexedWidthHeight = spriteset.indexedWidthHeight;
+        this.standardSpriteSize = spriteset.standardSpriteSize;
         this.sprites = this._createSprites(spriteset);
         this.cssStyle = this.fileToCssString();
         this.styleElement = this.createSpriteStyleElement();
@@ -104,8 +103,8 @@ export class Spriteset {
             background: url(./${this.base}/${this.file});
         }
         .${this.meta.name}.indexed {
-            height: ${this.indexedWidthHeight}px;
-            width: ${this.indexedWidthHeight}px;
+            height: ${this.standardSpriteSize}px;
+            width: ${this.standardSpriteSize}px;
         }`;
         
     }
@@ -171,12 +170,12 @@ export class StaticSprite extends Sprite {
         this.isIndexed = isJsonStaticIndexedSprite(sprite);
         if(isJsonStaticIndexedSprite(sprite)) {
             this.position = {
-                x: this.spriteSet.indexedWidthHeight * sprite.cell.col,
-                y: this.spriteSet.indexedWidthHeight * sprite.cell.row,
+                x: this.spriteSet.standardSpriteSize * sprite.cell.col,
+                y: this.spriteSet.standardSpriteSize * sprite.cell.row,
             };
             this.dimensions = {
-                width: spriteSet.indexedWidthHeight,
-                height: spriteSet.indexedWidthHeight,
+                width: spriteSet.standardSpriteSize,
+                height: spriteSet.standardSpriteSize,
             };
         } else {
             this.position = sprite.pos;

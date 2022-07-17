@@ -7,7 +7,7 @@
     },
     "collection": "oga--zelda-like-tilesets-and-sprites",
     "file": "gfx/objects.png",
-    "indexedWidthHeight": 16,
+    "standardSpriteSize": 16,
     "sprites": {
         "health100": {"cell": {"col": 4,"row": 0}},
         "health75": {"cell": {"col": 5,"row": 0}},

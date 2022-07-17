@@ -7,7 +7,7 @@
     },
     "collection": "oga--zelda-like-tilesets-and-sprites",
     "file": "gfx/Overworld.png",
-    "indexedWidthHeight": 16,
+    "standardSpriteSize": 16,
     "sprites": {
         "grass": {"cell": {"col": 0,"row": 0}},
         "log": {
