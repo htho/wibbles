@@ -6,18 +6,9 @@ import { SpritesetLoader } from "./Spriteset.js";
 import { TilesetLoader } from "./Tileset.js";
 
 const page = await Page.Load();
-const game = new Game({
-    initialLives: 5,
-    level: [
-        {name: "empty", tileset: "basic"},
-        {name: "treeTrunk", tileset: "basic"},
-    ],
-    meta: {
-        author: "",
-        name: "",
-        version: 0
-    }
-},
+
+const jsonGame = await Game.Load("basic");
+const game = new Game(jsonGame,
 {
     levelLoader: new LevelLoader(),
     tilesetLoader: new TilesetLoader(),

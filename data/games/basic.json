@@ -1,0 +1,13 @@
+{
+    "$schema": "../../schema/game.json",
+    "meta": {
+        "name": "foo",
+        "author": "bar",
+        "version": 1
+    },
+    "initialLives": 5,
+    "level": [
+        {"name": "empty", "tileset": "basic"},
+        {"name": "treeTrunk", "tileset": "basic"}
+    ]
+}

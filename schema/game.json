@@ -1,0 +1,65 @@
+{
+  "$ref": "#/definitions/JsonGame",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "JsonGame": {
+      "additionalProperties": false,
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "initialLives": {
+          "type": "number"
+        },
+        "level": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "tileset": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "tileset"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "meta": {
+          "$ref": "#/definitions/JsonMeta"
+        }
+      },
+      "required": [
+        "meta",
+        "level",
+        "initialLives"
+      ],
+      "type": "object"
+    },
+    "JsonMeta": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "author",
+        "version"
+      ],
+      "type": "object"
+    }
+  }
+}

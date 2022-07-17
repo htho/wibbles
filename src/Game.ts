@@ -100,7 +100,7 @@ export class Game {
     }
 
     static async Load(name: string): Promise<JsonGame> {
-        const file = await fetch(`./data/game/${name}.json`);
+        const file = await fetch(`./data/games/${name}.json`);
         const game = await file.json() as JsonGame;
         return game;
     }
