@@ -17,15 +17,23 @@ export class Level<C extends number = number, R extends number = number> {
         this.cols = level.width as C;
         this.startDirection = level.startDir;
         
-        if(level.height !== level.map.length) throw new Error(`Unexpected height! Expected: ${level.height}. Actual: ${level.map.length}`);
-        
-        level.map.forEach((line, index) => {
-            if(level.width !== line.length) throw new Error(`Unexpected line width in line ${index}! Expected: ${level.width}. Actual: ${line.length}`);
-        });
+        this._validateGrid(level);
         
         const mapAsChars = level.map.map(row => asCharArray(row));
         const arrayOfTupleOfTiles = mapAsChars.map(((row => asTuple(row, this.cols))));
         this.grid = asTuple(arrayOfTupleOfTiles, this.rows);
+    }
+
+    private _validateGrid(level: JsonLevel) {
+        if (level.height !== level.map.length) {
+            throw new Error(`Unexpected height! Expected: ${level.height}. Actual: ${level.map.length}`);
+        }
+
+        level.map.forEach((line, index) => {
+            if (level.width !== line.length) {
+                throw new Error(`Unexpected line width in line ${index}! Expected: ${level.width}. Actual: ${line.length}`);
+            }
+        });
     }
 }
 
