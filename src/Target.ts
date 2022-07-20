@@ -30,7 +30,7 @@ export class Target implements IDisposable {
 
         finalizeDisposal(this);
         console.log(`...Target disposed!`);
-    };
+    }
     protected _isDisposed = false;
     get isDisposed(): boolean {
         return this._isDisposed;

@@ -66,7 +66,7 @@ export class Round implements IDisposable {
 
         finalizeDisposal(this);
         console.log(`...Round disposed!`);
-    };
+    }
     
     async start(): Promise<{liveLost: true} | {liveLost: false}> {
         console.log(`Round.start()`)
@@ -144,7 +144,7 @@ export class Round implements IDisposable {
         for(const tile of this.level.list) {
             if(tile.collides(this.worm.pos)) {
                 return true;
-            };
+            }
         }
         return false;
     }
@@ -171,7 +171,7 @@ export class Round implements IDisposable {
         const lastTail = this.worm.getLastTail();
         if(this.level.exit.collidesRegardlessOfState(lastTail.pos)) {
             return true;
-        };
+        }
         return false;
     }
     private _closeStartOnceTheWormIsIn(): void {

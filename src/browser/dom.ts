@@ -53,7 +53,7 @@ export function createTable<COLS extends number>({header, data, headerTransform,
             const td = createElement("td");
             if (typeof transformedCell === "string") td.innerText = transformedCell;
             else if (isArray(transformedCell)) td.append(...transformedCell);
-            else td.append(transformedCell);;
+            else td.append(transformedCell);
             tr.appendChild(td);
         }
         table.appendChild(tr);

@@ -114,7 +114,7 @@ export abstract class Tile {
         if(pos.y > posOfOtherEdge.y) return false;
         return true;
     } 
-};
+}
 
 export class BasicTile extends Tile {
     readonly sprite: Sprite | Sprite[];

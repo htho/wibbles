@@ -34,7 +34,7 @@ export class WormSegment implements IDisposable {
         }
         finalizeDisposal(this);
         console.log("...WormSegment disposed!")
-    };
+    }
     protected _isDisposed = false;
     get isDisposed(): boolean {
         return this._isDisposed;
@@ -112,7 +112,7 @@ export class WormHead extends WormSegment {
 
         super.dispose();
         console.log("...WormHead disposed!")
-    };
+    }
     private _updateRender(): void {
         this.element.classList.add("worm-head");
     }

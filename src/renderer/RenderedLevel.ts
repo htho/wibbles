@@ -66,7 +66,7 @@ export class RenderedLevel<W extends number = number, H extends number = number>
 
         finalizeDisposal(this);
         console.log("...RenderedLevel disposed!")
-    };
+    }
     protected _isDisposed = false;
     get isDisposed(): boolean {
         return this._isDisposed;

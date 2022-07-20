@@ -8,10 +8,10 @@ export interface JsonLevel {
     height: number,
     startDir: Direction,
     map: string[],
-};
+}
 
 export interface JsonMeta {
     name: string,
     author: string,
     version: number,
-};
+}

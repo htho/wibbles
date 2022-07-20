@@ -5,4 +5,4 @@ export interface JsonGame {
     meta: JsonMeta,
     level: {name: string, tileset: string}[],
     initialLives: number,
-};
+}

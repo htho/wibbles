@@ -147,7 +147,7 @@ export abstract class Sprite {
             ]
         });
         return result;
-    };
+    }
 }
 
 function createSprite(name: string, spriteset: Spriteset, sprite: JsonStaticSprite | JsonAnimatedSprite): Sprite {
@@ -233,7 +233,7 @@ export class AnimatedSprite extends Sprite {
             result.appendChild(frame)
         }
         return result;
-    };
+    }
 }
 
 function createSpritesForMultiSprite(name: string, spriteSet: Spriteset, sprite: JsonMultiSprite): Sprite[] {
