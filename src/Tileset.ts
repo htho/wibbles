@@ -47,7 +47,7 @@ export abstract class Tile {
     readonly absPos: Pos;
     readonly isSolid: boolean;
     abstract readonly dimensions: Dimensions;
-    abstract readonly html: HTMLElement;
+    abstract readonly element: HTMLElement;
     
     constructor(jsonTile: JsonTile, tileset: Tileset, char: Char, absPos: Pos) {
         this.type = jsonTile.type;
@@ -71,28 +71,28 @@ export abstract class Tile {
         return this.getBaseSprite(sprite).dimensions;
     }
 
-    protected renderHtml(sprite: Sprite | Sprite[]): HTMLElement {
-        const result = isArray(sprite) ? this.renderHtmlStacked(sprite) : this.renderHtmlSingle(sprite);
+    protected renderElement(sprite: Sprite | Sprite[]): HTMLElement {
+        const result = isArray(sprite) ? this.renderStackedElement(sprite) : this.renderSingleElement(sprite);
         result.classList.add("tile");
         return result;
     }
-    private renderHtmlSingle(sprite: Sprite): HTMLElement {
-        const result = sprite.createHTML();
+    private renderSingleElement(sprite: Sprite): HTMLElement {
+        const result = sprite.createElement();
         result.classList.add("sprite");
         return result;
     }
-    private renderHtmlStackItem(sprite: Sprite): HTMLElement {
-        const result = this.renderHtmlSingle(sprite);
+    private renderStackItemElement(sprite: Sprite): HTMLElement {
+        const result = this.renderSingleElement(sprite);
         result.classList.add("stacked");
         return result;
     }
-    private renderHtmlStacked(spriteStack: Sprite[]): HTMLElement {
+    private renderStackedElement(spriteStack: Sprite[]): HTMLElement {
         const [first, ...others] = spriteStack;
         if(first === undefined) throw new Error("Unexpected empty sprite stack!");
 
-        const result = this.renderHtmlSingle(first);
+        const result = this.renderSingleElement(first);
         result.classList.add("stack");
-        const stack = others.map(sprite => this.renderHtmlStackItem(sprite));
+        const stack = others.map(sprite => this.renderStackItemElement(sprite));
         stack.forEach(el => result.appendChild(el));
         return result;
     }
@@ -118,14 +118,14 @@ export abstract class Tile {
 
 export class BasicTile extends Tile {
     readonly sprite: Sprite | Sprite[];
-    readonly html: HTMLElement;
+    readonly element: HTMLElement;
     readonly dimensions: Dimensions;
 
     constructor(jsonTile: BasicJsonTile, tileset: Tileset, char: Char, absPos: Pos) {
         super(jsonTile, tileset, char, absPos);
         this.sprite = this.jsonSpriteToSprite(jsonTile.sprite);
         this.dimensions = this.getSpriteDimensions(this.sprite);
-        this.html = this.renderHtml(this.sprite);
+        this.element = this.renderElement(this.sprite);
     }
 }
 
@@ -137,25 +137,25 @@ export class OpenableTile extends Tile {
     get isOpen() {
         return this._isOpen;
     }
-    readonly html: HTMLElement;
+    readonly element: HTMLElement;
     readonly dimensions: Dimensions;
 
     constructor(jsonTile: OpenableJsonTile, tileset: Tileset, char: Char, absPos: Pos) {
         super(jsonTile, tileset, char, absPos);
         this._open = this.jsonSpriteToSprite(jsonTile.open);
         this._closed = this.jsonSpriteToSprite(jsonTile.closed);
-        const htmlOpen = this.renderHtml(this._open);
-        const htmlClosed = this.renderHtml(this._closed);
-        this.html = createElement("div", {
+        const closedElement = this.renderElement(this._open);
+        const openElement = this.renderElement(this._closed);
+        this.element = createElement("div", {
             classList: [
                 "openable",
                 "tile",
             ]
         });
-        htmlOpen.classList.add("open");
-        htmlClosed.classList.add("closed");
-        this.html.appendChild(htmlOpen);
-        this.html.appendChild(htmlClosed);
+        closedElement.classList.add("open");
+        openElement.classList.add("closed");
+        this.element.appendChild(closedElement);
+        this.element.appendChild(openElement);
         const baseOpen = this.getBaseSprite(this._open);
         const baseClosed = this.getBaseSprite(this._closed);
         const openAndClosedDimensionsAreEqual = baseOpen.dimensions.height === baseClosed.dimensions.height && baseOpen.dimensions.width === baseClosed.dimensions.width;
@@ -174,11 +174,11 @@ export class OpenableTile extends Tile {
 
     open() {
         this._isOpen = true;
-        this.html.classList.add("is-open");
+        this.element.classList.add("is-open");
     }
     close() {
         this._isOpen = false;
-        this.html.classList.remove("is-open");
+        this.element.classList.remove("is-open");
     }
 }
 

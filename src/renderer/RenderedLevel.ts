@@ -46,7 +46,7 @@ export class RenderedLevel<W extends number = number, H extends number = number>
         if(exit === undefined) throw new Error("No Exit tile found!");
         this.exit = exit as OpenableTile;
 
-        this.element = this._renderHtml();
+        this.element = this._renderElement();
 
         this.tilesize = this.start.dimensions.height;
         this.dimensions = {width: this.level.cols * this.tilesize, height: this.level.rows * this.tilesize};
@@ -86,18 +86,18 @@ export class RenderedLevel<W extends number = number, H extends number = number>
             }
         `;
     }
-    private _renderHtml(): HTMLElement {
+    private _renderElement(): HTMLElement {
         const rendered = document.createElement("div");
         rendered.classList.add("map");
-        const renderedRows = this.grid.map(row => this._renderHtmlRow(row));
+        const renderedRows = this.grid.map(row => this._renderRowElements(row));
         renderedRows.forEach(renderedRow => rendered.appendChild(renderedRow));
         return rendered;
     }
 
-    private _renderHtmlRow(row: Tile[]): HTMLElement {
+    private _renderRowElements(row: Tile[]): HTMLElement {
         const rendered = document.createElement("div");
         rendered.classList.add("row");
-        row.forEach(tile => rendered.appendChild(tile.html));
+        row.forEach(tile => rendered.appendChild(tile.element));
         return rendered;
     }
 

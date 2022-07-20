@@ -138,7 +138,7 @@ export abstract class Sprite {
         this.id = `${this.spriteSet.meta.name}/${this.name}`;
     }
 
-    createHTML(): HTMLElement {
+    createElement(): HTMLElement {
         const result = createElement("div", {
             classList: [
                 "sprite",
@@ -185,8 +185,8 @@ export class StaticSprite extends Sprite {
         this.css = this.createCss();
     }
 
-    override createHTML(): HTMLElement {
-        const result = super.createHTML();
+    override createElement(): HTMLElement {
+        const result = super.createElement();
         if(this.isIndexed) result.classList.add("indexed");
         return result;
     }
@@ -219,11 +219,11 @@ export class AnimatedSprite extends Sprite {
         return this.frames.map(frame => frame.css).join("\n");
     }
 
-    override createHTML(): HTMLElement {
-        const result = super.createHTML();
+    override createElement(): HTMLElement {
+        const result = super.createElement();
         result.classList.add("animated");
         
-        const frames = this.frames.map(sprite => sprite.createHTML());
+        const frames = this.frames.map(sprite => sprite.createElement());
         const steps = frames.length;
         for (let index = 0; index < frames.length; index++) {
             const frame = frames[index] as HTMLElement;

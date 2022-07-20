@@ -109,7 +109,7 @@ class SpriteEditor {
             dataTransform: [undefined, (sprite: Sprite) => {
                 const style = document.createElement("style");
                 style.innerHTML = sprite.css;
-                const preview = sprite.createHTML();
+                const preview = sprite.createElement();
                 return [style, preview];
             }],
         });
