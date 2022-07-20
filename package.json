@@ -17,16 +17,20 @@
     "copy-static:css": "copy .\\*.css .\\dist\\",
     "copy-static:data": "xcopy data dist\\data /IEY",
     "serve": "http-server -c-1 ./dist/",
-    "watch": "chokidar \"**/*\" \"!dist/**/*\" -c \"npm run build\""
+    "watch": "chokidar \"**/*\" \"!dist/**/*\" -c \"npm run build\"",
+    "lint": "eslint ."
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^28.1.3",
+    "@typescript-eslint/eslint-plugin": "^5.30.7",
+    "@typescript-eslint/parser": "^5.30.7",
+    "eslint": "^8.20.0",
     "jest": "^28.1.1",
     "ts-jest": "^28.0.5",
     "ts-json-schema-generator": "^1.0.0",
-    "typescript": "^4.6.4"
+    "typescript": "^4.7.4"
   },
   "dependencies": {
     "chokidar-cli": "^3.0.0",
