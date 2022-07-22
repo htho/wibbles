@@ -121,16 +121,16 @@ export class WormHead extends WormSegment {
         this.element.classList.add(`dir-${dir}`);
         this._currentDirection = dir;
     }
-    async nextStep(): Promise<void> {
-        await this.step(this._currentDirection);
+    nextStep(): void {
+        this.step(this._currentDirection);
     }
-    private async step(dir: Direction): Promise<void> {
+    private step(dir: Direction): void {
         const nextPos: Pos = {...this.pos};
 
-        if (dir === "N") nextPos.y -= this.stepSize;
-        else if (dir === "W") nextPos.x -= this.stepSize;
-        else if (dir === "S") nextPos.y += this.stepSize;
-        else if (dir === "E") nextPos.x += this.stepSize;
+        if (dir === Direction.N) nextPos.y -= this.stepSize;
+        else if (dir === Direction.W) nextPos.x -= this.stepSize;
+        else if (dir === Direction.S) nextPos.y += this.stepSize;
+        else /*if (dir === Direction.E)*/ nextPos.x += this.stepSize;
 
         this.updatePos(nextPos);
     }
@@ -147,7 +147,7 @@ export class WormHead extends WormSegment {
 
     getLastTail(): WormSegment {
         let segment: WormSegment = this;        
-        while(segment?.tail) {
+        while(segment.tail) {
             segment = segment.tail;
         }
         return segment;

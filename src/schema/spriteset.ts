@@ -1,7 +1,7 @@
 import { Dimensions, Pos } from "../tools/tools.js";
 import { JsonMeta } from "./level.js"
 
-export function isJsonSpriteset(obj: any): obj is JsonSpriteset {
+export function isJsonSpriteset(obj: Record<string, unknown>): obj is JsonSpriteset {
     if (!("$schema" in obj)) return false;
     if (typeof obj["$schema"] !== "string") return false;
     return obj["$schema"] === "../../../schema/spriteset.json";

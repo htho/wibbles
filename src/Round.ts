@@ -4,7 +4,7 @@ import { RenderedLevel } from "./renderer/RenderedLevel.js";
 import { Target, TargetPositioner } from "./Target.js";
 import { Tileset } from "./Tileset.js";
 import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
-import { assertNonNullish, nextAnmiationFrame } from "./tools/tools.js";
+import { assertNonNullish, Direction, nextAnmiationFrame } from "./tools/tools.js";
 import { WormHead } from "./Worm.js";
 
 export class RoundFactory {
@@ -192,11 +192,11 @@ export class Round implements IDisposable {
             return;
         }
         
-        if (ev.key === "ArrowLeft") this.worm.changeDir("W");
-        if (ev.key === "ArrowRight") this.worm.changeDir("E");
-        if (ev.key === "ArrowUp") this.worm.changeDir("N");
-        if (ev.key === "ArrowDown") this.worm.changeDir("S");
-        if (ev.key === "p") this.togglePause();
+        if (ev.key === "ArrowLeft") this.worm.changeDir(Direction.W);
+        else if (ev.key === "ArrowRight") this.worm.changeDir(Direction.E);
+        else if (ev.key === "ArrowUp") this.worm.changeDir(Direction.N);
+        else if (ev.key === "ArrowDown") this.worm.changeDir(Direction.S);
+        else if (ev.key === "p") this.togglePause();
     };
 
     private _isDisposed = false;

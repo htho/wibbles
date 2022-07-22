@@ -9,7 +9,7 @@ import {
     isJsonStaticIndexedSprite
 } from "./schema/spriteset.js";
 import { JsonMeta } from "./schema/level.js";
-import { Dimensions, Pos } from "./tools/tools.js";
+import { Dimensions, notNullCoersed, Pos } from "./tools/tools.js";
 import { createElement } from "./browser/dom.js";
 
 export class SpriteIndex {
@@ -226,9 +226,9 @@ export class AnimatedSprite extends Sprite {
         const frames = this.frames.map(sprite => sprite.createElement());
         const steps = frames.length;
         for (let index = 0; index < frames.length; index++) {
-            const frame = frames[index] as HTMLElement;
+            const frame = frames[index] ?? notNullCoersed("element must be in array!");
             frame.classList.add("animation-frame");
-            frame.classList.add("animation-frame-"+index)
+            frame.classList.add(`animation-frame-${index}`)
             frame.style.animation = `${this.time}ms steps(${steps}) ${index * (this.time/steps)}ms infinite change-${steps}`;
             result.appendChild(frame)
         }

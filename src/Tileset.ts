@@ -1,5 +1,5 @@
 import { JsonMeta } from "./schema/level.js";
-import { JsonTile, TileType, JsonTileset, BasicJsonTile, OpenableJsonTile, isBasicJsonTile, JsonStartTile, isJsonStartTile } from "./schema/tileset.js";
+import { JsonTile, TileType, JsonTileset, BasicJsonTile, OpenableJsonTile, isBasicJsonTile, isJsonStartTile } from "./schema/tileset.js";
 import { asChar, Char } from "./tools/Char.js";
 import { Sprite, SpriteIndex } from "./Spriteset.js";
 import { Cell, Dimensions, isArray, Pos } from "./tools/tools.js";
@@ -183,7 +183,4 @@ export class OpenableTile extends Tile {
 }
 
 export class StartTile extends OpenableTile {
-    constructor(jsonTile: JsonStartTile, tileset: Tileset, char: Char, absPos: Pos) {
-        super(jsonTile, tileset, char, absPos);
-    }
 }

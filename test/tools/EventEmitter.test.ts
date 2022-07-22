@@ -25,7 +25,9 @@ describe("emit", () => {
     test("emits asynchronously", async () => {
         const e = new EventEmitter();
         const asyncCbMock = jest.fn();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         const asyncCb = Promise.resolve().then(() => asyncCbMock());
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         e.on("foo", async () => await asyncCb);
 
         const emitted = e.emit("foo");

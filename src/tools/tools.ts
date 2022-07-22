@@ -8,7 +8,16 @@ export function asTuple<T, N extends number>(arr: T[], n: N): Tuple<T, N> {
 
 export type Pos = { x: number; y: number; };
 export type Dimensions = { width: number; height: number; };
-export type Direction = "N" | "W" | "E" | "S";
+export enum Direction {
+    "N" = "N",
+    "E" = "E",
+    "S" = "S",
+    "W" = "W",
+}
+export function assertDirection(dir: string): asserts dir is Direction {
+    if(dir in Direction) return;
+    throw new Error(`"${dir}" is not a valid direction! Valid directions are: ${JSON.stringify(Object.keys(Direction))}.`);
+}
 export type Cell = { row: number, col: number };
 
 export function notNullCoersed(msg: string): never {

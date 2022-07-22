@@ -33,11 +33,11 @@ page.spriteFileInput.addEventListener("input", async () => {
     const files = page.spriteFileInput.files ?? notNullCoersed("not a file input!");
     const file = files[0] ?? notNullCoersed("no file uploaded!");
     
-    const parsed = JSON.parse(await file.text());
+    const parsed = JSON.parse(await file.text()) as Record<string, unknown>;
     if(!isJsonSpriteset(parsed)) throw new Error("File is not a JsonSpriteset!");
 
     const editor = new SpriteEditor(page, parsed);
-    editor.init();
+    await editor.init();
 })
 
 const spritesetLoader = new SpritesetLoader();
@@ -61,8 +61,8 @@ class SpriteEditor {
         return el;
     }
     drawGrid(size: Dimensions) {
-        this.page.grid.style.width = this.page.gridBox.style.width = size.width + "px";
-        this.page.grid.style.height = this.page.gridBox.style.height = size.height + "px";
+        this.page.grid.style.width = this.page.gridBox.style.width = `${size.width}px`;
+        this.page.grid.style.height = this.page.gridBox.style.height = `${size.height}px`;
 
         const baseSize = 16;
         const rows = Math.ceil(size.height / baseSize);
@@ -72,10 +72,10 @@ class SpriteEditor {
             for (let col = 0; col < cols; col++) {
                 const gridItem = document.createElement("div");
                 gridItem.classList.add("grid-item");
-                gridItem.style.width = baseSize + "px";
-                gridItem.style.height = baseSize + "px";
-                gridItem.style.top = (row * baseSize) + "px";
-                gridItem.style.left = (col * baseSize) + "px";
+                gridItem.style.width = `${baseSize}px`;
+                gridItem.style.height = `${baseSize}px`;
+                gridItem.style.top = `${row * baseSize}px`;
+                gridItem.style.left = `${col * baseSize}px`;
                 gridItem.title = JSON.stringify({col, row});
                 this.page.grid.appendChild(gridItem);
                 gridItem.addEventListener("click", () => {
@@ -106,7 +106,7 @@ class SpriteEditor {
         const table = createTable({
             header: ["name", "preview"],
             data: Array.from(this.spriteset.sprites.entries()),
-            dataTransform: [undefined, (sprite: Sprite) => {
+            dataTransform: [undefined, (sprite: Sprite): HTMLElement[] => {
                 const style = document.createElement("style");
                 style.innerHTML = sprite.css;
                 const preview = sprite.createElement();

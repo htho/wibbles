@@ -69,7 +69,7 @@ describe("_emit", () => {
         const cb = jest.fn();
         c.onSomething.add(cb);
 
-        c.onSomething._emit();
+        await c.onSomething._emit();
 
         expect(cb).toHaveBeenCalled();
         expect(cb).toHaveBeenCalledTimes(1);
@@ -79,7 +79,7 @@ describe("_emit", () => {
         const cb = jest.fn();
         c.onSomethingWithArgs.add(cb);
 
-        c.onSomethingWithArgs._emit("x");
+        await c.onSomethingWithArgs._emit("x");
 
         expect(cb).toHaveBeenCalledWith("x");
         expect(cb).toHaveBeenCalledTimes(1);
@@ -89,7 +89,7 @@ describe("_emit", () => {
         const cb = jest.fn();
         c.onSomethingWithOptionalArgs.add(cb);
 
-        c.onSomethingWithOptionalArgs._emit();
+        await c.onSomethingWithOptionalArgs._emit();
 
         expect(cb).toHaveBeenCalledWith();
         expect(cb).toHaveBeenCalledTimes(1);
@@ -101,6 +101,7 @@ describe("_emit", () => {
         // // This does not work as expected!
         // // micro-tasks are only queued if an anctual promise is involved.
         // const asyncCb = async() => cb();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         const asyncCb = () => Promise.resolve().then(() => cb());
         c.onSomethingAsync.add(asyncCb);
         
