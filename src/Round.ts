@@ -35,7 +35,7 @@ export class Round implements IDisposable {
     public readonly worm: WormHead;
     public readonly page: Page;
     private _pxPerMillisecond: number;
-    public doubleSpeed = false;
+    public highSpeed = false;
     private _isPaused = false;
     private _currentTarget: Target | undefined;
     constructor({ level, targetPositioner, worm, page, tilesPerSecond=1 }: { level: RenderedLevel; targetPositioner: TargetPositioner; worm: WormHead; page: Page; tilesPerSecond?: number}) {
@@ -86,7 +86,7 @@ export class Round implements IDisposable {
             const timeSinceLastFrame = time - lastFrameTime;
             lastFrameTime = time;
             if(this._isPaused) continue;
-            const speedFactor = this.doubleSpeed ? 4 : 1;
+            const speedFactor = this.highSpeed ? 4 : 1;
             const stepWidth = this._pxPerMillisecond * timeSinceLastFrame * speedFactor;
             let walkedWidth = 0
             while (walkedWidth < stepWidth) {
@@ -184,11 +184,11 @@ export class Round implements IDisposable {
     }
 
     private readonly _keyuphandler = () => {
-        this.doubleSpeed = false;
+        this.highSpeed = false;
     }
     private readonly _keydownhandler = (ev: KeyboardEvent) => {
         if(ev.repeat) {
-            this.doubleSpeed = true;
+            this.highSpeed = true;
             return;
         }
         
