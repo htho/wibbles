@@ -69,14 +69,14 @@ export class Round implements IDisposable {
     }
     
     async start(): Promise<{liveLost: true} | {liveLost: false}> {
-        console.log(`Round.start()`)
+        console.log(`Round.start()`);
         const pos = this.targetPositioner.findSpot();
         this._currentTarget = new Target(pos, this.worm.radius, this.page.content);
         let targetsLeft = this.level.level.targets;
         
-        console.log("start.open()")
+        console.log("start.open()");
         this.level.start.open();
-        console.log("exit.close()")
+        console.log("exit.close()");
         this.level.exit.close();
 
         let lastFrameTime = performance.now();
@@ -115,7 +115,7 @@ export class Round implements IDisposable {
     }
 
     private _nextStep(width: number): void {
-        let walkedWidth = 0
+        let walkedWidth = 0;
         while (walkedWidth < width) {
             this.worm.nextStep();
             walkedWidth = walkedWidth + this.worm.stepSize;
@@ -183,14 +183,14 @@ export class Round implements IDisposable {
         const lastTail = this.worm.getLastTail();
         const collides = this.level.start.collidesRegardlessOfState(lastTail.pos);
         if (collides) return;
-        console.log("start.close()")
+        console.log("start.close()");
         this.level.start.close();
         return;
     }
 
     private readonly _keyuphandler = () => {
         this.highSpeed = false;
-    }
+    };
     private readonly _keydownhandler = (ev: KeyboardEvent) => {
         if(ev.repeat) {
             this.highSpeed = true;

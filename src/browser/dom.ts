@@ -13,7 +13,7 @@ export const setImgSrc = async (img: HTMLImageElement, src: string) => {
         img.addEventListener("load", () => resolve());
         img.src = src;
     });
-}
+};
 
 export function createElement<K extends keyof HTMLElementTagNameMap>(
     tagName: K,

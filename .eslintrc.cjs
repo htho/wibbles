@@ -19,6 +19,7 @@ module.exports = {
       'plugin:jest/recommended',
     ],
     rules: {
+      "semi": ["error", "always"],
       "@typescript-eslint/no-misused-promises": [
         "error",
         {

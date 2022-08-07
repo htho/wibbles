@@ -5,9 +5,9 @@ import { getRandomIntInclusive, Pos } from "./tools/tools.js";
 
 export class Target implements IDisposable {
     readonly target: HTMLElement;
-    public readonly pos: Pos
-    public readonly radius: number
-    public readonly targetContainer: HTMLElement
+    public readonly pos: Pos;
+    public readonly radius: number;
+    public readonly targetContainer: HTMLElement;
     constructor(pos: Pos, radius: number, targetContainer: HTMLElement) {
         this.pos = pos;
         this.radius = radius;
@@ -22,7 +22,7 @@ export class Target implements IDisposable {
         this._draw();
     }
     dispose(): void {
-        console.log(`dispose Target...`)
+        console.log(`dispose Target...`);
 
         this._isDisposed = true;
 
@@ -64,7 +64,7 @@ export class TargetPositioner {
             topRight: {x: pos.x + this.targetRadius, y: pos.y - this.targetRadius},
             bottomLeft: {x: pos.x - this.targetRadius, y: pos.y + this.targetRadius},
             bottomRight: {x: pos.x + this.targetRadius, y: pos.y + this.targetRadius},
-        }
+        };
     }
     _collidesWithAnySolidTile(pos: Pos): boolean {
         const edges = this._getBoxEdges(pos);

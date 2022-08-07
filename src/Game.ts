@@ -27,7 +27,7 @@ export class Game {
             roundFactory: RoundFactory,
             logger: {info: (msg: string) => void, alert: (msg: string) => void}
         }) {
-        console.log(`new Game`)
+        console.log(`new Game`);
         this._lives = new Lives(initialLives);
         this._level = level;
         this._meta = meta;
@@ -69,7 +69,7 @@ export class Game {
     }
 
     private async _runRound(): Promise<boolean> {
-        console.log(`createRound()`)
+        console.log(`createRound()`);
         const round = this._roundFactory.createRound(this._currentLevel, this._currentTileset);
         const roundResult = await round.start();
         console.log(`round over`, roundResult);

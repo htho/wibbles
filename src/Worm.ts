@@ -26,14 +26,14 @@ export class WormSegment implements IDisposable {
         this.updateQueue = new FixedSizeQueue(distance/this.stepSize);
     }
     dispose(): void {
-        console.log("dispose WormSegment...")
+        console.log("dispose WormSegment...");
         this._isDisposed = true;
         if(this.tail) {
-            this.container.removeChild(this.tail.element)
+            this.container.removeChild(this.tail.element);
             this.tail.dispose();
         }
         finalizeDisposal(this);
-        console.log("...WormSegment disposed!")
+        console.log("...WormSegment disposed!");
     }
     protected _isDisposed = false;
     get isDisposed(): boolean {
@@ -103,7 +103,7 @@ export class WormHead extends WormSegment {
         
     }
     override dispose(): void {
-        console.log("dispose WormHead...")
+        console.log("dispose WormHead...");
 
         this._isDisposed = true;
         
@@ -111,7 +111,7 @@ export class WormHead extends WormSegment {
         this.container.removeChild(this.element);
 
         super.dispose();
-        console.log("...WormHead disposed!")
+        console.log("...WormHead disposed!");
     }
     private _updateRender(): void {
         this.element.classList.add("worm-head");
@@ -173,7 +173,7 @@ export class WormHead extends WormSegment {
         if(x > cx + radius) return false;
         if(y < cy - radius) return false;
         if(y > cy + radius) return false;
-        console.log(`Worm collides ${JSON.stringify(this.pos)} is within ${JSON.stringify(center)} + ${radius}`)
+        console.log(`Worm collides ${JSON.stringify(this.pos)} is within ${JSON.stringify(center)} + ${radius}`);
         return true;
     }
     collides(pos: Pos, radius: number): boolean {
@@ -181,7 +181,7 @@ export class WormHead extends WormSegment {
         if(pos.x < this.pos.x) return false;
         if(pos.y > this.pos.y + radius) return false;
         if(pos.y < this.pos.y) return false;
-        console.log(`Worm collides ${JSON.stringify(pos)} is within ${JSON.stringify(this.pos)} + ${radius}`)
+        console.log(`Worm collides ${JSON.stringify(pos)} is within ${JSON.stringify(this.pos)} + ${radius}`);
         return true;
     }
 

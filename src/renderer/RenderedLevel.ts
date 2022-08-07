@@ -57,7 +57,7 @@ export class RenderedLevel<W extends number = number, H extends number = number>
         this.styleContainer.addStyle("standard-tile-size", this._createStandardTileSizeCssProperty());
     }
     dispose(): void {
-        console.log("dispose RenderedLevel...")
+        console.log("dispose RenderedLevel...");
         this._isDisposed = true;
 
         this.styleContainer.removeStyle("standard-tile-size");
@@ -65,7 +65,7 @@ export class RenderedLevel<W extends number = number, H extends number = number>
         this.tileset.spriteIndex.spritesets.forEach(spriteset => this.styleContainer.removeStyle(spriteset.meta.name));
 
         finalizeDisposal(this);
-        console.log("...RenderedLevel disposed!")
+        console.log("...RenderedLevel disposed!");
     }
     protected _isDisposed = false;
     get isDisposed(): boolean {
@@ -77,7 +77,7 @@ export class RenderedLevel<W extends number = number, H extends number = number>
         return {
             x: x + (width / 2),
             y: y + (height / 2)
-        }
+        };
     }
     private _createStandardTileSizeCssProperty(): string {
         return `

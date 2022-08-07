@@ -27,7 +27,7 @@ export class SpriteIndex {
 
     add(spriteset: Spriteset): void {
         spriteset.sprites.forEach(sprite => this._index.set(sprite.id, sprite));
-        this._knownSpritesets.add(spriteset.meta.name)
+        this._knownSpritesets.add(spriteset.meta.name);
         this._spritesets.add(spriteset);
     }
     
@@ -51,7 +51,7 @@ export class SpriteIndex {
             leftovers.length > 0
         ) throw new Error(`Unexpected sprite format: "${sprite}"! Expected format: <spriteset>/<name>`);
         
-        return {spriteset, name}
+        return {spriteset, name};
     }
 }
 
@@ -74,7 +74,7 @@ export class SpritesetLoader {
 }
 
 export class Spriteset {
-    readonly meta: Readonly<JsonMeta>
+    readonly meta: Readonly<JsonMeta>;
     readonly base: string;
     readonly file: string;
     readonly standardSpriteSize: number;
@@ -126,7 +126,7 @@ export class Spriteset {
 }
 export abstract class Sprite {
     readonly name: string;
-    readonly spriteSet: Spriteset
+    readonly spriteSet: Spriteset;
     abstract readonly css: string;
     abstract readonly dimensions: Dimensions;
 
@@ -228,9 +228,9 @@ export class AnimatedSprite extends Sprite {
         for (let index = 0; index < frames.length; index++) {
             const frame = frames[index] ?? notNullCoersed("element must be in array!");
             frame.classList.add("animation-frame");
-            frame.classList.add(`animation-frame-${index}`)
+            frame.classList.add(`animation-frame-${index}`);
             frame.style.animation = `${this.time}ms steps(${steps}) ${index * (this.time/steps)}ms infinite change-${steps}`;
-            result.appendChild(frame)
+            result.appendChild(frame);
         }
         return result;
     }

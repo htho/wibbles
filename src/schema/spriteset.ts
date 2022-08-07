@@ -1,5 +1,5 @@
 import { Dimensions, Pos } from "../tools/tools.js";
-import { JsonMeta } from "./level.js"
+import { JsonMeta } from "./level.js";
 
 export function isJsonSpriteset(obj: Record<string, unknown>): obj is JsonSpriteset {
     if (!("$schema" in obj)) return false;
