@@ -81,18 +81,17 @@ export class Round implements IDisposable {
 
         let lastFrameTime = performance.now();
         
-        while (true) {
+        while (!this._hasLeftThroughExit()) {
             const time = await nextAnmiationFrame();
             const timeSinceLastFrame = time - lastFrameTime;
             lastFrameTime = time;
+
             if(this._isPaused) continue;
+            
             const speedFactor = this.highSpeed ? 4 : 1;
             const stepWidth = this._pxPerMillisecond * timeSinceLastFrame * speedFactor;
-            let walkedWidth = 0
-            while (walkedWidth < stepWidth) {
-                this.worm.nextStep();
-                walkedWidth = walkedWidth + this.worm.stepSize;
-            }
+
+            this._nextStep(stepWidth);
             
             if(this._collidesWithWall()) {
                 console.log("COLLIDE WITH WALL!");
@@ -108,13 +107,19 @@ export class Round implements IDisposable {
                 this._increseSpeed();
                 if(targetsLeft <= 0) this.level.exit.open();
                 else this._showNextTarget();
-            } else if(this._tailCollidesWithExit()) {
-                console.log("LEAVE THROUGH EXIT!");
-                return {liveLost: false};
             }
             if(this.level.start.isOpen) this._closeStartOnceTheWormIsIn();
         }
-        throw new Error("This loop never ends!");
+        console.log("LEAVE THROUGH EXIT!");
+        return {liveLost: false};
+    }
+
+    private _nextStep(width: number): void {
+        let walkedWidth = 0
+        while (walkedWidth < width) {
+            this.worm.nextStep();
+            walkedWidth = walkedWidth + this.worm.stepSize;
+        }
     }
 
     private _cleanTarget(): void {
@@ -167,7 +172,7 @@ export class Round implements IDisposable {
         }
         return false;
     }
-    private _tailCollidesWithExit(): boolean {
+    private _hasLeftThroughExit(): boolean {
         const lastTail = this.worm.getLastTail();
         if(this.level.exit.collidesRegardlessOfState(lastTail.pos)) {
             return true;

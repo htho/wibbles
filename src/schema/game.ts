@@ -3,6 +3,11 @@ import { JsonMeta } from "./level";
 export interface JsonGame {
     $schema?: string,
     meta: JsonMeta,
-    level: {name: string, tileset: string}[],
+    level: JsonLevel[],
     initialLives: number,
+}
+
+export type JsonLevel = {
+    name: string,
+    tileset: string,
 }

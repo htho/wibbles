@@ -1,7 +1,7 @@
 import { Level, LevelLoader } from "./Level.js";
 import { Lives } from "./Lives.js";
 import { RoundFactory } from "./Round.js";
-import { JsonGame } from "./schema/game.js";
+import { JsonGame, JsonLevel } from "./schema/game.js";
 import { JsonMeta } from "./schema/level.js";
 import { SpriteIndex, Spriteset, SpritesetLoader } from "./Spriteset.js";
 import { Tileset, TilesetLoader } from "./Tileset.js";
@@ -13,9 +13,8 @@ export class Game {
     private readonly _roundFactory: RoundFactory;
     private readonly _logger: {info: (msg: string) => void, alert: (msg: string) => void};
     private _lives: Lives;
-    private readonly _level: { name: string, tileset: string }[];
+    private readonly _level: JsonLevel[];
     private readonly _meta: JsonMeta;
-    private _currentLevelIndex = 0;
     private _currentLevel!: Level;
     private _currentTileset!: Tileset;
 
@@ -43,39 +42,42 @@ export class Game {
     }
 
     async start(): Promise<void> {
-        console.log(`Game.start()`)
-        while (this.hasNextLevel) {
-            await this._initializeLevel();
-            console.log(`level initialzed`, this._currentLevel)
-            while(true) {
-                console.log(`createRound()`)
-                const round = this._roundFactory.createRound(this._currentLevel, this._currentTileset);
-                const roundResult = await round.start();
-                console.log(`round over`, roundResult)
-                if(!roundResult.liveLost) {
-                    round.dispose();
-                    this._logger.info("Round Won!");
-                    break;
-                } else {
-                    this._lives.decrease();
-                    if(this._lives.left > 0) {
-                        round.dispose();
-                        this._logger.alert(`Lives Left ${this._lives.left}`);
-                    } else {
-                        this._logger.alert("Game Over!");
-                        round.dispose();
-                        return;
-                    }
-                }
+        console.log(`Game.start()`);
+        for(const jsonLevel of this._level) {
+            await this._initializeLevel(jsonLevel);
+            console.log(`level initialzed`, this._currentLevel);
+            const levelWon = await this._completeLevel();
+            if(!levelWon) {
+                this._logger.alert("Game Over!");
+                return;
             }
-            
-            this._currentLevelIndex++;
         }
         this._logger.alert("Game Won!");
     }
-    get hasNextLevel(): boolean {
-        return this._currentLevelIndex < this._level.length;
+    
+    private async _completeLevel(): Promise<boolean> {
+        while (this._lives.left >= 0) {
+            const roundWon = await this._runRound();
+            if(roundWon) {
+                this._logger.info("Round Won!");
+                return true;
+            }
+            this._lives.decrease();
+            this._logger.alert(`Lives Left ${this._lives.left}`);
+        }
+        return false;
     }
+
+    private async _runRound(): Promise<boolean> {
+        console.log(`createRound()`)
+        const round = this._roundFactory.createRound(this._currentLevel, this._currentTileset);
+        const roundResult = await round.start();
+        console.log(`round over`, roundResult);
+        round.dispose();
+        const roundWon = !roundResult.liveLost;
+        return roundWon;
+    }
+
     private async _loadLevel({ name, tileset }: { name: string, tileset: string }): Promise<{ level: Level, tileset: Tileset }> {
         const jsonLevel = await this._levelLoader.load(name);
         const jsonTileset = await this._tilesetLoader.load(tileset);
@@ -88,12 +90,8 @@ export class Game {
 
         return { level, tileset: tilesetObj };
     }
-    private async _initializeLevel(): Promise<void> {
-        const currentLevelData = this._level[this._currentLevelIndex];
-        if (!currentLevelData) throw new Error("No level data available! Probably increased level too far.");
-        
-
-        const { level, tileset } = await this._loadLevel(currentLevelData);
+    private async _initializeLevel(jsonLevel: { name: string, tileset: string }): Promise<void> {
+        const { level, tileset } = await this._loadLevel(jsonLevel);
 
         this._currentLevel = level;
         this._currentTileset = tileset;
