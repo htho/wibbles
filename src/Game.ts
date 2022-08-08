@@ -1,10 +1,19 @@
 import { Level, LevelLoader } from "./Level.js";
 import { Lives } from "./Lives.js";
-import { RoundFactory } from "./Round.js";
+import { RoundFactory, RoundResult } from "./Round.js";
 import { JsonGame, JsonLevel } from "./schema/game.js";
 import { JsonMeta } from "./schema/level.js";
 import { SpriteIndex, Spriteset, SpritesetLoader } from "./Spriteset.js";
 import { Tileset, TilesetLoader } from "./Tileset.js";
+
+export enum LevelResult {
+    WON,
+    LOST,
+}
+export enum GameResult {
+    WON,
+    LOST,
+}
 
 export class Game {
     private readonly _levelLoader: LevelLoader;
@@ -41,41 +50,41 @@ export class Game {
         this._logger.info(JSON.stringify(this._meta));
     }
 
-    async start(): Promise<void> {
+    async start(): Promise<GameResult> {
         console.log(`Game.start()`);
         for(const jsonLevel of this._level) {
             await this._initializeLevel(jsonLevel);
             console.log(`level initialzed`, this._currentLevel);
-            const levelWon = await this._completeLevel();
-            if(!levelWon) {
+            const levelResult = await this._completeLevel();
+            if(levelResult === LevelResult.LOST) {
                 this._logger.alert("Game Over!");
-                return;
+                return GameResult.LOST;
             }
         }
         this._logger.alert("Game Won!");
+        return GameResult.WON;
     }
     
-    private async _completeLevel(): Promise<boolean> {
+    private async _completeLevel(): Promise<LevelResult> {
         while (this._lives.left >= 0) {
             const roundWon = await this._runRound();
-            if(roundWon) {
+            if(roundWon === RoundResult.WON) {
                 this._logger.info("Round Won!");
-                return true;
+                return LevelResult.WON;
             }
             this._lives.decrease();
             this._logger.alert(`Lives Left ${this._lives.left}`);
         }
-        return false;
+        return LevelResult.LOST;
     }
 
-    private async _runRound(): Promise<boolean> {
+    private async _runRound(): Promise<RoundResult> {
         console.log(`createRound()`);
         const round = this._roundFactory.createRound(this._currentLevel, this._currentTileset);
         const roundResult = await round.start();
-        console.log(`round over`, roundResult);
+        console.log(`round over`, RoundResult[roundResult]);
         round.dispose();
-        const roundWon = !roundResult.liveLost;
-        return roundWon;
+        return roundResult;
     }
 
     private async _loadLevel({ name, tileset }: { name: string, tileset: string }): Promise<{ level: Level, tileset: Tileset }> {

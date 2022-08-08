@@ -29,6 +29,11 @@ export class RoundFactory {
     }
 }
 
+export enum RoundResult {
+    WON,
+    LOST,
+}
+
 export class Round implements IDisposable {
     public readonly level: RenderedLevel;
     public readonly targetPositioner: TargetPositioner;
@@ -68,7 +73,7 @@ export class Round implements IDisposable {
         console.log(`...Round disposed!`);
     }
     
-    async start(): Promise<{liveLost: true} | {liveLost: false}> {
+    async start(): Promise<RoundResult> {
         console.log(`Round.start()`);
         const pos = this.targetPositioner.findSpot();
         this._currentTarget = new Target(pos, this.worm.radius, this.page.content);
@@ -95,10 +100,10 @@ export class Round implements IDisposable {
             
             if(this._collidesWithWall()) {
                 console.log("COLLIDE WITH WALL!");
-                return {liveLost: true};
+                return RoundResult.LOST;
             } else if(this._collidesWithWorm()) {
                 console.log("COLLIDE WITH WORM!");
-                return {liveLost: true};
+                return RoundResult.LOST;
             } else if(this._collidesWitTarget()) {
                 console.log("HIT TARGET!");
                 targetsLeft--;
@@ -111,7 +116,7 @@ export class Round implements IDisposable {
             if(this.level.start.isOpen) this._closeStartOnceTheWormIsIn();
         }
         console.log("LEAVE THROUGH EXIT!");
-        return {liveLost: false};
+        return RoundResult.WON;
     }
 
     private _nextStep(width: number): void {
