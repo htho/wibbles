@@ -15,7 +15,7 @@ export class Target implements IDisposable {
 
         this.target = sprite.createElement();
         this.target.classList.add("target");
-        this.target.style.transform = `translate(${this.pos.x-this.dimensions.width}px, ${this.pos.y-this.dimensions.height}px)`;
+        this.target.style.transform = `translate(${this.pos.x}px, ${this.pos.y}px)`;
         this.target.style.width = `${this.dimensions.width}px`;
         this.target.style.height = `${this.dimensions.height}px`;
         
