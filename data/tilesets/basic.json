@@ -41,5 +41,6 @@
         "c": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/well-S"]},
         "v": {"type": "wall", "sprite": ["zelda-like-overworld/grass", "zelda-like-overworld/well-SE"]}
 
-    }
+    },
+    "target": "zelda-like-objects/coin"
 }

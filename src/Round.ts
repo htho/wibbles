@@ -75,8 +75,7 @@ export class Round implements IDisposable {
     
     async start(): Promise<RoundResult> {
         console.log(`Round.start()`);
-        const pos = this.targetPositioner.findSpot();
-        this._currentTarget = new Target(pos, this.worm.radius, this.page.content);
+        this._showNextTarget();
         let targetsLeft = this.level.level.targets;
         
         console.log("start.open()");
@@ -104,7 +103,7 @@ export class Round implements IDisposable {
             } else if(this._collidesWithWorm()) {
                 console.log("COLLIDE WITH WORM!");
                 return RoundResult.LOST;
-            } else if(this._collidesWitTarget()) {
+            } else if(this._collidesWithTarget()) {
                 console.log("HIT TARGET!");
                 targetsLeft--;
                 this._cleanTarget();
@@ -133,7 +132,12 @@ export class Round implements IDisposable {
         this._currentTarget = undefined;
     }
     private _showNextTarget(): void {
-        this._currentTarget = new Target(this.targetPositioner.findSpot(), this.worm.radius, this.page.content);
+        const pos = this.targetPositioner.findSpot();
+        this._currentTarget = new Target(
+            pos,
+            this.page.content,
+            this.level.tileset.target
+        );
     }
     private _growWorm(): void {
         for (let i = 0; i < 3; i++) {
@@ -162,7 +166,10 @@ export class Round implements IDisposable {
         const segements = this.worm.segments();
         const firstSegment = segements[0];
         if(!firstSegment) return false;
-        if(firstSegment.pos.x === this.level.startPos.x && firstSegment.pos.y === this.level.startPos.y) return false;
+        if(
+            firstSegment.pos.x === this.level.startPos.x &&
+            firstSegment.pos.y === this.level.startPos.y
+        ) return false;
 
         for(const segment of segements.slice(1)) {
             if (this.worm.collidesCircle(segment.pos, this.worm.radius)) {
@@ -171,11 +178,12 @@ export class Round implements IDisposable {
         }
         return false;
     }
-    private _collidesWitTarget(): boolean {
-        if(this._currentTarget && this.worm.collidesCircle(this._currentTarget.pos, this._currentTarget.radius)) {
-            return true;
-        }
-        return false;
+    private _collidesWithTarget(): boolean {
+        if(!this._currentTarget) return false;
+        return this.worm.collidesSizedBox(
+            this._currentTarget.pos,
+            this._currentTarget.dimensions
+        );
     }
     private _hasLeftThroughExit(): boolean {
         const lastTail = this.worm.getLastTail();

@@ -18,11 +18,13 @@ export class Tileset {
         const absPos = {x: col * width, y: row * height};
         return createTile(tile, this, char, absPos);
     }
+    readonly target: Sprite;
     constructor(tileset: JsonTileset, spriteIndex: SpriteIndex) {
         this.meta = tileset.meta;
         this.spriteIndex = spriteIndex;
         this.tileDimensions = tileset.tileDimensions;
         this.tiles = new Map(Object.entries(tileset.tiles).map(([jsonChar, jsonTile]) => [asChar(jsonChar), jsonTile]));
+        this.target = this.spriteIndex.get(tileset.target);
     }
 }
 

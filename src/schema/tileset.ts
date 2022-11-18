@@ -1,5 +1,5 @@
 import { Dimensions } from "../tools/tools.js";
-import { JsonMeta } from "./level.js"
+import { JsonMeta } from "./level.js";
 
 export enum TileType {
     Wall = "wall",
@@ -47,4 +47,6 @@ export type JsonTileset = {
     tileDimensions: Dimensions,
     spritesets: {[collection: string]: string[]}
     tiles: {[char: string]: JsonTile},
+    /** name of a sprite `${spritecollection}/${spritefile}/${spritename}.${keyof MultiSprite}` */
+    target: string,
 }

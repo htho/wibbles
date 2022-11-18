@@ -5,9 +5,9 @@
     "Direction": {
       "enum": [
         "N",
-        "W",
         "E",
-        "S"
+        "S",
+        "W"
       ],
       "type": "string"
     },

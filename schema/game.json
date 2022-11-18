@@ -13,20 +13,7 @@
         },
         "level": {
           "items": {
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "tileset": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "name",
-              "tileset"
-            ],
-            "type": "object"
+            "$ref": "#/definitions/JsonLevel"
           },
           "type": "array"
         },
@@ -38,6 +25,22 @@
         "meta",
         "level",
         "initialLives"
+      ],
+      "type": "object"
+    },
+    "JsonLevel": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "tileset": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "tileset"
       ],
       "type": "object"
     },

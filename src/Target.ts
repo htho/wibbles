@@ -1,24 +1,24 @@
-import { createElement } from "./browser/dom.js";
 import { RenderedLevel } from "./renderer/RenderedLevel.js";
+import { Sprite } from "./Spriteset.js";
 import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
-import { getRandomIntInclusive, Pos } from "./tools/tools.js";
+import { Dimensions, getRandomIntInclusive, Pos } from "./tools/tools.js";
 
 export class Target implements IDisposable {
     readonly target: HTMLElement;
     public readonly pos: Pos;
-    public readonly radius: number;
+    public readonly dimensions: Dimensions;
     public readonly targetContainer: HTMLElement;
-    constructor(pos: Pos, radius: number, targetContainer: HTMLElement) {
+    constructor(pos: Pos, targetContainer: HTMLElement, sprite: Sprite) {
         this.pos = pos;
-        this.radius = radius;
+        this.dimensions = sprite.dimensions;
         this.targetContainer = targetContainer;
 
-        this.target = createElement("div", {
-            classList: ["target"],
-            style: {
-                transform: `translate(${this.pos.x-radius}px, ${this.pos.y-radius}px)`,
-            }
-        });
+        this.target = sprite.createElement();
+        this.target.classList.add("target");
+        this.target.style.transform = `translate(${this.pos.x-this.dimensions.width}px, ${this.pos.y-this.dimensions.height}px)`;
+        this.target.style.width = `${this.dimensions.width}px`;
+        this.target.style.height = `${this.dimensions.height}px`;
+        
         this._draw();
     }
     dispose(): void {

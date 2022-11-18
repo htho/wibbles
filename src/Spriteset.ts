@@ -220,8 +220,12 @@ export class AnimatedSprite extends Sprite {
     }
 
     override createElement(): HTMLElement {
-        const result = super.createElement();
-        result.classList.add("animated");
+        const result = createElement("div", {
+            classList: [
+                "sprite",
+                "animated",
+            ]
+        });
         
         const frames = this.frames.map(sprite => sprite.createElement());
         const steps = frames.length;

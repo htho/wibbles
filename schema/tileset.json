@@ -94,6 +94,10 @@
           },
           "type": "object"
         },
+        "target": {
+          "description": "name of a sprite `${spritecollection}/${spritefile}/${spritename}.${keyof MultiSprite}`",
+          "type": "string"
+        },
         "tileDimensions": {
           "$ref": "#/definitions/Dimensions"
         },
@@ -108,7 +112,8 @@
         "meta",
         "tileDimensions",
         "spritesets",
-        "tiles"
+        "tiles",
+        "target"
       ],
       "type": "object"
     },

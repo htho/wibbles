@@ -2,7 +2,7 @@ import { createElement } from "./browser/dom.js";
 import { StyleContainer } from "./browser/page.js";
 import { FixedSizeQueue } from "./tools/FixedSizeQueue.js";
 import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
-import { Pos, Direction } from "./tools/tools.js";
+import { Pos, Direction, Dimensions } from "./tools/tools.js";
 
 export class WormSegment implements IDisposable {
     readonly pos: Pos;
@@ -151,6 +151,13 @@ export class WormHead extends WormSegment {
             segment = segment.tail;
         }
         return segment;
+    }
+
+    collidesSizedBox(topLeftCorner: Pos, dimensions: Dimensions): boolean {
+        return this.collidesBox(topLeftCorner, {
+            x: topLeftCorner.x + dimensions.width,
+            y: topLeftCorner.y + dimensions.height,
+        });
     }
 
     collidesBox(topLeftCorner: Pos, bottomRightCorner: Pos): boolean {
