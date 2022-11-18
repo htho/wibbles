@@ -1,7 +1,11 @@
 body {
     margin: 0px;
 }
-
+#content {
+    display: inline-block;
+    transform: scale(2);
+    transform-origin: top left;
+}
 .map {
     position: relative;
 }
@@ -159,11 +163,17 @@ body {
 }
 
 .target {
-    width: 8px;
-    height: 8px;
+    /* width: 8px;
+    height: 8px; */
     border: 1px solid gold;
     position: absolute;
     top:0;
     left:0;
     z-index: 1;
+}
+
+.dbg {
+    background-color: rgba(0,0,0,.3);
+    z-index: 1;
+    position: absolute;
 }
