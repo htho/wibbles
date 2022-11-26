@@ -4,9 +4,8 @@ import { RenderedLevel } from "./renderer/RenderedLevel.js";
 import { Target, TargetPositioner } from "./Target.js";
 import { Tileset } from "./Tileset.js";
 import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
-import { assertNonNullish, Direction, nextAnmiationFrame } from "./tools/tools.js";
+import { assertNonNullish, Direction, nextAnmiationFrame, notNullCoersed, Pos } from "./tools/tools.js";
 import { WormHead } from "./Worm.js";
-
 export class RoundFactory {
     private readonly page: Page;
 
@@ -55,6 +54,13 @@ export class Round implements IDisposable {
 
         window.addEventListener("keydown", this._keydownhandler);
         window.addEventListener("keyup", this._keyuphandler);
+
+        this.page.content.addEventListener("pointerdown", this._pointerdownhandler, false);
+        this.page.content.addEventListener("pointerup", this._pointeruphandler, false);
+        this.page.content.addEventListener("pointercancel", this._pointercancelhandler, false);
+        this.page.content.addEventListener("pointermove", this._pointermovehandler, false);
+        
+        // this.page.content.addEventListener("click", this.togglePause);
     }
     dispose(): void {
         console.log(`dispose Round...`);
@@ -63,6 +69,13 @@ export class Round implements IDisposable {
         
         window.removeEventListener("keydown", this._keydownhandler);
         window.removeEventListener("keyup", this._keyuphandler);
+
+        this.page.content.removeEventListener("pointerdown", this._pointerdownhandler);
+        this.page.content.removeEventListener("pointerup", this._pointeruphandler);
+        this.page.content.removeEventListener("pointercancel", this._pointercancelhandler);
+        this.page.content.removeEventListener("pointermove", this._pointermovehandler);
+    
+        // this.page.content.removeEventListener("click", this.togglePause);
 
         if(this._currentTarget && !this._currentTarget.isDisposed) this._currentTarget.dispose();
         
@@ -148,11 +161,11 @@ export class Round implements IDisposable {
         this._pxPerMillisecond *= 1.1;
     }
 
-    private togglePause() {
+    private togglePause = () => {
         this._isPaused = !this._isPaused;
         if(this._isPaused) console.log("Paused!");
         else console.log("Unpaused!");
-    }
+    };
 
     private _collidesWithWall(): boolean {
         for(const tile of this.level.list) {
@@ -215,6 +228,53 @@ export class Round implements IDisposable {
         else if (ev.key === "ArrowUp") this.worm.changeDir(Direction.N);
         else if (ev.key === "ArrowDown") this.worm.changeDir(Direction.S);
         else if (ev.key === "p") this.togglePause();
+    };
+
+    private _isDown = false;
+    private _startPoint?: Pos | undefined;
+    private readonly _pointerdownhandler = (ev: PointerEvent) => {
+        if(this._isDown) console.error("down again!", ev);
+        else {
+            console.log("down", ev);
+            this._isDown = true;
+            this._startPoint = {x: ev.x, y: ev.y};
+        }
+    };
+    private readonly _pointeruphandler = (ev: PointerEvent) => {
+        if(!this._isDown) console.error("up again!", ev);
+        else {
+            console.log("up", this._handleMoveEnd(ev), ev);
+            const dir = this._handleMoveEnd(ev);
+            if(dir) this.worm.changeDir(dir);
+            else this.togglePause();
+            this._isDown = false;
+            this._startPoint = undefined;
+        }
+    };
+    private readonly _pointercancelhandler = (ev: PointerEvent) => {
+        if(!this._isDown) console.error("CANCEL but not down?!", ev);
+        else {
+            console.log("CANCEL", this._handleMoveEnd(ev), ev);
+            // this.worm.changeDir(this._handleMoveEnd(ev));
+            this._isDown = false;
+            this._startPoint = undefined;
+        }
+    };
+    private _handleMoveEnd(ev: PointerEvent) {
+        const {x: sx, y: sy} = this._startPoint ?? notNullCoersed("_startPoint can not be nullish at this point!");
+        const {x: ex, y: ey} = ev;
+        const dx = sx - ex;
+        const dy = sy - ey;
+        console.log({dx, dy});
+        const isHorizontal = Math.abs(dx) > Math.abs(dy);
+        if(isHorizontal && dx > 0) return Direction.W;
+        if(isHorizontal && dx < 0) return Direction.E;
+        if(!isHorizontal && dy > 0) return Direction.N;
+        if(!isHorizontal && dy < 0) return Direction.S;
+        return undefined;
+    }
+    private readonly _pointermovehandler = () => {
+        // if(this._isDown) console.log("move", ev);
     };
 
     private _isDisposed = false;
