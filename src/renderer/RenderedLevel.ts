@@ -49,12 +49,16 @@ export class RenderedLevel<W extends number = number, H extends number = number>
         this.element = this._renderElement();
 
         this.tilesize = this.start.dimensions.height;
-        this.dimensions = {width: this.level.cols * this.tilesize, height: this.level.rows * this.tilesize};
-
+        this.dimensions = {
+            width: this.level.cols * this.tilesize,
+            height: this.level.rows * this.tilesize
+        };
 
         this.tileset.spriteIndex.spritesets.forEach(spriteset => this.styleContainer.addStyle(spriteset.meta.name, spriteset.cssStyle));
         this.container.insertAdjacentElement("afterbegin", this.element);
         this.styleContainer.addStyle("standard-tile-size", this._createStandardTileSizeCssProperty());
+
+        this._scaleToFitNicely();
     }
     dispose(): void {
         console.log("dispose RenderedLevel...");
@@ -70,6 +74,22 @@ export class RenderedLevel<W extends number = number, H extends number = number>
     protected _isDisposed = false;
     get isDisposed(): boolean {
         return this._isDisposed;
+    }
+    /**
+     * scale the content to fit the screen.
+     * But make sure the tile size is a while number.
+     * This way rendering is not screwed up on mobile.
+     */
+    private _scaleToFitNicely() {
+        const factorX = this._calcBestScale(window.innerWidth, this.container.clientWidth, this.tilesize);
+        const factorY = this._calcBestScale(window.innerHeight, this.container.clientHeight, this.tilesize);
+        const factor = Math.min(factorX, factorY);
+        this.container.style.scale = `${factor}`;
+    }
+    private _calcBestScale(screenSize: number, elementSize: number, tileSize: number): number {
+        const theoreticalTileSpace = Math.trunc(screenSize/tileSize) * tileSize;
+        const scale = theoreticalTileSpace / elementSize;
+        return scale;
     }
     private _findStartPos(): Pos {
         const {x, y} = this.start.absPos;
