@@ -1,5 +1,7 @@
 body {
     margin: 0px;
+    /* so touch gestures are not canceled on mobile */
+    touch-action: none;
 }
 #content {
     display: inline-block;
