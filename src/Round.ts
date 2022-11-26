@@ -33,11 +33,115 @@ export enum RoundResult {
     LOST,
 }
 
+class UserInput implements IDisposable {
+    constructor() {
+        window.addEventListener("keydown", this._keydownhandler);
+        window.addEventListener("keyup", this._keyuphandler);
+
+        document.addEventListener("pointerdown", this._pointerdownhandler, false);
+        document.addEventListener("pointerup", this._pointeruphandler, false);
+        document.addEventListener("pointercancel", this._pointercancelhandler, false);
+        document.addEventListener("pointermove", this._pointermovehandler, false);
+    }
+
+    dispose(): void {
+        console.log(`dispose UserInput...`);
+        
+        this._isDisposed = true;
+        
+        window.removeEventListener("keydown", this._keydownhandler);
+        window.removeEventListener("keyup", this._keyuphandler);
+
+        document.removeEventListener("pointerdown", this._pointerdownhandler);
+        document.removeEventListener("pointerup", this._pointeruphandler);
+        document.removeEventListener("pointercancel", this._pointercancelhandler);
+        document.removeEventListener("pointermove", this._pointermovehandler);
+    
+        console.log(`...UserInput disposed!`);
+    }
+    private _isDisposed = false;
+    get isDisposed(): boolean {
+        return this._isDisposed;
+    }
+
+    public onTogglePause!: () => void;
+    // public onNorth?: () => void;
+    // public onSouth?: () => void;
+    // public onEast?: () => void;
+    // public onWest?: () => void;
+    public onChangeDir!: (dir: Direction) => void;
+    public onStartHighspeed!: () => void;
+    public onStopHighspeed!: () => void;
+
+
+    private readonly _keyuphandler = () => {
+        this.onStopHighspeed();
+    };
+    private readonly _keydownhandler = (ev: KeyboardEvent) => {
+        if(ev.repeat) {
+            this.onStartHighspeed();
+            return;
+        }
+        
+        if (ev.key === "ArrowLeft") this.onChangeDir(Direction.W);
+        else if (ev.key === "ArrowRight") this.onChangeDir(Direction.E);
+        else if (ev.key === "ArrowUp") this.onChangeDir(Direction.N);
+        else if (ev.key === "ArrowDown") this.onChangeDir(Direction.S);
+        else if (ev.key === "p") this.onTogglePause();
+    };
+
+    
+    private _pointerDownStart?: Pos | undefined;
+    private get _isPointerDown() {return this._pointerDownStart !== undefined;}
+    private readonly _pointerdownhandler = (ev: PointerEvent) => {
+        if(this._isPointerDown) console.error("down again!", ev);
+        else {
+            console.log("down", ev);
+            this._pointerDownStart = {x: ev.x, y: ev.y};
+        }
+    };
+    private readonly _pointeruphandler = (ev: PointerEvent) => {
+        if(!this._isPointerDown) console.error("up again!", ev);
+        else {
+            console.log("up", this._handleMoveEnd(ev), ev);
+            const dir = this._handleMoveEnd(ev);
+            if(dir) this.onChangeDir(dir);
+            else this.onTogglePause();
+            this._pointerDownStart = undefined;
+        }
+    };
+    private readonly _pointercancelhandler = (ev: PointerEvent) => {
+        if(!this._isPointerDown) console.error("CANCEL but not down?!", ev);
+        else {
+            console.log("CANCEL", this._handleMoveEnd(ev), ev);
+            this._pointerDownStart = undefined;
+        }
+    };
+    private _handleMoveEnd(ev: PointerEvent) {
+        const {x: sx, y: sy} = this._pointerDownStart ?? notNullCoersed("_startPoint can not be nullish at this point!");
+        const {x: ex, y: ey} = ev;
+        const dx = sx - ex;
+        const dy = sy - ey;
+        console.log({dx, dy});
+        const isHorizontal = Math.abs(dx) > Math.abs(dy);
+        if(isHorizontal && dx > 0) return Direction.W;
+        if(isHorizontal && dx < 0) return Direction.E;
+        if(!isHorizontal && dy > 0) return Direction.N;
+        if(!isHorizontal && dy < 0) return Direction.S;
+        return undefined;
+    }
+    private readonly _pointermovehandler = () => {
+        // if(this._isDown) console.log("move", ev);
+    };
+    
+}
+
 export class Round implements IDisposable {
     public readonly level: RenderedLevel;
     public readonly targetPositioner: TargetPositioner;
     public readonly worm: WormHead;
     public readonly page: Page;
+    private readonly _input: UserInput;
     private _pxPerMillisecond: number;
     public highSpeed = false;
     private _isPaused = false;
@@ -49,36 +153,24 @@ export class Round implements IDisposable {
         this.worm = worm;
         this.page = page;
 
+        this._input = new UserInput();
+        this._input.onChangeDir = (dir: Direction) => this.worm.changeDir(dir);
+        this._input.onTogglePause = () => this.togglePause();
+        this._input.onStartHighspeed = () => this.highSpeed = true;
+        this._input.onStopHighspeed = () => this.highSpeed = false;
+
         const tilesPerMillisecond = tilesPerSecond / 1000;
         this._pxPerMillisecond = this.level.tilesize * tilesPerMillisecond;
 
-        window.addEventListener("keydown", this._keydownhandler);
-        window.addEventListener("keyup", this._keyuphandler);
-
-        this.page.content.addEventListener("pointerdown", this._pointerdownhandler, false);
-        this.page.content.addEventListener("pointerup", this._pointeruphandler, false);
-        this.page.content.addEventListener("pointercancel", this._pointercancelhandler, false);
-        this.page.content.addEventListener("pointermove", this._pointermovehandler, false);
-        
-        // this.page.content.addEventListener("click", this.togglePause);
     }
     dispose(): void {
         console.log(`dispose Round...`);
         
         this._isDisposed = true;
         
-        window.removeEventListener("keydown", this._keydownhandler);
-        window.removeEventListener("keyup", this._keyuphandler);
-
-        this.page.content.removeEventListener("pointerdown", this._pointerdownhandler);
-        this.page.content.removeEventListener("pointerup", this._pointeruphandler);
-        this.page.content.removeEventListener("pointercancel", this._pointercancelhandler);
-        this.page.content.removeEventListener("pointermove", this._pointermovehandler);
-    
-        // this.page.content.removeEventListener("click", this.togglePause);
-
         if(this._currentTarget && !this._currentTarget.isDisposed) this._currentTarget.dispose();
         
+        this._input.dispose();
         this.worm.dispose();
         this.level.dispose();
 
@@ -214,68 +306,6 @@ export class Round implements IDisposable {
         return;
     }
 
-    private readonly _keyuphandler = () => {
-        this.highSpeed = false;
-    };
-    private readonly _keydownhandler = (ev: KeyboardEvent) => {
-        if(ev.repeat) {
-            this.highSpeed = true;
-            return;
-        }
-        
-        if (ev.key === "ArrowLeft") this.worm.changeDir(Direction.W);
-        else if (ev.key === "ArrowRight") this.worm.changeDir(Direction.E);
-        else if (ev.key === "ArrowUp") this.worm.changeDir(Direction.N);
-        else if (ev.key === "ArrowDown") this.worm.changeDir(Direction.S);
-        else if (ev.key === "p") this.togglePause();
-    };
-
-    private _isDown = false;
-    private _startPoint?: Pos | undefined;
-    private readonly _pointerdownhandler = (ev: PointerEvent) => {
-        if(this._isDown) console.error("down again!", ev);
-        else {
-            console.log("down", ev);
-            this._isDown = true;
-            this._startPoint = {x: ev.x, y: ev.y};
-        }
-    };
-    private readonly _pointeruphandler = (ev: PointerEvent) => {
-        if(!this._isDown) console.error("up again!", ev);
-        else {
-            console.log("up", this._handleMoveEnd(ev), ev);
-            const dir = this._handleMoveEnd(ev);
-            if(dir) this.worm.changeDir(dir);
-            else this.togglePause();
-            this._isDown = false;
-            this._startPoint = undefined;
-        }
-    };
-    private readonly _pointercancelhandler = (ev: PointerEvent) => {
-        if(!this._isDown) console.error("CANCEL but not down?!", ev);
-        else {
-            console.log("CANCEL", this._handleMoveEnd(ev), ev);
-            // this.worm.changeDir(this._handleMoveEnd(ev));
-            this._isDown = false;
-            this._startPoint = undefined;
-        }
-    };
-    private _handleMoveEnd(ev: PointerEvent) {
-        const {x: sx, y: sy} = this._startPoint ?? notNullCoersed("_startPoint can not be nullish at this point!");
-        const {x: ex, y: ey} = ev;
-        const dx = sx - ex;
-        const dy = sy - ey;
-        console.log({dx, dy});
-        const isHorizontal = Math.abs(dx) > Math.abs(dy);
-        if(isHorizontal && dx > 0) return Direction.W;
-        if(isHorizontal && dx < 0) return Direction.E;
-        if(!isHorizontal && dy > 0) return Direction.N;
-        if(!isHorizontal && dy < 0) return Direction.S;
-        return undefined;
-    }
-    private readonly _pointermovehandler = () => {
-        // if(this._isDown) console.log("move", ev);
-    };
 
     private _isDisposed = false;
     get isDisposed(): boolean {
