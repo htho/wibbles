@@ -3,7 +3,8 @@ body {
 }
 #content {
     display: inline-block;
-    transform: scale(2);
+    /* scale is set by RenderedLevel */
+    transform: scale(1);
     transform-origin: top left;
 }
 .map {
@@ -13,7 +14,7 @@ body {
     display: inline-block;
 }
 .row {
-    margin-bottom: -4px;
+    line-height: 0;
 }
 .stacked {
     position: absolute;

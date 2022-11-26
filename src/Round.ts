@@ -65,10 +65,6 @@ class UserInput implements IDisposable {
     }
 
     public onTogglePause!: () => void;
-    // public onNorth?: () => void;
-    // public onSouth?: () => void;
-    // public onEast?: () => void;
-    // public onWest?: () => void;
     public onChangeDir!: (dir: Direction) => void;
     public onStartHighspeed!: () => void;
     public onStopHighspeed!: () => void;
