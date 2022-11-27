@@ -33,10 +33,69 @@ export enum RoundResult {
     LOST,
 }
 
-class UserInput implements IDisposable {
+class UserInput {
+    public onTogglePause!: () => void;
+    public onChangeDir!: (dir: Direction) => void;
+    public onStartHighspeed!: () => void;
+    public onStopHighspeed!: () => void;
+
+    private readonly _keyboardInput: KeyboardInput;
+    private readonly _pointerInput: PointerInput;
+
     constructor() {
+        this._keyboardInput = new KeyboardInput(this);
+        this._pointerInput = new PointerInput(this);
+    }
+
+    dispose(): void {
+        this._isDisposed = true;
+
+        this._keyboardInput.dispose();
+        this._pointerInput.dispose();
+    }
+    private _isDisposed = false;
+    get isDisposed(): boolean {
+        return this._isDisposed;
+    }
+}
+class KeyboardInput implements IDisposable {
+    private readonly target: UserInput;
+    constructor(target: UserInput) {
+        this.target = target;
         window.addEventListener("keydown", this._keydownhandler);
         window.addEventListener("keyup", this._keyuphandler);
+    }
+
+    dispose(): void {
+        this._isDisposed = true;
+        
+        window.removeEventListener("keydown", this._keydownhandler);
+        window.removeEventListener("keyup", this._keyuphandler);
+    }
+    private _isDisposed = false;
+    get isDisposed(): boolean {
+        return this._isDisposed;
+    }
+    private readonly _keyuphandler = () => {
+        this.target.onStopHighspeed();
+    };
+    private readonly _keydownhandler = (ev: KeyboardEvent) => {
+        if(ev.repeat) {
+            this.target.onStartHighspeed();
+            return;
+        }
+        
+        if (ev.key === "ArrowLeft") this.target.onChangeDir(Direction.W);
+        else if (ev.key === "ArrowRight") this.target.onChangeDir(Direction.E);
+        else if (ev.key === "ArrowUp") this.target.onChangeDir(Direction.N);
+        else if (ev.key === "ArrowDown") this.target.onChangeDir(Direction.S);
+        else if (ev.key === "p") this.target.onTogglePause();
+    };
+}
+class PointerInput implements IDisposable {
+    private readonly target: UserInput;
+    constructor(target: UserInput) {
+        this.target = target;
 
         document.addEventListener("pointerdown", this._pointerdownhandler, false);
         document.addEventListener("pointerup", this._pointeruphandler, false);
@@ -45,47 +104,17 @@ class UserInput implements IDisposable {
     }
 
     dispose(): void {
-        console.log(`dispose UserInput...`);
-        
         this._isDisposed = true;
-        
-        window.removeEventListener("keydown", this._keydownhandler);
-        window.removeEventListener("keyup", this._keyuphandler);
 
         document.removeEventListener("pointerdown", this._pointerdownhandler);
         document.removeEventListener("pointerup", this._pointeruphandler);
         document.removeEventListener("pointercancel", this._pointercancelhandler);
         document.removeEventListener("pointermove", this._pointermovehandler);
-    
-        console.log(`...UserInput disposed!`);
     }
     private _isDisposed = false;
     get isDisposed(): boolean {
         return this._isDisposed;
     }
-
-    public onTogglePause!: () => void;
-    public onChangeDir!: (dir: Direction) => void;
-    public onStartHighspeed!: () => void;
-    public onStopHighspeed!: () => void;
-
-
-    private readonly _keyuphandler = () => {
-        this.onStopHighspeed();
-    };
-    private readonly _keydownhandler = (ev: KeyboardEvent) => {
-        if(ev.repeat) {
-            this.onStartHighspeed();
-            return;
-        }
-        
-        if (ev.key === "ArrowLeft") this.onChangeDir(Direction.W);
-        else if (ev.key === "ArrowRight") this.onChangeDir(Direction.E);
-        else if (ev.key === "ArrowUp") this.onChangeDir(Direction.N);
-        else if (ev.key === "ArrowDown") this.onChangeDir(Direction.S);
-        else if (ev.key === "p") this.onTogglePause();
-    };
-
     
     private _pointerDownStart?: Pos | undefined;
     private get _isPointerDown() {return this._pointerDownStart !== undefined;}
@@ -99,31 +128,37 @@ class UserInput implements IDisposable {
     private readonly _pointeruphandler = (ev: PointerEvent) => {
         if(!this._isPointerDown) console.error("up again!", ev);
         else {
-            console.log("up", this._handleMoveEnd(ev), ev);
-            const dir = this._handleMoveEnd(ev);
-            if(dir) this.onChangeDir(dir);
-            else this.onTogglePause();
+            console.log("up", this._getDirectionFromStart(ev), ev);
+            const dir = this._getDirectionFromStart(ev);
+            if(dir) this.target.onChangeDir(dir);
+            else this.target.onTogglePause();
             this._pointerDownStart = undefined;
         }
     };
     private readonly _pointercancelhandler = (ev: PointerEvent) => {
         if(!this._isPointerDown) console.error("CANCEL but not down?!", ev);
         else {
-            console.log("CANCEL", this._handleMoveEnd(ev), ev);
+            console.log("CANCEL", this._getDirectionFromStart(ev), ev);
             this._pointerDownStart = undefined;
         }
     };
-    private _handleMoveEnd(ev: PointerEvent) {
+    private _getDirectionFromStart(ev: PointerEvent) {
+        const delta = this._getDeltaFromStart(ev);
+        return this._getDirectionFromDelta(delta);
+    }
+    private _getDeltaFromStart(ev: PointerEvent) {
         const {x: sx, y: sy} = this._pointerDownStart ?? notNullCoersed("_startPoint can not be nullish at this point!");
         const {x: ex, y: ey} = ev;
-        const dx = sx - ex;
-        const dy = sy - ey;
-        console.log({dx, dy});
+        const dx = ex - sx;
+        const dy = ey - sy;
+        return {dx, dy};
+    }
+    private _getDirectionFromDelta({dx, dy}: {dx: number, dy: number}) {
         const isHorizontal = Math.abs(dx) > Math.abs(dy);
-        if(isHorizontal && dx > 0) return Direction.W;
-        if(isHorizontal && dx < 0) return Direction.E;
-        if(!isHorizontal && dy > 0) return Direction.N;
-        if(!isHorizontal && dy < 0) return Direction.S;
+        if(isHorizontal && dx < 0) return Direction.W;
+        if(isHorizontal && dx > 0) return Direction.E;
+        if(!isHorizontal && dy < 0) return Direction.N;
+        if(!isHorizontal && dy > 0) return Direction.S;
         return undefined;
     }
     private readonly _pointermovehandler = () => {
