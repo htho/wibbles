@@ -166,9 +166,7 @@ body {
 }
 
 .target {
-    /* width: 8px;
-    height: 8px; */
-    border: 1px solid gold;
+    /* border: 1px solid gold; */
     position: absolute;
     top:0;
     left:0;
