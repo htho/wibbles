@@ -6,43 +6,51 @@
 ### Mechanics
 
 * [x] Games Starts
-* [] Level restarts when live is lost
-* [] Game Over when all lives lost
-* [] Next level when all targets eaten and left through exit
-* [] Worm
+* [x] Level restarts when live is lost
+* [x] Game Over when all lives lost
+* [x] Next level when all targets eaten and left through exit
+* [x] Worm
   * [x] Moves
-  * [] Moves Fast
-  * [] Speedup
-  * [] Grows
-  * [] Style
-* [] Targets
-  * [] Collision Detection
-  * [] New Target after hit
-* [] Start/Exit
-  * [] Start Closes behind Worm
-  * [] Exit opens once all targets are eaten
-* [] Maps
+  * [x] Moves Fast
+  * [x] Speedup
+  * [x] Grows
+  * [x] Style
+* [x] Targets
+  * [x] Collision Detection
+  * [x] New Target after hit
+* [x] Start/Exit
+  * [x] Start Closes behind Worm
+  * [x] Exit opens once all targets are eaten
+* [x] Maps
   * [x] 16px Demo
-  * [] 16px Collection
-* [] Collision Detection
+  * [x] 16px Collection
+* [x] Collision Detection
   * [x] Collision with Solid Tile
-  * [] Collision with Solid *Sprite*
-* [] Keyboard Interface
+* [x] Input
+  * [x] Keyboard Interface
+  * [x] Touch
 
 ## Future
 
 ### Mechanics
 
-* [] Enemies (Movig Obsacles)
-* [] Maps
-  * [] 8px Demo
+* [ ] Enemies (Movig Obsacles)
+* [ ] Portals
+
+### Maps
+
+* [ ] More Maps
+* [ ] Portrait/Landscape
+* [ ] Port original "Der Wurm" maps
 
 ## UI
 
-* [] Mobile/Touch Interface
+* [ ] Start Button
+* [ ] Game Selection
+* [ ] High-Score?
 
 ## Multi Player
 
-* [] Second Worm
-* [] WASD/Arrow
-* [] WebRTP
+* [ ] Second Worm
+* [ ] WASD/Arrow
+* [ ] WebRTP
