@@ -115,39 +115,60 @@ class PointerInput implements IDisposable {
     get isDisposed(): boolean {
         return this._isDisposed;
     }
-    
-    private _pointerDownStart?: Pos | undefined;
-    private get _isPointerDown() {return this._pointerDownStart !== undefined;}
+    /** the amount of move events until an interaction is recognized */
+    private readonly _moveThreshold = 3;
+    /** the amount of move events until we swich to highspeed mode */
+    private readonly _highspeedThreshold = 5;
+    private _moveCounter = 0;
+    /** the position where the pointer down event occured */
+    private _startPos?: Pos | undefined;
+    private get _isPointerDown() {return this._startPos !== undefined;}
     private readonly _pointerdownhandler = (ev: PointerEvent) => {
-        if(this._isPointerDown) console.error("down again!", ev);
-        else {
-            console.log("down", ev);
-            this._pointerDownStart = {x: ev.x, y: ev.y};
-        }
+        if(!ev.isPrimary) return;
+
+        if(this._isPointerDown) return console.error("down again!", ev);
+      
+        this._startPos = {x: ev.x, y: ev.y};
+        this._moveCounter = 0;
     };
     private readonly _pointeruphandler = (ev: PointerEvent) => {
-        if(!this._isPointerDown) console.error("up again!", ev);
-        else {
-            console.log("up", this._getDirectionFromStart(ev), ev);
-            const dir = this._getDirectionFromStart(ev);
-            if(dir) this.target.onChangeDir(dir);
-            else this.target.onTogglePause();
-            this._pointerDownStart = undefined;
-        }
+        if(!ev.isPrimary) return;
+
+        this.target.onStopHighspeed();
+        if(!this._isPointerDown) return console.error("up again!", ev);
+
+        if(this._moveCounter <= this._moveThreshold) this.target.onTogglePause();
+        this._startPos = undefined;
     };
     private readonly _pointercancelhandler = (ev: PointerEvent) => {
-        if(!this._isPointerDown) console.error("CANCEL but not down?!", ev);
-        else {
-            console.log("CANCEL", this._getDirectionFromStart(ev), ev);
-            this._pointerDownStart = undefined;
-        }
+        if(!ev.isPrimary) return;
+
+        this.target.onStopHighspeed();
+        if(!this._isPointerDown) return console.error("CANCEL but not down?!", ev);
+        
+        this._startPos = undefined;
+    };
+    private readonly _pointermovehandler = (ev: PointerEvent) => {
+        if(!ev.isPrimary) return;
+        if(!this._isPointerDown) return;
+        
+        this._moveCounter++;
+        if(this._moveCounter < this._moveThreshold) return;
+        
+        const direction = this._getDirectionFromStart(ev);
+        if(!direction) return;
+        
+        this.target.onChangeDir(direction);
+        
+        if(this._moveCounter < this._highspeedThreshold) return;
+        this.target.onStartHighspeed();
     };
     private _getDirectionFromStart(ev: PointerEvent) {
         const delta = this._getDeltaFromStart(ev);
         return this._getDirectionFromDelta(delta);
     }
     private _getDeltaFromStart(ev: PointerEvent) {
-        const {x: sx, y: sy} = this._pointerDownStart ?? notNullCoersed("_startPoint can not be nullish at this point!");
+        const {x: sx, y: sy} = this._startPos ?? notNullCoersed("_startPos can not be nullish at this point!");
         const {x: ex, y: ey} = ev;
         const dx = ex - sx;
         const dy = ey - sy;
@@ -161,10 +182,6 @@ class PointerInput implements IDisposable {
         if(!isHorizontal && dy > 0) return Direction.S;
         return undefined;
     }
-    private readonly _pointermovehandler = () => {
-        // if(this._isDown) console.log("move", ev);
-    };
-    
 }
 
 export class Round implements IDisposable {
