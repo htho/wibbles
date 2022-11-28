@@ -15,7 +15,7 @@
     "copy-static": "npm run copy-static:data && npm run copy-static:html && npm run copy-static:css",
     "copy-static:html": "copyfiles --verbose ./*.html ./dist/",
     "copy-static:css": "copyfiles --verbose ./*.css ./dist/",
-    "copy-static:data": "copyfiles --verbose ./data/** ./dist/",
+    "copy-static:data": "copyfiles --verbose ./data/**/* ./dist/",
     "serve": "http-server -c-1 ./dist/",
     "watch": "chokidar \"**/*\" \"!dist/**/*\" -c \"npm run build\"",
     "lint": "eslint ."
