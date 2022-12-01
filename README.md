@@ -24,3 +24,8 @@ Original Idea:["Der Wurm"/"The Worm"](http://www.dngames.de/old/wurm.html) by "D
 
 Sprites: "[Zelda-like tilesets and sprites](https://opengameart.org/content/zelda-like-tilesets-and-sprites)" by [Armando Montero](https://opengameart.org/users/armm1998)
 
+## License Rationale
+
+This game is licensed under the AGPL because I don't want to make money of it.
+So no one else should either.
+The AGPL makes sure no one includes it in an ad bloated browser game collection.
