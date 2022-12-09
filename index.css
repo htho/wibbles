@@ -2,6 +2,7 @@ body {
     margin: 0px;
     /* so touch gestures are not canceled on mobile */
     touch-action: none;
+    font-family: VT323, monospace;
 }
 #content {
     display: inline-block;
