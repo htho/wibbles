@@ -4,7 +4,7 @@ import { RenderedLevel } from "./renderer/RenderedLevel.js";
 import { Target, TargetPositioner } from "./Target.js";
 import { Tileset } from "./Tileset.js";
 import { finalizeDisposal, IDisposable } from "./tools/IDisposable.js";
-import { assertNonNullish, Direction, nextAnmiationFrame, notNullCoersed, Pos } from "./tools/tools.js";
+import { assertNonNullish, Direction, nextAnmiationFrame, nextTimeout, notNullCoersed, Pos } from "./tools/tools.js";
 import { WormHead } from "./Worm.js";
 export class RoundFactory {
     private readonly page: Page;
@@ -226,20 +226,38 @@ export class Round implements IDisposable {
         console.log(`...Round disposed!`);
     }
     
+    private _isRunning = false;
     async start(): Promise<RoundResult> {
         console.log(`Round.start()`);
         this._showNextTarget();
-        let targetsLeft = this.level.level.targets;
         
         console.log("start.open()");
         this.level.start.open();
         console.log("exit.close()");
         this.level.exit.close();
+        this._isRunning = true;
+        const isRendering = this.renderLoop();
+        const result = await this.gameLoop();
+        this._isRunning = false;
+        await isRendering;
+        return result;
+    }
+
+    async renderLoop(): Promise<void> {
+        while (this._isRunning) {
+            await nextAnmiationFrame();
+            this.worm.renderNext();
+        }
+    }
+
+    async gameLoop(): Promise<RoundResult> {
+        let targetsLeft = this.level.level.targets;
 
         let lastFrameTime = performance.now();
         
         while (!this._hasLeftThroughExit()) {
-            const time = await nextAnmiationFrame();
+            await nextTimeout();
+            const time = performance.now();
             const timeSinceLastFrame = time - lastFrameTime;
             lastFrameTime = time;
 

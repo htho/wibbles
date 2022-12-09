@@ -58,11 +58,17 @@ export class WormSegment implements IDisposable {
         this.container.insertAdjacentElement("beforeend", this.tail.element);
     }
     
+    renderNext(): void {
+        this.element.style.transform = this._cssTransform;
+        if(!this.tail) return;
+        this.tail.renderNext();
+    }
+    protected _cssTransform = "";
     protected updatePos({x, y}: Pos): void {
         const currentPos = {...this.pos};
         this.pos.x = x;
         this.pos.y = y;
-        this.element.style.transform = `translate(${x}px, ${y}px)`;
+        this._cssTransform = `translate(${x}px, ${y}px)`;
 
         if(!this.tail) return;
         const nextTailPos = this.updateQueue.enqueue(currentPos);
