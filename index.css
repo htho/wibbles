@@ -3,12 +3,42 @@ body {
     /* so touch gestures are not canceled on mobile */
     touch-action: none;
     font-family: VT323, monospace;
+    transform-origin: top left;
+    width: var(--map-width);
+    overflow: hidden;
+}
+.live {
+    width: var(--standard-tile-size);
+    height: var(--standard-tile-size);
 }
 #content {
     display: inline-block;
-    /* scale is set by RenderedLevel */
-    transform: scale(1);
-    transform-origin: top left;
+    position: relative;
+    overflow: hidden;
+}
+#status {
+    display: flex;
+}
+#lives {
+    display: flex;
+    flex-grow: 1;
+}
+#mapname {
+    flex-grow: 1;
+}
+#progress {
+    display: inline-block;
+    flex-grow: 1;
+}
+#info {
+    flex-grow: 0;
+    border: 1px solid black;
+    border-radius: 50%;
+    width: var(--standard-tile-size);
+    height: var(--standard-tile-size);
+    line-height: var(--standard-tile-size);
+    text-align: center;
+    display: none;
 }
 .map {
     position: relative;

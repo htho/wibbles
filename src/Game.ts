@@ -80,7 +80,7 @@ export class Game {
 
     private async _runRound(): Promise<RoundResult> {
         console.log(`createRound()`);
-        const round = this._roundFactory.createRound(this._currentLevel, this._currentTileset);
+        const round = this._roundFactory.createRound(this._currentLevel, this._currentTileset, this._lives);
         const roundResult = await round.start();
         console.log(`round over`, RoundResult[roundResult]);
         round.dispose();

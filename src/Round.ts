@@ -12,9 +12,9 @@ export class RoundFactory {
     constructor(page: Page) {
         this.page = page;
     }
-    createRound(level: Level, tileset: Tileset): Round {
+    createRound(level: Level, tileset: Tileset, lives: {left: number, amount: number}): Round {
         const styleContainer: StyleContainer = this.page;
-        const renderedLevel = new RenderedLevel(level, tileset, this.page.content, styleContainer);
+        const renderedLevel = new RenderedLevel(level, tileset, this.page.root, this.page.content, styleContainer);
         const wormRadius = renderedLevel.tilesize/4;
         const targetPositioner = new TargetPositioner(renderedLevel, wormRadius);
         const worm = new WormHead(renderedLevel.startPos, level.startDirection, this.page.worm, wormRadius, 10, styleContainer);
@@ -24,6 +24,7 @@ export class RoundFactory {
             targetPositioner,
             worm,
             page: this.page,
+            lives,
         });
     }
 }
@@ -194,12 +195,16 @@ export class Round implements IDisposable {
     public highSpeed = false;
     private _isPaused = false;
     private _currentTarget: Target | undefined;
-    constructor({ level, targetPositioner, worm, page, tilesPerSecond=1 }: { level: RenderedLevel; targetPositioner: TargetPositioner; worm: WormHead; page: Page; tilesPerSecond?: number}) {
+    constructor({ level, targetPositioner, worm, page, tilesPerSecond=1, lives }: { level: RenderedLevel; targetPositioner: TargetPositioner; worm: WormHead; page: Page; tilesPerSecond?: number, lives: {left: number, amount: number}}) {
         console.log(`new Round`);
         this.level = level;
         this.targetPositioner = targetPositioner;
         this.worm = worm;
         this.page = page;
+
+        this.page.setLives(lives.left, lives.amount);
+        this.page.setProgress(0, this.level.level.targets);
+        this.page.setMapname(this.level.level.meta.name);
 
         this._input = new UserInput();
         this._input.onChangeDir = (dir: Direction) => this.worm.changeDir(dir);
@@ -277,6 +282,10 @@ export class Round implements IDisposable {
             } else if(this._collidesWithTarget()) {
                 console.log("HIT TARGET!");
                 targetsLeft--;
+                this.page.setProgress(
+                    this.level.level.targets - targetsLeft,
+                    this.level.level.targets
+                );
                 this._cleanTarget();
                 this._growWorm();
                 this._increseSpeed();

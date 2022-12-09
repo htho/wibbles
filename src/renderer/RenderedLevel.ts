@@ -20,8 +20,8 @@ export class RenderedLevel<W extends number = number, H extends number = number>
     readonly tilesize: number;
     readonly dimensions: Dimensions;
 
-    constructor(level: Level<W, H>, tileset: Tileset, container: HTMLElement, styleContainer: StyleContainer) {
-        console.log("new RenderedLevel", {level, tileset, container, styleContainer});
+    constructor(level: Level<W, H>, tileset: Tileset, root: HTMLElement, container: HTMLElement, styleContainer: StyleContainer) {
+        console.log("new RenderedLevel", {level, tileset, root, container, styleContainer});
         this.level = level;
         this.tileset = tileset;
         this.container = container;
@@ -57,13 +57,15 @@ export class RenderedLevel<W extends number = number, H extends number = number>
         this.tileset.spriteIndex.spritesets.forEach(spriteset => this.styleContainer.addStyle(spriteset.meta.name, spriteset.cssStyle));
         this.container.insertAdjacentElement("afterbegin", this.element);
         this.styleContainer.addStyle("standard-tile-size", this._createStandardTileSizeCssProperty());
-
-        this._scaleToFitNicely();
+        this.styleContainer.addStyle("map-width", this._createMapWidthCssProperty());
+        
+        root.style.scale = `${this._calcScaleToFitNicely()}`;
     }
     dispose(): void {
         console.log("dispose RenderedLevel...");
         this._isDisposed = true;
-
+        
+        this.styleContainer.removeStyle("map-width");
         this.styleContainer.removeStyle("standard-tile-size");
         this.container.removeChild(this.element);
         this.tileset.spriteIndex.spritesets.forEach(spriteset => this.styleContainer.removeStyle(spriteset.meta.name));
@@ -80,11 +82,14 @@ export class RenderedLevel<W extends number = number, H extends number = number>
      * But make sure the tile size is a while number.
      * This way rendering is not screwed up on mobile.
      */
-    private _scaleToFitNicely() {
-        const factorX = this._calcBestScale(window.innerWidth, this.container.clientWidth, this.tilesize);
-        const factorY = this._calcBestScale(window.innerHeight, this.container.clientHeight, this.tilesize);
+    private _calcScaleToFitNicely() {
+        const availableWidth = window.innerWidth;
+        const factorX = this._calcBestScale(availableWidth, this.container.clientWidth, this.tilesize);
+        const statusBarHeight = this.tilesize;
+        const availableHeight = window.innerWidth - statusBarHeight;
+        const factorY = this._calcBestScale(availableHeight, this.container.clientHeight, this.tilesize);
         const factor = Math.min(factorX, factorY);
-        this.container.style.scale = `${factor}`;
+        return factor;
     }
     private _calcBestScale(screenSize: number, elementSize: number, tileSize: number): number {
         const theoreticalTileSpace = Math.trunc(screenSize/tileSize) * tileSize;
@@ -103,6 +108,13 @@ export class RenderedLevel<W extends number = number, H extends number = number>
         return `
             :root {
                 --standard-tile-size: ${this.tilesize}px;
+            }
+        `;
+    }
+    private _createMapWidthCssProperty(): string {
+        return `
+            :root {
+                --map-width: ${this.dimensions.width}px;
             }
         `;
     }
