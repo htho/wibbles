@@ -1,13 +1,14 @@
 {
     "$schema": "../../schema/game.json",
     "meta": {
-        "name": "foo",
-        "author": "bar",
+        "name": "Wibbles Demo",
+        "author": "htho",
         "version": 1
     },
     "initialLives": 5,
     "level": [
         {"name": "empty", "tileset": "basic"},
-        {"name": "treeTrunk", "tileset": "basic"}
+        {"name": "treeTrunk", "tileset": "basic"},
+        {"name": "exhausive", "tileset": "basic"}
     ]
 }
