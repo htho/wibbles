@@ -1,11 +1,11 @@
 {
     "$schema": "../../schema/level.json",
     "meta": {
-        "name": "foo",
-        "author": "bar",
+        "name": "Welcome!",
+        "author": "htho",
         "version": 1
     },
-    "targets": 3,
+    "targets": 10,
     "width": 16,
     "height": 16,
     "startDir": "N",
