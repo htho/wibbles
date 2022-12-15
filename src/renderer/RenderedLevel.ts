@@ -86,8 +86,8 @@ export class RenderedLevel<W extends number = number, H extends number = number>
         const availableWidth = window.innerWidth;
         const factorX = this._calcBestScale(availableWidth, this.container.clientWidth, this.tilesize);
         const statusBarHeight = this.tilesize;
-        const availableHeight = window.innerWidth - statusBarHeight;
-        const factorY = this._calcBestScale(availableHeight, this.container.clientHeight, this.tilesize);
+        const availableHeight = window.innerHeight;
+        const factorY = this._calcBestScale(availableHeight, this.container.clientHeight + statusBarHeight, this.tilesize);
         const factor = Math.min(factorX, factorY);
         return factor;
     }
