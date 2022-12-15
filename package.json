@@ -19,7 +19,7 @@
     "serve": "http-server -c-1 ./dist/",
     "watch": "chokidar \"**/*\" \"!dist/**/*\" -c \"npm run build\"",
     "lint": "eslint .",
-    "download-font": "goog-webfont-dl --woff2 --destination dist/fonts/VT323 --subset latin --out dist/font.css VT323"
+    "download-font": "goog-webfont-dl --woff2 --destination dist/fonts/ --subset latin --out dist/font.css --prefix fonts/ VT323"
   },
   "author": "htho@thorenz.net",
   "license": "AGPL-3.0-or-later",
